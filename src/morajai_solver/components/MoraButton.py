@@ -16,14 +16,16 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
     def _get_init_parameters(self) -> dict:
         pass
 
-    def __init__(self, master):
+    def __init__(self, master, row: int, column: int):
         super().__init__(master, **self._get_init_parameters())
         self._logger = get_logger(DEBUG, __name__)
+        self.row = row
+        self.column = column
         self.color_index = 0
         self._current_mode = "config"
 
-        dispatcher = EventDispatcher()
-        dispatcher.subscribe("mode_changed", self._on_mode_changed)
+        self.dispatcher = EventDispatcher()
+        self.dispatcher.subscribe("mode_changed", self._on_mode_changed)
 
         self.configure(command=self._on_click)
 
@@ -41,7 +43,7 @@ class MoraButton(AbstractMoraButton):
         if self._current_mode == 'config':
             super()._on_click()
         else:
-            self._logger.info(f"Mode PLAY : INCOMING")
+            self.dispatcher.emit("tile_clicked", row=self.row, column=self.column)
 
     def _get_init_parameters(self) -> dict:
         return {

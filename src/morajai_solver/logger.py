@@ -21,7 +21,7 @@ class ColorFormatter(logging.Formatter):
         # formatters pre-instancing
         self.formatters = {
             level: logging.Formatter(
-                f"%(asctime)s | {color}%(levelname)-8s{self.RESET} | %(name)-30s | %(message)s",
+                f"{color}%(levelname)-8s{self.RESET} | %(name)-25s | %(message)s",
                 datefmt="%H:%M:%S"
             )
             for level, color in {
@@ -34,7 +34,7 @@ class ColorFormatter(logging.Formatter):
         }
         # default formatter
         self.default_formatter = logging.Formatter(
-            "%(asctime)s | %(levelname)-8s | %(message)s", 
+            "%(levelname)-8s | %(name)-25s | %(message)s", 
             datefmt="%H:%M:%S"
         )
 
@@ -56,6 +56,9 @@ def get_logger(logger_level=logging.INFO, name=None):
         Désactive automatiquement les couleurs si la sortie standard
         n'est pas un terminal.
     """
+    if name and '.' in name:
+        name = name.split('.', 1)[1]
+
     if name is None:
         logger = logging.getLogger()
     else:
@@ -70,7 +73,7 @@ def get_logger(logger_level=logging.INFO, name=None):
         handler.setFormatter(ColorFormatter())
     else:
         # Format simple sans codes ANSI pour les fichiers .log
-        plain_fmt = logging.Formatter("%(asctime)s | %(levelname)-8s | %(message)s")
+        plain_fmt = logging.Formatter("%(levelname)-8s | %(name)-25s | %(message)s")
         handler.setFormatter(plain_fmt)
 
     logging.basicConfig(

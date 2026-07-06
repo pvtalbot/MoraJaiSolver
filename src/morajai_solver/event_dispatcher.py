@@ -24,9 +24,9 @@ class EventDispatcher(metaclass=SingletonMeta):
         logger.debug(f"Nouvel abonnement à l'événement : {event_type}")
 
     def emit(self, event_type: str, *args, **kwargs):
+        logger.debug(f"Événement {event_type} émis, payload: {args}, {kwargs}")
         if event_type not in self._listeners:
             return
 
-        logger.debug(f"Événement {event_type} émis")
         for callback in self._listeners[event_type]:
             callback(*args, **kwargs)
