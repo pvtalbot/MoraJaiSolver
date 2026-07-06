@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from morajai_solver.event_dispatcher import EventDispatcher
 from morajai_solver.logger import get_logger
 from logging import DEBUG
 import customtkinter as ctk
@@ -17,17 +18,31 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
 
     def __init__(self, master):
         super().__init__(master, **self._get_init_parameters())
-
         self._logger = get_logger(DEBUG, __name__)
         self.color_index = 0
+        self._current_mode = "config"
+
+        dispatcher = EventDispatcher()
+        dispatcher.subscribe("mode_changed", self._on_mode_changed)
+
         self.configure(command=self._on_click)
 
+    def _on_mode_changed(self, new_mode: str):
+        self._current_mode = new_mode
+
+    @abstractmethod
     def _on_click(self):
         self.color_index = (self.color_index + 1) % len(COLORS)
         new_color = COLORS[self.color_index]
         self.configure(fg_color=new_color, hover_color=new_color)
 
 class MoraButton(AbstractMoraButton):
+    def _on_click(self):
+        if self._current_mode == 'config':
+            super()._on_click()
+        else:
+            self._logger.info(f"Mode PLAY : INCOMING")
+
     def _get_init_parameters(self) -> dict:
         return {
             "text": "",
@@ -39,6 +54,12 @@ class MoraButton(AbstractMoraButton):
         }
 
 class MoraTargetButton(AbstractMoraButton):
+    def _on_click(self):
+        if self._current_mode == 'config':
+            super()._on_click()
+        else:
+            self._logger.warning(f"Ne peut pas être modifié en mode PLAY")
+
     def _get_init_parameters(self) -> dict:
         return {
             "text": "",

@@ -1,5 +1,7 @@
 import customtkinter as ctk
 from itertools import product
+
+from morajai_solver.event_dispatcher import EventDispatcher
 from .components.MoraButton import MoraButton, MoraTargetButton
 
 def fade_out(app, alpha=1.0):
@@ -16,21 +18,29 @@ def main():
 
     app = ctk.CTk()
     app.title('Mora Jai Box Solver')
-    app.geometry('520x620')
+    app.geometry('780x620')
 
     title = ctk.CTkLabel(
         app,
         text='Mora Jai Box Solver',
         font=('Arial', 20, 'bold')
     )
-    title.pack(pady=20)
+    title.pack(pady=15)
+
+    main_container = ctk.CTkFrame(app, fg_color="transparent")
+    main_container.pack(fill="both", expand=True, padx=15, pady=5)
+    main_container.grid_columnconfigure(0, weight=1)
+    main_container.grid_columnconfigure(1, weight=1)
+
+    left_area = ctk.CTkFrame(main_container, fg_color="transparent")
+    left_area.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
     outer_frame = ctk.CTkFrame(
-        app,
+        left_area,
         fg_color = "#1E1E1E",
         corner_radius=10
     )
-    outer_frame.pack(pady=10, padx=10)
+    outer_frame.pack(anchor="center", padx=10)
 
     grid_frame = ctk.CTkFrame(
         outer_frame,
@@ -55,6 +65,40 @@ def main():
     for target_pos in CORNER_TARGETS:
         target = MoraTargetButton(grid_frame)
         target.grid(**target_pos)
+
+    control_panel = ctk.CTkFrame(main_container, fg_color="#1E1E1E", corner_radius=10)
+    control_panel.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+
+    panel_title = ctk.CTkLabel(
+        control_panel,
+        text="Controls & Logs",
+        font=('Arial', 14, 'bold')
+    )
+    panel_title.pack(pady=10)
+
+    mode_label = ctk.CTkLabel(control_panel, text="Application Mode :", font=('Arial', 11))
+    mode_label.pack(anchor='w', padx=20, pady=(5, 2))
+
+    def on_mode_change(value):
+        dispatcher = EventDispatcher()
+        dispatcher.emit('mode_changed', new_mode=value.lower())
+
+    mode_selector = ctk.CTkSegmentedButton(
+        control_panel,
+        values=['Config', 'Play'],
+        font=('Arial', 12, 'bold'),
+        command=on_mode_change
+    )
+    mode_selector.pack(padx=20, pady=(0, 15), fill='x')
+    mode_selector.set('Config')
+
+    solve_button = ctk.CTkButton(
+        control_panel,
+        text="Solve",
+        fg_color="#2E7D32",
+        hover_color="#1B5E20"
+    )
+    solve_button.pack(pady=10, padx=20, fill="x")
 
     quit_button = ctk.CTkButton(
         app,
