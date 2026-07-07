@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import IntEnum
 from morajai_solver.event_dispatcher import EventDispatcher
-from morajai_solver.logger import get_logger
-from logging import DEBUG, Logger
 import customtkinter as ctk
 
 class MoraColor(IntEnum):
@@ -31,7 +29,6 @@ COLOR_HEX_MAP = {
 }
 
 class AbstractMoraButton(ctk.CTkButton, ABC):
-    _logger: Logger
     r: int
     c: int
     current_color: MoraColor
@@ -45,13 +42,11 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
     def __init__(self, master, r: int, c: int):
         super().__init__(master, **self._get_init_parameters())
 
-        self._logger = get_logger(DEBUG, __name__)
         self.r = r
         self.c = c
 
         self.dispatcher = EventDispatcher()
         self.dispatcher.subscribe("mode_changed", self._on_mode_changed)
-        self.dispatcher.subscribe("update_tile_color", self._on_tile_color_update)
 
         self._set_color(MoraColor.GREY)
         self._current_mode = "config"
@@ -74,14 +69,27 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
 
         self._set_color(color)
 
-    def _set_color(self, new_color):
+    def _set_color(self, new_color, emit_event=True):
         self.current_color = MoraColor(new_color)
         new_hex = COLOR_HEX_MAP[self.current_color]
         self.configure(fg_color=new_hex, hover_color=new_hex)
-        self.dispatcher.emit('tile_color_changed', r=self.r, c=self.c, color=self.current_color)
 
+        if emit_event:
+            self.dispatcher.emit('tile_color_changed', r=self.r, c=self.c, color=self.current_color)
 
 class MoraButton(AbstractMoraButton):
+    def __init__(self, master, r: int, c: int):
+        super().__init__(master, r, c)
+        self.dispatcher.subscribe("board_updated", self._on_board_updated)
+
+    def _on_board_updated(self, board_state: dict):
+        new_color = board_state.get((self.r, self.c))
+
+        if new_color is None or new_color == self.current_color:
+            return
+
+        self._set_color(new_color, emit_event=False)
+
     def _on_click(self):
         if self._current_mode == 'config':
             super()._on_click()
@@ -102,8 +110,6 @@ class MoraTargetButton(AbstractMoraButton):
     def _on_click(self):
         if self._current_mode == 'config':
             super()._on_click()
-        else:
-            self._logger.warning(f"Ne peut pas être modifié en mode PLAY")
 
     def _get_init_parameters(self) -> dict:
         return {

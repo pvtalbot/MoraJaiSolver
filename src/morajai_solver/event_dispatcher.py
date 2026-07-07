@@ -1,7 +1,7 @@
 from morajai_solver.logger import get_logger
-from logging import DEBUG
+from logging import DEBUG, WARNING
 
-logger = get_logger(DEBUG, __name__)
+logger = get_logger(WARNING, __name__)
 
 class SingletonMeta(type):
     _instances = {}
