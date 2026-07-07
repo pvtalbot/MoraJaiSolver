@@ -2,6 +2,7 @@ import customtkinter as ctk
 
 from morajai_solver.views.BoardView import BoardView
 from morajai_solver.views.ControlPanelView import ControlPanelView
+from morajai_solver.core.game_engine import GameEngine
 
 def fade_out(app, alpha=1.0):
     if alpha > 0.0:
@@ -12,6 +13,8 @@ def fade_out(app, alpha=1.0):
         app.destroy()
 
 def main():
+    engine = GameEngine()
+
     ctk.set_appearance_mode('dark')
     ctk.set_default_color_theme('blue')
 

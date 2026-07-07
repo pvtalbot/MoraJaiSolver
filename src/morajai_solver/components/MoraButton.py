@@ -32,8 +32,8 @@ COLOR_HEX_MAP = {
 
 class AbstractMoraButton(ctk.CTkButton, ABC):
     _logger: Logger
-    row: int
-    column: int
+    r: int
+    c: int
     current_color: MoraColor
     _current_mode: str
     dispatcher: EventDispatcher
@@ -42,18 +42,19 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
     def _get_init_parameters(self) -> dict:
         pass
 
-    def __init__(self, master, row: int, column: int):
+    def __init__(self, master, r: int, c: int):
         super().__init__(master, **self._get_init_parameters())
 
         self._logger = get_logger(DEBUG, __name__)
-        self.row = row
-        self.column = column
-
-        self._set_color(MoraColor.GREY)
-        self._current_mode = "config"
+        self.r = r
+        self.c = c
 
         self.dispatcher = EventDispatcher()
         self.dispatcher.subscribe("mode_changed", self._on_mode_changed)
+        self.dispatcher.subscribe("update_tile_color", self._on_tile_color_update)
+
+        self._set_color(MoraColor.GREY)
+        self._current_mode = "config"
 
         self.configure(command=self._on_click)
 
@@ -65,10 +66,19 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
         new_color = (self.current_color + 1) % len(MoraColor)
         self._set_color(new_color)
 
+    def _on_tile_color_update(self, r: int, c: int, color: MoraColor):
+        if (self.r, self.c) != (r, c):
+            return
+        if color == self.current_color:
+            return
+
+        self._set_color(color)
+
     def _set_color(self, new_color):
         self.current_color = MoraColor(new_color)
         new_hex = COLOR_HEX_MAP[self.current_color]
         self.configure(fg_color=new_hex, hover_color=new_hex)
+        self.dispatcher.emit('tile_color_changed', r=self.r, c=self.c, color=self.current_color)
 
 
 class MoraButton(AbstractMoraButton):
@@ -76,7 +86,7 @@ class MoraButton(AbstractMoraButton):
         if self._current_mode == 'config':
             super()._on_click()
         else:
-            self.dispatcher.emit("tile_clicked", row=self.row, column=self.column, color=self.current_color)
+            self.dispatcher.emit("tile_clicked", r=self.r, c=self.c, color=self.current_color)
 
     def _get_init_parameters(self) -> dict:
         return {
