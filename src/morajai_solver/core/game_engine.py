@@ -16,20 +16,13 @@ class GameEngine(metaclass=SingletonMeta):
         self.dispatcher.subscribe('tile_color_changed', self._on_tile_color_changed)
         self.dispatcher.subscribe('randomize_board', self._on_randomize_board)
 
-        self._strategies = {
-            MoraColor.YELLOW: YellowStrategy(),
-            MoraColor.PURPLE: PurpleStrategy(),
-            MoraColor.BLACK: BlackStrategy(),
-            MoraColor.GREEN: GreenStrategy(),
-        }
-
         logger.debug('Moteur de jeu initialisé.')
 
     def _on_tile_color_changed(self, r: int, c: int, color: MoraColor):
         self.board_state[(r, c)] = color
 
     def _on_tile_clicked(self, r: int, c: int, color: MoraColor):
-        strategy = self._strategies.get(color)
+        strategy = STRATEGY_MAP.get(color)
 
         if not strategy:
             logger.warning("Aucune stratégie trouvée")

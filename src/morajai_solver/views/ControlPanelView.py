@@ -17,6 +17,7 @@ class ControlPanelView(ctk.CTkFrame):
             values=["Config", "Play"],
             font=('Arial', 12, 'bold'),
             fg_color="#3A3A3A",
+            unselected_color="#3A3A3A",
             selected_color="#1E88E5",
             selected_hover_color="#1565C0",
             unselected_hover_color="#4A4A4A",
