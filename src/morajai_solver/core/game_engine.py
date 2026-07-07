@@ -1,3 +1,4 @@
+import random
 from morajai_solver.event_dispatcher import EventDispatcher, SingletonMeta
 from morajai_solver.components.MoraButton import MoraColor
 from morajai_solver.logger import get_logger
@@ -13,11 +14,13 @@ class GameEngine(metaclass=SingletonMeta):
         self.board_state = {}
         self.dispatcher.subscribe('tile_clicked', self._on_tile_clicked)
         self.dispatcher.subscribe('tile_color_changed', self._on_tile_color_changed)
+        self.dispatcher.subscribe('randomize_board', self._on_randomize_board)
 
         self._strategies = {
             MoraColor.YELLOW: YellowStrategy(),
             MoraColor.PURPLE: PurpleStrategy(),
             MoraColor.BLACK: BlackStrategy(),
+            MoraColor.GREEN: GreenStrategy(),
         }
 
         logger.debug('Moteur de jeu initialisé.')
@@ -33,3 +36,13 @@ class GameEngine(metaclass=SingletonMeta):
             return
 
         strategy.execute(r, c, self.board_state, self.dispatcher)
+
+    def _on_randomize_board(self):
+        available_colors = list(MoraColor)
+
+        for r in range(1, 4):
+            for c in range(1, 4):
+                random_color = random.choice(available_colors)
+                self.board_state[(r, c)] = random_color
+
+        self.dispatcher.emit('board_updated', board_state=self.board_state)

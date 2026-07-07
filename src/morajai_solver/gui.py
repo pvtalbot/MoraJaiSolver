@@ -20,7 +20,7 @@ def main():
 
     app = ctk.CTk()
     app.title('Mora Jai Box Solver')
-    app.geometry('780x620')
+    app.geometry('780x680')
 
     title = ctk.CTkLabel(
         app,
@@ -28,6 +28,15 @@ def main():
         font=('Arial', 20, 'bold')
     )
     title.pack(pady=15)
+
+    quit_button = ctk.CTkButton(
+        app,
+        text="Quit",
+        fg_color="#D32F2F",
+        hover_color="#B71C1C",
+        command=lambda: fade_out(app)
+    )
+    quit_button.pack(side='bottom', pady=20)
 
     main_container = ctk.CTkFrame(app, fg_color="transparent")
     main_container.pack(fill="both", expand=True, padx=15, pady=5)
@@ -40,14 +49,6 @@ def main():
     control_panel = ControlPanelView(main_container)
     control_panel.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
-    quit_button = ctk.CTkButton(
-        app,
-        text="Quit",
-        fg_color="#D32F2F",
-        hover_color="#B71C1C",
-        command=lambda: fade_out(app)
-    )
-    quit_button.pack(pady=30)
 
     app.mainloop()
 

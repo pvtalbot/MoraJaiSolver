@@ -51,3 +51,16 @@ class BlackStrategy(MovementStrategy):
 
         super().execute(r, c, board_state, dispatcher)
 
+class GreenStrategy(MovementStrategy):
+    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher) -> None:
+        if (r, c) == (2, 2):
+            return
+        opposite_r, opposite_c = 4-r, 4-c
+        if (opposite_r, opposite_c) not in board_state:
+            return
+        opposite_color = board_state[(opposite_r, opposite_c)]
+
+        board_state[(opposite_r, opposite_c)] = MoraColor.GREEN
+        board_state[(r, c)] = opposite_color
+
+        super().execute(r, c, board_state, dispatcher)
