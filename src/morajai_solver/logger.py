@@ -40,29 +40,23 @@ class ColorFormatter(logging.Formatter):
 
     def format(self, record):
         """Sélectionne le formateur en fonction du niveau du message"""
+        if record.name and '.' in record.name:
+            record.name = record.name.split('.', 1)[1]
         return self.formatters.get(record.levelno, self.default_formatter).format(record)
 
-def get_logger(logger_level=logging.INFO, name=None):
+def configure_logging(logger_level=logging.INFO):
     """
     Configure le logger racine de l'application.
 
     Args:
         logger_level (int): Niveau de log minimum souhaité (INFO par défaut)
 
-    Returns:
-        logging.Logger: l'instance du logger configurée
-
     Note:
         Désactive automatiquement les couleurs si la sortie standard
         n'est pas un terminal.
     """
-    if name and '.' in name:
-        name = name.split('.', 1)[1]
+    logger = logging.getLogger()
 
-    if name is None:
-        logger = logging.getLogger()
-    else:
-        logger = logging.getLogger(name)
     # basic config does nothing if the logger already has handlers
     if logger.hasHandlers():
         logger.handlers.clear()

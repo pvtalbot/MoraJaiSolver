@@ -1,10 +1,12 @@
 import customtkinter as ctk
+import logging
 from morajai_solver.event_dispatcher import EventDispatcher
 
 class ControlPanelView(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, fg_color="#1E1E1E", corner_radius=10, **kwargs)
         self.dispatcher = EventDispatcher()
+        self.logger = logging.getLogger(__name__)
         
         panel_title = ctk.CTkLabel(self, text="Controls & Logs", font=('Arial', 14, 'bold'))
         panel_title.pack(pady=10)
@@ -60,6 +62,7 @@ class ControlPanelView(ctk.CTkFrame):
 
     def _on_mode_change(self, value: str):
         self.dispatcher.emit("mode_changed", new_mode=value.lower())
+        self.logger.info(f"Nouveau mode : {value}")
 
         if value.lower() == 'play':
             self.random_button.configure(state='disabled', fg_color="#202020")

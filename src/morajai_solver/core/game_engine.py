@@ -1,11 +1,9 @@
-import random
+import random, logging
 from morajai_solver.event_dispatcher import EventDispatcher, SingletonMeta
 from morajai_solver.components.MoraButton import MoraColor
-from morajai_solver.logger import get_logger
 from morajai_solver.core.movement_strategies import *
-from logging import DEBUG, WARNING
 
-logger = get_logger(WARNING, __name__)
+logger = logging.getLogger(__name__)
 
 class GameEngine(metaclass=SingletonMeta):
     def __init__(self):

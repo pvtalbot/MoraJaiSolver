@@ -2,6 +2,9 @@ from abc import ABC, abstractmethod
 from enum import IntEnum
 from morajai_solver.event_dispatcher import EventDispatcher
 import customtkinter as ctk
+import logging
+
+logger = logging.getLogger(__name__)
 
 class MoraColor(IntEnum):
     GREY = 0
@@ -110,6 +113,8 @@ class MoraTargetButton(AbstractMoraButton):
     def _on_click(self):
         if self._current_mode == 'config':
             super()._on_click()
+        else:
+            logger.info("Non disponible en mode play")
 
     def _get_init_parameters(self) -> dict:
         return {
