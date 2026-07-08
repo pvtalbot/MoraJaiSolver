@@ -1,6 +1,4 @@
 from abc import ABC, abstractmethod
-from enum import IntEnum
-from morajai_solver.components.MoraColorPicker import MoraColorPicker
 from morajai_solver.event_dispatcher import EventDispatcher
 import customtkinter as ctk
 import logging
@@ -10,14 +8,14 @@ from morajai_solver.models.MoraColor import MoraColor
 
 logger = logging.getLogger(__name__)
 
-
-
 class AbstractMoraButton(ctk.CTkButton, ABC):
     r: int
     c: int
     current_color: MoraColor
     _current_mode: str
     dispatcher: EventDispatcher
+
+    _selected_brush_color: MoraColor = MoraColor.GREY
 
     @abstractmethod
     def _get_init_parameters(self) -> dict:
@@ -40,9 +38,13 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
     def _on_mode_changed(self, new_mode: str):
         self._current_mode = new_mode
 
+    @classmethod
+    def set_brush_color(cls, color: MoraColor):
+        cls._selected_brush_color = color
+
     @abstractmethod
     def _on_click(self):
-        MoraColorPicker(self.winfo_toplevel(), self._set_color)
+        self._set_color(AbstractMoraButton._selected_brush_color)
 
     @abstractmethod
     def _get_event_name_when_color_changed(self) -> str :

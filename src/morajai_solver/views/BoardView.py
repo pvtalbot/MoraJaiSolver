@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from itertools import product
+from morajai_solver.components.ColorPalette import ColorPalette
 from morajai_solver.components.MoraButton import MoraButton, MoraTargetButton
 
 class BoardView(ctk.CTkFrame):
@@ -28,3 +29,6 @@ class BoardView(ctk.CTkFrame):
         for target_pos in CORNER_TARGETS:
             target = MoraTargetButton(grid_frame, target_pos["row"], target_pos["column"])
             target.grid(**target_pos)
+
+        palette = ColorPalette(outer_frame)
+        palette.pack(fill='x', padx=15, pady=(0, 15))
