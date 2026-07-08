@@ -64,6 +64,10 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
         new_color = (self.current_color + 1) % len(MoraColor)
         self._set_color(new_color)
 
+    @abstractmethod
+    def _get_event_name_when_color_changed(self) -> str :
+        pass
+
     def _on_tile_color_update(self, r: int, c: int, color: MoraColor):
         if (self.r, self.c) != (r, c):
             return
@@ -78,7 +82,7 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
         self.configure(fg_color=new_hex, hover_color=new_hex)
 
         if emit_event:
-            self.dispatcher.emit('tile_color_changed', r=self.r, c=self.c, color=self.current_color)
+            self.dispatcher.emit(self._get_event_name_when_color_changed(), r=self.r, c=self.c, color=self.current_color)
 
 class MoraButton(AbstractMoraButton):
     def __init__(self, master, r: int, c: int):
@@ -99,6 +103,9 @@ class MoraButton(AbstractMoraButton):
         else:
             self.dispatcher.emit("tile_clicked", r=self.r, c=self.c, color=self.current_color)
 
+    def _get_event_name_when_color_changed(self):
+        return 'tile_color_changed'
+
     def _get_init_parameters(self) -> dict:
         return {
             "text": "",
@@ -115,6 +122,9 @@ class MoraTargetButton(AbstractMoraButton):
             super()._on_click()
         else:
             logger.info("Non disponible en mode play")
+
+    def _get_event_name_when_color_changed(self):
+        return 'target_color_changed'
 
     def _get_init_parameters(self) -> dict:
         return {
