@@ -17,7 +17,22 @@ class GameEngine(metaclass=SingletonMeta):
         self.dispatcher.subscribe('target_color_changed', self._on_target_color_changed)
         self.dispatcher.subscribe('randomize_board', self._on_randomize_board)
 
+        self.dispatcher.subscribe('mode_changed', self._on_mode_changed)
+        self.dispatcher.subscribe('reset_save', self._on_reset_save)
+
         logger.debug('Moteur de jeu initialisé.')
+
+    def _on_mode_changed(self, new_mode: str):
+        if new_mode.lower() != 'play':
+            return
+        self.saved_board_state = self.board_state.copy()
+
+    def _on_reset_save(self):
+        if not self.saved_board_state:
+            return
+
+        self.board_state = self.saved_board_state.copy()
+        self.dispatcher.emit('board_updated', board_state=self.board_state)
 
     def _on_tile_color_changed(self, r: int, c: int, color: MoraColor):
         self.board_state[(r, c)] = color

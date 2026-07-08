@@ -47,9 +47,6 @@ class ControlPanelView(ctk.CTkFrame):
         )
         solve_button.pack(pady=10, padx=20, fill="x")
 
-        log_label = ctk.CTkLabel(self, text="Console output :", font=('Arial', 11))
-        log_label.pack(anchor="w", padx=20, pady=(10, 2))
-        
         self.log_box = ctk.CTkTextbox(
             self, 
             height=220, 
@@ -88,12 +85,19 @@ class ControlPanelView(ctk.CTkFrame):
         self.logger.info(f"Nouveau mode : {value}")
 
         if value.lower() == 'play':
-            self.random_button.configure(state='disabled', fg_color="#202020")
+            self.random_button.configure(
+                text="Reset",
+            )
         else:
-            self.random_button.configure(state='normal', fg_color="#3A3A3A")
+            self.random_button.configure(
+                text="Randomize",
+            )
 
     def _on_random_click(self):
-        self.dispatcher.emit('randomize_board')
+        if self.mode_selector.get().lower() == 'play':
+            self.dispatcher.emit('reset_save')
+        else:
+            self.dispatcher.emit('randomize_board')
 
     def _on_victory_achieved(self):
         self._append_log("VICTOIRE !")
