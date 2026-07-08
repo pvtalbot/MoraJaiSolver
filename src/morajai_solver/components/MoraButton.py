@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from morajai_solver.event_dispatcher import EventDispatcher
 import customtkinter as ctk
 import logging
 
+from morajai_solver.event_dispatcher import EventDispatcher
 from morajai_solver.models.ColorHexMap import COLOR_HEX_MAP, UITheme
 from morajai_solver.models.MoraColor import MoraColor
 from morajai_solver.models.MoraEvent import MoraEvent

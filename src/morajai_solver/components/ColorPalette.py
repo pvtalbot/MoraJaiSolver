@@ -1,5 +1,3 @@
-from typing import Any, Tuple
-
 import customtkinter as ctk
 
 from morajai_solver.event_dispatcher import EventDispatcher

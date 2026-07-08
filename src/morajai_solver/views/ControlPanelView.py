@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import logging
+
 from morajai_solver.core.solver import MoraSolver
 from morajai_solver.event_dispatcher import EventDispatcher
 from morajai_solver.models.ColorHexMap import UITheme

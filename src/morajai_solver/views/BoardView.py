@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from itertools import product
+
 from morajai_solver.components.ColorPalette import ColorPalette
 from morajai_solver.components.MoraButton import MoraButton, MoraTargetButton
 from morajai_solver.models.ColorHexMap import UITheme
