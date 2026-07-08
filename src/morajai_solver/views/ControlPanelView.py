@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import logging
+from morajai_solver.core.solver import MoraSolver
 from morajai_solver.event_dispatcher import EventDispatcher
 
 class ControlPanelView(ctk.CTkFrame):
@@ -42,7 +43,7 @@ class ControlPanelView(ctk.CTkFrame):
             text="Solve Box",
             fg_color="#2E7D32",
             hover_color="#1B5E20",
-            command=lambda: print("Calcul de la solution...") 
+            command=self._on_solve
         )
         solve_button.pack(pady=10, padx=20, fill="x")
 
@@ -61,6 +62,18 @@ class ControlPanelView(ctk.CTkFrame):
         self.log_box.configure(state="disabled")
 
         self.dispatcher.subscribe('victory_achieved', self._on_victory_achieved)
+
+        self.solver = MoraSolver()
+
+    def _on_solve(self):
+        result = self.solver.solve()
+
+        if result is None:
+            self._append_log("Aucune solution possible")
+        elif len(result) == 0:
+            self._append_log("La grille est déjà résolue !")
+        else:
+            self._append_log(f"Solution trouvée en {len(result)} coups")
 
     def _on_mode_change(self, value: str):
         self.dispatcher.emit("mode_changed", new_mode=value.lower())

@@ -5,11 +5,12 @@ from morajai_solver.event_dispatcher import EventDispatcher
 
 class MovementStrategy(ABC):
     @abstractmethod
-    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher) -> None:
-        dispatcher.emit('board_updated', board_state=board_state)
+    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher|None = None) -> None:
+        if dispatcher:
+            dispatcher.emit('board_updated', board_state=board_state)
 
 class YellowStrategy(MovementStrategy):
-    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher) -> None:
+    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher|None = None) -> None:
         other_row = r - 1
         other_col = c
 
@@ -25,7 +26,7 @@ class YellowStrategy(MovementStrategy):
         super().execute(r, c, board_state, dispatcher)
 
 class PurpleStrategy(MovementStrategy):
-    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher) -> None:
+    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher|None = None) -> None:
         other_row = r + 1
         other_col = c
 
@@ -41,7 +42,7 @@ class PurpleStrategy(MovementStrategy):
         super().execute(r, c, board_state, dispatcher)
 
 class BlackStrategy(MovementStrategy):
-    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher) -> None:
+    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher|None = None) -> None:
         color_c1 = board_state.get((r, 1))
         color_c2 = board_state.get((r, 2))
         color_c3 = board_state.get((r, 3))
@@ -53,7 +54,7 @@ class BlackStrategy(MovementStrategy):
         super().execute(r, c, board_state, dispatcher)
 
 class GreenStrategy(MovementStrategy):
-    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher) -> None:
+    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher|None = None) -> None:
         if (r, c) == (2, 2):
             return
         opposite_r, opposite_c = 4-r, 4-c
@@ -69,7 +70,7 @@ class GreenStrategy(MovementStrategy):
         super().execute(r, c, board_state, dispatcher)
 
 class PinkStrategy(MovementStrategy):
-    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher) -> None:
+    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher|None = None) -> None:
         all_neighbors = [
             (r-1, c),
             (r-1, c+1),
@@ -95,7 +96,7 @@ class PinkStrategy(MovementStrategy):
         return super().execute(r, c, board_state, dispatcher)
 
 class BlueStrategy(MovementStrategy):
-    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher) -> None:
+    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher|None = None) -> None:
         center_color = board_state.get((2, 2))
 
         if center_color is None or center_color == MoraColor.BLUE:
@@ -109,7 +110,7 @@ class BlueStrategy(MovementStrategy):
         return super().execute(r, c, board_state, dispatcher)
 
 class RedStrategy(MovementStrategy):
-    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher) -> None:
+    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher|None = None) -> None:
         changed = False
 
         for pos, color in board_state.items():
@@ -126,7 +127,7 @@ class RedStrategy(MovementStrategy):
             super().execute(r, c, board_state, dispatcher)
 
 class OrangeStrategy(MovementStrategy):
-    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher) -> None:
+    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher|None = None) -> None:
         ortho_neighbors = [
             (r-1, c),
             (r+1, c),
@@ -157,11 +158,11 @@ class OrangeStrategy(MovementStrategy):
         super().execute(r, c, board_state, dispatcher)
 
 class GreyStragery(MovementStrategy):
-    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher) -> None:
+    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher|None = None) -> None:
         pass
 
 class WhiteStragegy(MovementStrategy):
-    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher) -> None:
+    def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher|None = None) -> None:
         directions = [(0,1),(0,-1),(1,0),(-1,0)]
 
         if board_state[(r, c)] == MoraColor.WHITE:

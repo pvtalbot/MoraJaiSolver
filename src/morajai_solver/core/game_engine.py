@@ -47,12 +47,15 @@ class GameEngine(metaclass=SingletonMeta):
 
         self.dispatcher.emit('board_updated', board_state=self.board_state)
 
-    def check_victory(self):
+    def check_victory(self, board = None):
         mapping = {
             (0, 0): (1, 1),
             (0, 4): (1, 3),
             (4, 4): (3, 3),
             (4, 0): (3, 1)
         }
+
+        if board:
+            return all([self.target_state[a] == board[b] for (a, b) in mapping.items()])
 
         return all([self.target_state[a] == self.board_state[b] for (a, b) in mapping.items()])
