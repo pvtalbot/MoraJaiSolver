@@ -60,6 +60,8 @@ class ControlPanelView(ctk.CTkFrame):
         self.log_box.insert("0.0", "> Application démarrée.\n> Prêt à résoudre...\n")
         self.log_box.configure(state="disabled")
 
+        self.dispatcher.subscribe('victory_achieved', self._on_victory_achieved)
+
     def _on_mode_change(self, value: str):
         self.dispatcher.emit("mode_changed", new_mode=value.lower())
         self.logger.info(f"Nouveau mode : {value}")
@@ -71,3 +73,12 @@ class ControlPanelView(ctk.CTkFrame):
 
     def _on_random_click(self):
         self.dispatcher.emit('randomize_board')
+
+    def _on_victory_achieved(self):
+        self._append_log("VICTOIRE !")
+
+    def _append_log(self, message: str):
+        self.log_box.configure(state='normal')
+        self.log_box.insert('end', f'> {message}\n')
+        self.log_box.see('end')
+        self.log_box.configure(state='disabled')

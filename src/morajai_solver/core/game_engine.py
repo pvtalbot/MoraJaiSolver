@@ -34,6 +34,9 @@ class GameEngine(metaclass=SingletonMeta):
 
         strategy.execute(r, c, self.board_state, self.dispatcher)
 
+        if self.check_victory():
+            self.dispatcher.emit('victory_achieved')
+
     def _on_randomize_board(self):
         available_colors = list(MoraColor)
 
@@ -43,3 +46,13 @@ class GameEngine(metaclass=SingletonMeta):
                 self.board_state[(r, c)] = random_color
 
         self.dispatcher.emit('board_updated', board_state=self.board_state)
+
+    def check_victory(self):
+        mapping = {
+            (0, 0): (1, 1),
+            (0, 4): (1, 3),
+            (4, 4): (3, 3),
+            (4, 0): (3, 1)
+        }
+
+        return all([self.target_state[a] == self.board_state[b] for (a, b) in mapping.items()])
