@@ -15,7 +15,7 @@ class ControlPanelView(ctk.CTkFrame):
         mode_label = ctk.CTkLabel(self, text="Application Mode :", font=('Arial', 11))
         mode_label.pack(anchor="w", padx=20, pady=(5, 2))
 
-        mode_selector = ctk.CTkSegmentedButton(
+        self.mode_selector = ctk.CTkSegmentedButton(
             self,
             values=["Config", "Play"],
             font=('Arial', 12, 'bold'),
@@ -26,8 +26,8 @@ class ControlPanelView(ctk.CTkFrame):
             unselected_hover_color="#4A4A4A",
             command=self._on_mode_change
         )
-        mode_selector.pack(padx=20, pady=(0, 15), fill="x")
-        mode_selector.set("Config")
+        self.mode_selector.pack(padx=20, pady=(0, 15), fill="x")
+        self.mode_selector.set("Config")
 
         self.random_button = ctk.CTkButton(
             self,
@@ -70,10 +70,18 @@ class ControlPanelView(ctk.CTkFrame):
 
         if result is None:
             self._append_log("Aucune solution possible")
+            return
+
         elif len(result) == 0:
             self._append_log("La grille est déjà résolue !")
         else:
             self._append_log(f"Solution trouvée en {len(result)} coups")
+
+        self.mode_selector.set('Play')
+        self._on_mode_change('Play')
+
+        self.dispatcher.emit('solution_found', steps=result)
+
 
     def _on_mode_change(self, value: str):
         self.dispatcher.emit("mode_changed", new_mode=value.lower())

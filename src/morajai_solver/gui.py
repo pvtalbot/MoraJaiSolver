@@ -1,9 +1,8 @@
 import customtkinter as ctk
 
+from morajai_solver.views.SolutionView import SolutionView
 from morajai_solver.views.BoardView import BoardView
 from morajai_solver.views.ControlPanelView import ControlPanelView
-from morajai_solver.core.game_engine import GameEngine
-from morajai_solver.logger import configure_logging
 
 def fade_out(app, alpha=1.0):
     if alpha > 0.0:
@@ -19,7 +18,7 @@ def launch_gui():
 
     app = ctk.CTk()
     app.title('Mora Jai Box Solver')
-    app.geometry('780x680')
+    app.geometry('1180x680')
 
     title = ctk.CTkLabel(
         app,
@@ -41,12 +40,16 @@ def launch_gui():
     main_container.pack(fill="both", expand=True, padx=15, pady=5)
     main_container.grid_columnconfigure(0, weight=1)
     main_container.grid_columnconfigure(1, weight=1)
+    main_container.grid_columnconfigure(2, weight=1)
 
     board_view = BoardView(main_container)
     board_view.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
     control_panel = ControlPanelView(main_container)
     control_panel.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+
+    solution_view = SolutionView(main_container)
+    solution_view.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
 
 
     app.mainloop()
