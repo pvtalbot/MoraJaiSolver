@@ -163,20 +163,22 @@ class GreyStragery(MovementStrategy):
 
 class WhiteStragegy(MovementStrategy):
     def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher|None = None) -> None:
-        directions = [(0,1),(0,-1),(1,0),(-1,0)]
+        candidates = [
+            (r, c),
+            (r+1,c),
+            (r-1,c),
+            (r,c+1),
+            (r,c-1)
+        ]
+        start_color = board_state[(r, c)]
 
-        if board_state[(r, c)] == MoraColor.WHITE:
-            board_state[(r, c)] = MoraColor.GREY
+        valid_candidates = [pos for pos in candidates if pos in board_state]
 
-        for di, dj in directions:
-            i, j = r, c
-            while (i+di, j+dj) in board_state:
-                pos = (i+di, j+dj)
-                if board_state[pos] == MoraColor.WHITE:
-                    board_state[pos] = MoraColor.GREY
-                elif board_state[pos] == MoraColor.GREY:
-                    board_state[pos] = MoraColor.WHITE
-                i, j = i+di, j+dj
+        for candidate in valid_candidates:
+            if board_state[candidate] == start_color:
+                board_state[candidate] = MoraColor.GREY
+            elif board_state[candidate] == MoraColor.GREY:
+                board_state[candidate] = start_color
 
         super().execute(r, c, board_state, dispatcher)
 
