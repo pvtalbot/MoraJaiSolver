@@ -19,6 +19,9 @@ class MoraSolver:
     def solve(self):
         start_dict = self.engine.board_state
 
+        if self.engine.check_victory():
+            return []
+
         start_tuple = self._dict_to_tuple(start_dict)
         queue = deque([(start_tuple, [])])
 

@@ -1,6 +1,7 @@
 import customtkinter as ctk
 
 from morajai_solver.event_dispatcher import EventDispatcher
+from morajai_solver.models.MoraColor import MoraColor
 
 class SolutionView(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
@@ -12,6 +13,12 @@ class SolutionView(ctk.CTkFrame):
         )
 
         self.dispatcher = EventDispatcher()
+
+        self._steps = []
+        self._current_step_index = 0
+        self._step_frames = []
+        self._has_error = False
+        self._solution_displayed = False
 
         title = ctk.CTkLabel(
             self,
@@ -36,6 +43,11 @@ class SolutionView(ctk.CTkFrame):
 
         self.dispatcher.subscribe('solution_found', self.display_solution)
         self.dispatcher.subscribe('randomize_board', self.clear_solution)
+        self.dispatcher.subscribe('tile_color_changed', lambda *args, **kwargs: self.clear_solution())
+        self.dispatcher.subscribe('target_color_changed', lambda *args, **kwargs: self.clear_solution())
+
+        self.dispatcher.subscribe('reset_save', self._reset_progress)
+        self.dispatcher.subscribe('tile_clicked', self._on_tile_clicked)
 
     def create_placeholder(self):
         self.placeholder = ctk.CTkLabel(
@@ -47,15 +59,35 @@ class SolutionView(ctk.CTkFrame):
         self.placeholder.pack(expand=True, pady=40)
 
     def clear_solution(self):
+        if not self._solution_displayed:
+            return
+
+        self._steps = []
+        self._current_step_index = 0
+        self._step_frames = []
+        self._has_error = False
+        self._solution_displayed = False
+
         for widget in self.scroll_frame.winfo_children():
             widget.destroy()
         self.create_placeholder()
+
+    def _reset_progress(self):
+        self._current_step_index = 0
+        self._has_error = False
+        self._update_steps_highlighting()
 
     def display_solution(self, steps: list):
         for widget in self.scroll_frame.winfo_children():
             widget.destroy()
 
-        if not steps:
+        self._steps = steps
+        self._current_step_index = 0
+        self._step_frames = []
+        self._has_error = False
+        self._solution_displayed = True
+
+        if not self._steps:
             label = ctk.CTkLabel(
                 self.scroll_frame,
                 text="La grille est déjà résolue !",
@@ -64,7 +96,7 @@ class SolutionView(ctk.CTkFrame):
             label.pack(pady=20)
             return
 
-        for i, (r, c) in enumerate(steps, 1):
+        for i, (r, c) in enumerate(self._steps, 1):
             step_frame = ctk.CTkFrame(
                 self.scroll_frame,
                 fg_color="#1A1A1A",
@@ -90,3 +122,32 @@ class SolutionView(ctk.CTkFrame):
                 font=('Arial', 12)
             )
             text_lbl.pack(side='left', padx=5)
+
+            self._step_frames.append(step_frame)
+
+        self._update_steps_highlighting()
+
+    def _on_tile_clicked(self, r: int, c: int, color: MoraColor):
+        if not self._steps or self._has_error:
+            return
+        if self._current_step_index < len(self._steps):
+            next_r, next_c = self._steps[self._current_step_index]
+            if r == next_r and c == next_c:
+                self._current_step_index += 1
+                self._update_steps_highlighting()
+            else:
+                self._has_error = True
+                self._update_steps_highlighting()
+
+    def _update_steps_highlighting(self):
+        for i, frame in enumerate(self._step_frames):
+            if i < self._current_step_index:
+                frame.configure(fg_color="#1B5E20", border_width=0)
+            elif i == self._current_step_index:
+                if self._has_error:
+                    frame.configure(fg_color="#421515", border_width=1, border_color="#E53935")
+                else:
+                    frame.configure(fg_color="#152535", border_width=1, border_color="#1E88E5")
+                    self.scroll_frame._parent_canvas.yview_moveto(max(0, i-2)/len(self._step_frames) * 0.8)
+            else:
+                frame.configure(fg_color="#1A1A1A", border_width=0)
