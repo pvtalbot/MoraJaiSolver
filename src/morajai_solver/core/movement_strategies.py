@@ -158,11 +158,11 @@ class OrangeStrategy(MovementStrategy):
 
         super().execute(r, c, board_state, dispatcher)
 
-class GreyStragery(MovementStrategy):
+class GreyStrategy(MovementStrategy):
     def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher|None = None) -> None:
         pass
 
-class WhiteStragegy(MovementStrategy):
+class WhiteStrategy(MovementStrategy):
     def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher|None = None) -> None:
         candidates = [
             (r, c),
@@ -193,6 +193,6 @@ STRATEGY_MAP: dict[MoraColor, MovementStrategy] = {
     MoraColor.BLUE: BlueStrategy(),
     MoraColor.RED: RedStrategy(),
     MoraColor.ORANGE: OrangeStrategy(),
-    MoraColor.GREY: GreyStragery(),
-    MoraColor.WHITE: WhiteStragegy()
+    MoraColor.GREY: GreyStrategy(),
+    MoraColor.WHITE: WhiteStrategy()
 }

@@ -1,3 +1,5 @@
+import threading
+
 import customtkinter as ctk
 import logging
 
@@ -42,14 +44,14 @@ class ControlPanelView(ctk.CTkFrame):
         )
         self.random_button.pack(pady=5, padx=20, fill="x")
 
-        solve_button = ctk.CTkButton(
+        self.solve_button = ctk.CTkButton(
             self,
             text="Solve Box",
             fg_color=UITheme.BTN_SOLVE_BG.value,
             hover_color=UITheme.BTN_SOLVE_HOVER.value,
             command=self._on_solve
         )
-        solve_button.pack(pady=10, padx=20, fill="x")
+        self.solve_button.pack(pady=10, padx=20, fill="x")
 
         self.log_box = ctk.CTkTextbox(
             self, 
@@ -67,7 +69,20 @@ class ControlPanelView(ctk.CTkFrame):
         self.solver = MoraSolver()
 
     def _on_solve(self):
+        self._set_controls_state('disabled')
+        self._append_log('Calcul de la solution en cours...')
+        self.mode_selector.set('Play')
+        self._on_mode_change('Play')
+
+        threading.Thread(target=self._run_solver_async, daemon=True).start()
+
+    def _run_solver_async(self):
         result = self.solver.solve()
+
+        self.after(0, self._update_ui_after_solve, result)
+
+    def _update_ui_after_solve(self, result):
+        self._set_controls_state('normal')
 
         if result is None:
             self._append_log("Aucune solution possible")
@@ -77,9 +92,6 @@ class ControlPanelView(ctk.CTkFrame):
             self._append_log("La grille est déjà résolue !")
         else:
             self._append_log(f"Solution trouvée en {len(result)} coups")
-
-        self.mode_selector.set('Play')
-        self._on_mode_change('Play')
 
         self.dispatcher.emit(MoraEvent.SOLUTION_FOUND, steps=result)
 
@@ -106,6 +118,11 @@ class ControlPanelView(ctk.CTkFrame):
 
     def _on_victory_achieved(self):
         self._append_log("VICTOIRE !")
+
+    def _set_controls_state(self, state: str):
+        self.mode_selector.configure(state=state)
+        self.random_button.configure(state=state)
+        self.solve_button.configure(state=state)
 
     def _append_log(self, message: str):
         self.log_box.configure(state='normal')
