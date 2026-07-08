@@ -1,6 +1,7 @@
 import customtkinter as ctk
 
 from morajai_solver.event_dispatcher import EventDispatcher
+from morajai_solver.models.ColorHexMap import UITheme
 from morajai_solver.models.MoraColor import MoraColor
 from morajai_solver.models.MoraEvent import MoraEvent
 
@@ -8,7 +9,7 @@ class SolutionView(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(
             master,
-            fg_color="#1E1E1E",
+            fg_color=UITheme.BG_PANEL.value,
             corner_radius=10,
             **kwargs
         )
@@ -30,7 +31,7 @@ class SolutionView(ctk.CTkFrame):
 
         self.scroll_frame = ctk.CTkScrollableFrame(
             self,
-            fg_color="#101010",
+            fg_color=UITheme.BG_CONSOLE.value,
             corner_radius=6
         )
         self.scroll_frame.pack(
@@ -55,7 +56,7 @@ class SolutionView(ctk.CTkFrame):
             self.scroll_frame,
             text="Aucune solution calculée.",
             font=('Arial', 12, 'italic'),
-            text_color="#666666"
+            text_color=UITheme.TEXT_MUTED.value,
         )
         self.placeholder.pack(expand=True, pady=40)
 
@@ -100,7 +101,7 @@ class SolutionView(ctk.CTkFrame):
         for i, (r, c) in enumerate(self._steps, 1):
             step_frame = ctk.CTkFrame(
                 self.scroll_frame,
-                fg_color="#1A1A1A",
+                fg_color=UITheme.BG_TILE_CONTAINER.value,
                 corner_radius=6,
                 height=35
             )
@@ -111,8 +112,8 @@ class SolutionView(ctk.CTkFrame):
                 step_frame,
                 text=f" {i} ",
                 font=('Arial', 12, 'bold'),
-                fg_color="#1E88E5",
-                text_color="white",
+                fg_color=UITheme.STEP_NUMBER_BG.value,
+                text_color=UITheme.TEXT_WHITE.value,
                 corner_radius=4
             )
             num_lbl.pack(side="left", padx=8, pady=5)
@@ -143,12 +144,12 @@ class SolutionView(ctk.CTkFrame):
     def _update_steps_highlighting(self):
         for i, frame in enumerate(self._step_frames):
             if i < self._current_step_index:
-                frame.configure(fg_color="#1B5E20", border_width=0)
+                frame.configure(fg_color=UITheme.STEP_SUCCESS.value, border_width=0)
             elif i == self._current_step_index:
                 if self._has_error:
-                    frame.configure(fg_color="#421515", border_width=1, border_color="#E53935")
+                    frame.configure(fg_color=UITheme.STEP_ERROR_BG.value, border_width=1, border_color=UITheme.STEP_ERROR_BORDER.value)
                 else:
-                    frame.configure(fg_color="#152535", border_width=1, border_color="#1E88E5")
+                    frame.configure(fg_color=UITheme.STEP_ACTIVE_BG.value, border_width=1, border_color=UITheme.STEP_ACTIVE_BORDER.value)
                     self.scroll_frame._parent_canvas.yview_moveto(max(0, i-2)/len(self._step_frames) * 0.8)
             else:
-                frame.configure(fg_color="#1A1A1A", border_width=0)
+                frame.configure(fg_color=UITheme.BG_TILE_CONTAINER.value, border_width=0)

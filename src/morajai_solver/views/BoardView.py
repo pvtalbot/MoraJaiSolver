@@ -2,15 +2,16 @@ import customtkinter as ctk
 from itertools import product
 from morajai_solver.components.ColorPalette import ColorPalette
 from morajai_solver.components.MoraButton import MoraButton, MoraTargetButton
+from morajai_solver.models.ColorHexMap import UITheme
 
 class BoardView(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, fg_color="transparent", **kwargs)
         
-        outer_frame = ctk.CTkFrame(self, fg_color="#1E1E1E", corner_radius=10)
+        outer_frame = ctk.CTkFrame(self, fg_color=UITheme.BG_PANEL.value, corner_radius=10)
         outer_frame.pack(anchor="center", pady=10)
 
-        grid_frame = ctk.CTkFrame(outer_frame, fg_color="#1E1E1E", corner_radius=10)
+        grid_frame = ctk.CTkFrame(outer_frame, fg_color=UITheme.BG_PANEL.value, corner_radius=10)
         grid_frame.pack(padx=10, pady=10)
 
         # Grille 3x3 : on passe les coordonnées row/column aux boutons

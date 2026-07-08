@@ -1,5 +1,6 @@
 import customtkinter as ctk
 
+from morajai_solver.models.ColorHexMap import UITheme
 from morajai_solver.views.SolutionView import SolutionView
 from morajai_solver.views.BoardView import BoardView
 from morajai_solver.views.ControlPanelView import ControlPanelView
@@ -30,8 +31,8 @@ def launch_gui():
     quit_button = ctk.CTkButton(
         app,
         text="Quit",
-        fg_color="#D32F2F",
-        hover_color="#B71C1C",
+        fg_color=UITheme.BTN_QUIT_BG.value,
+        hover_color=UITheme.BTN_QUIT_HOVER.value,
         command=lambda: fade_out(app)
     )
     quit_button.pack(side='bottom', pady=20)
@@ -50,6 +51,5 @@ def launch_gui():
 
     solution_view = SolutionView(main_container)
     solution_view.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
-
 
     app.mainloop()

@@ -2,12 +2,13 @@ import customtkinter as ctk
 import logging
 from morajai_solver.core.solver import MoraSolver
 from morajai_solver.event_dispatcher import EventDispatcher
+from morajai_solver.models.ColorHexMap import UITheme
 from morajai_solver.models.MoraEvent import MoraEvent
 from morajai_solver.models.MoraMode import MoraMode
 
 class ControlPanelView(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
-        super().__init__(master, fg_color="#1E1E1E", corner_radius=10, **kwargs)
+        super().__init__(master, fg_color=UITheme.BG_PANEL.value, corner_radius=10, **kwargs)
         self.dispatcher = EventDispatcher()
         self.logger = logging.getLogger(__name__)
         
@@ -21,11 +22,11 @@ class ControlPanelView(ctk.CTkFrame):
             self,
             values=["Config", "Play"],
             font=('Arial', 12, 'bold'),
-            fg_color="#3A3A3A",
-            unselected_color="#3A3A3A",
-            selected_color="#1E88E5",
-            selected_hover_color="#1565C0",
-            unselected_hover_color="#4A4A4A",
+            fg_color=UITheme.BTN_CONFIG_BG.value,
+            unselected_color=UITheme.BTN_CONFIG_BG.value,
+            selected_color=UITheme.BTN_SELECT_SELECTED.value,
+            selected_hover_color=UITheme.BTN_SELECT_HOVER.value,
+            unselected_hover_color=UITheme.BTN_CONFIG_HOVER.value,
             command=self._on_mode_change
         )
         self.mode_selector.pack(padx=20, pady=(0, 15), fill="x")
@@ -34,8 +35,8 @@ class ControlPanelView(ctk.CTkFrame):
         self.random_button = ctk.CTkButton(
             self,
             text="Randomize",
-            fg_color="#3A3A3A",
-            hover_color="#4A4A4A",
+            fg_color=UITheme.BTN_CONFIG_BG.value,
+            hover_color=UITheme.BTN_CONFIG_HOVER.value,
             command=self._on_random_click
         )
         self.random_button.pack(pady=5, padx=20, fill="x")
@@ -43,8 +44,8 @@ class ControlPanelView(ctk.CTkFrame):
         solve_button = ctk.CTkButton(
             self,
             text="Solve Box",
-            fg_color="#2E7D32",
-            hover_color="#1B5E20",
+            fg_color=UITheme.BTN_SOLVE_BG.value,
+            hover_color=UITheme.BTN_SOLVE_HOVER.value,
             command=self._on_solve
         )
         solve_button.pack(pady=10, padx=20, fill="x")
@@ -52,8 +53,8 @@ class ControlPanelView(ctk.CTkFrame):
         self.log_box = ctk.CTkTextbox(
             self, 
             height=220, 
-            fg_color="#101010", 
-            text_color="#00FF00", 
+            fg_color=UITheme.BG_CONSOLE.value, 
+            text_color=UITheme.TEXT_CONSOLE.value, 
             font=("Courier New", 12)
         )
         self.log_box.pack(pady=10, padx=20, fill="both", expand=True)

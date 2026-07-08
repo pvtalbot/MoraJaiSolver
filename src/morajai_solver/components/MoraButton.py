@@ -3,7 +3,7 @@ from morajai_solver.event_dispatcher import EventDispatcher
 import customtkinter as ctk
 import logging
 
-from morajai_solver.models.ColorHexMap import COLOR_HEX_MAP
+from morajai_solver.models.ColorHexMap import COLOR_HEX_MAP, UITheme
 from morajai_solver.models.MoraColor import MoraColor
 from morajai_solver.models.MoraEvent import MoraEvent
 from morajai_solver.models.MoraMode import MoraMode
@@ -97,7 +97,7 @@ class MoraButton(AbstractMoraButton):
             "height": 95,
             "corner_radius": 6,
             "border_width": 1,
-            "border_color": "#1E1E1E"
+            "border_color": UITheme.BORDER_DEFAULT.value
         }
 
 class MoraTargetButton(AbstractMoraButton):
@@ -117,5 +117,5 @@ class MoraTargetButton(AbstractMoraButton):
             "height": 24,
             "corner_radius": 8,
             "border_width": 1,
-            "border_color": "#1E1E1E"
+            "border_color": UITheme.BORDER_DEFAULT.value
         }
