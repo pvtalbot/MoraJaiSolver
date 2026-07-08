@@ -3,6 +3,7 @@ from morajai_solver.event_dispatcher import EventDispatcher, SingletonMeta
 from morajai_solver.components.MoraButton import MoraColor
 from morajai_solver.core.movement_strategies import *
 from morajai_solver.models.MoraEvent import MoraEvent
+from morajai_solver.models.MoraMode import MoraMode
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +24,8 @@ class GameEngine(metaclass=SingletonMeta):
 
         logger.debug('Moteur de jeu initialisé.')
 
-    def _on_mode_changed(self, new_mode: str):
-        if new_mode.lower() != 'play':
+    def _on_mode_changed(self, new_mode: MoraMode):
+        if new_mode != MoraMode.PLAY:
             return
         self.saved_board_state = self.board_state.copy()
 

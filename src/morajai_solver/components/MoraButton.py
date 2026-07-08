@@ -6,14 +6,15 @@ import logging
 from morajai_solver.models.ColorHexMap import COLOR_HEX_MAP
 from morajai_solver.models.MoraColor import MoraColor
 from morajai_solver.models.MoraEvent import MoraEvent
+from morajai_solver.models.MoraMode import MoraMode
 
 logger = logging.getLogger(__name__)
 
 class AbstractMoraButton(ctk.CTkButton, ABC):
     r: int
     c: int
-    current_color: MoraColor
-    _current_mode: str
+    _current_color: MoraColor
+    _current_mode: MoraMode
     dispatcher: EventDispatcher
 
     _selected_brush_color: MoraColor = MoraColor.GREY
@@ -32,11 +33,11 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
         self.dispatcher.subscribe(MoraEvent.MODE_CHANGED, self._on_mode_changed)
 
         self._set_color(MoraColor.GREY)
-        self._current_mode = "config"
+        self._current_mode = MoraMode.CONFIG
 
         self.configure(command=self._on_click)
 
-    def _on_mode_changed(self, new_mode: str):
+    def _on_mode_changed(self, new_mode: MoraMode):
         self._current_mode = new_mode
 
     @classmethod
@@ -54,18 +55,18 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
     def _on_tile_color_update(self, r: int, c: int, color: MoraColor):
         if (self.r, self.c) != (r, c):
             return
-        if color == self.current_color:
+        if color == self._current_color:
             return
 
         self._set_color(color)
 
     def _set_color(self, new_color, emit_event=True):
-        self.current_color = MoraColor(new_color)
-        new_hex = COLOR_HEX_MAP[self.current_color]
+        self._current_color = MoraColor(new_color)
+        new_hex = COLOR_HEX_MAP[self._current_color]
         self.configure(fg_color=new_hex, hover_color=new_hex)
 
         if emit_event:
-            self.dispatcher.emit(self._get_event_name_when_color_changed(), r=self.r, c=self.c, color=self.current_color)
+            self.dispatcher.emit(self._get_event_name_when_color_changed(), r=self.r, c=self.c, color=self._current_color)
 
 class MoraButton(AbstractMoraButton):
     def __init__(self, master, r: int, c: int):
@@ -75,16 +76,16 @@ class MoraButton(AbstractMoraButton):
     def _on_board_updated(self, board_state: dict):
         new_color = board_state.get((self.r, self.c))
 
-        if new_color is None or new_color == self.current_color:
+        if new_color is None or new_color == self._current_color:
             return
 
         self._set_color(new_color, emit_event=False)
 
     def _on_click(self):
-        if self._current_mode == 'config':
+        if self._current_mode == MoraMode.CONFIG:
             super()._on_click()
         else:
-            self.dispatcher.emit(MoraEvent.TILE_CLICKED, r=self.r, c=self.c, color=self.current_color)
+            self.dispatcher.emit(MoraEvent.TILE_CLICKED, r=self.r, c=self.c, color=self._current_color)
 
     def _get_event_name_when_color_changed(self):
         return MoraEvent.TILE_COLOR_CHANGED
@@ -101,7 +102,7 @@ class MoraButton(AbstractMoraButton):
 
 class MoraTargetButton(AbstractMoraButton):
     def _on_click(self):
-        if self._current_mode == 'config':
+        if self._current_mode == MoraMode.CONFIG:
             super()._on_click()
         else:
             logger.info("Non disponible en mode play")

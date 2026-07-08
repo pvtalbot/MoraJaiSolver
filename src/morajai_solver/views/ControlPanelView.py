@@ -3,6 +3,7 @@ import logging
 from morajai_solver.core.solver import MoraSolver
 from morajai_solver.event_dispatcher import EventDispatcher
 from morajai_solver.models.MoraEvent import MoraEvent
+from morajai_solver.models.MoraMode import MoraMode
 
 class ControlPanelView(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
@@ -82,10 +83,11 @@ class ControlPanelView(ctk.CTkFrame):
 
 
     def _on_mode_change(self, value: str):
-        self.dispatcher.emit(MoraEvent.MODE_CHANGED, new_mode=value.lower())
+        new_mode = MoraMode(value.lower())
+        self.dispatcher.emit(MoraEvent.MODE_CHANGED, new_mode=new_mode)
         self.logger.info(f"Nouveau mode : {value}")
 
-        if value.lower() == 'play':
+        if new_mode == MoraMode.PLAY:
             self.random_button.configure(
                 text="Reset",
             )
@@ -95,7 +97,7 @@ class ControlPanelView(ctk.CTkFrame):
             )
 
     def _on_random_click(self):
-        if self.mode_selector.get().lower() == 'play':
+        if self.mode_selector.get().lower() == MoraMode.PLAY.value:
             self.dispatcher.emit(MoraEvent.RESET_SAVE)
         else:
             self.dispatcher.emit(MoraEvent.RANDOMIZE_BOARD)
