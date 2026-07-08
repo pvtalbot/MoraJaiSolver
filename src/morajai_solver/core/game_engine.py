@@ -2,6 +2,7 @@ import random, logging
 from morajai_solver.event_dispatcher import EventDispatcher, SingletonMeta
 from morajai_solver.components.MoraButton import MoraColor
 from morajai_solver.core.movement_strategies import *
+from morajai_solver.models.MoraEvent import MoraEvent
 
 logger = logging.getLogger(__name__)
 
@@ -12,13 +13,13 @@ class GameEngine(metaclass=SingletonMeta):
         self.board_state = {}
         self.target_state = {}
 
-        self.dispatcher.subscribe('tile_clicked', self._on_tile_clicked)
-        self.dispatcher.subscribe('tile_color_changed', self._on_tile_color_changed)
-        self.dispatcher.subscribe('target_color_changed', self._on_target_color_changed)
-        self.dispatcher.subscribe('randomize_board', self._on_randomize_board)
+        self.dispatcher.subscribe(MoraEvent.TILE_CLICKED, self._on_tile_clicked)
+        self.dispatcher.subscribe(MoraEvent.TILE_COLOR_CHANGED, self._on_tile_color_changed)
+        self.dispatcher.subscribe(MoraEvent.TARGET_COLOR_CHANGED, self._on_target_color_changed)
+        self.dispatcher.subscribe(MoraEvent.RANDOMIZE_BOARD, self._on_randomize_board)
 
-        self.dispatcher.subscribe('mode_changed', self._on_mode_changed)
-        self.dispatcher.subscribe('reset_save', self._on_reset_save)
+        self.dispatcher.subscribe(MoraEvent.MODE_CHANGED, self._on_mode_changed)
+        self.dispatcher.subscribe(MoraEvent.RESET_SAVE, self._on_reset_save)
 
         logger.debug('Moteur de jeu initialisé.')
 
@@ -32,7 +33,7 @@ class GameEngine(metaclass=SingletonMeta):
             return
 
         self.board_state = self.saved_board_state.copy()
-        self.dispatcher.emit('board_updated', board_state=self.board_state)
+        self.dispatcher.emit(MoraEvent.BOARD_UPDATED, board_state=self.board_state)
 
     def _on_tile_color_changed(self, r: int, c: int, color: MoraColor):
         self.board_state[(r, c)] = color
@@ -50,7 +51,7 @@ class GameEngine(metaclass=SingletonMeta):
         strategy.execute(r, c, self.board_state, self.dispatcher)
 
         if self.check_victory():
-            self.dispatcher.emit('victory_achieved')
+            self.dispatcher.emit(MoraEvent.VICTORY_ACHIEVED)
 
     def _on_randomize_board(self):
         available_colors = list(MoraColor)
@@ -60,7 +61,7 @@ class GameEngine(metaclass=SingletonMeta):
                 random_color = random.choice(available_colors)
                 self.board_state[(r, c)] = random_color
 
-        self.dispatcher.emit('board_updated', board_state=self.board_state)
+        self.dispatcher.emit(MoraEvent.BOARD_UPDATED, board_state=self.board_state)
 
     def check_victory(self, board = None):
         mapping = {

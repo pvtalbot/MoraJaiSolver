@@ -2,12 +2,13 @@ from abc import ABC, abstractmethod
 from collections import Counter
 from morajai_solver.components.MoraButton import MoraColor
 from morajai_solver.event_dispatcher import EventDispatcher
+from morajai_solver.models.MoraEvent import MoraEvent
 
 class MovementStrategy(ABC):
     @abstractmethod
     def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher|None = None) -> None:
         if dispatcher:
-            dispatcher.emit('board_updated', board_state=board_state)
+            dispatcher.emit(MoraEvent.BOARD_UPDATED, board_state=board_state)
 
 class YellowStrategy(MovementStrategy):
     def execute(self, r: int, c: int, board_state: dict, dispatcher: EventDispatcher|None = None) -> None:

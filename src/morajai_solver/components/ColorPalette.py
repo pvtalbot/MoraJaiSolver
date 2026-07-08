@@ -5,6 +5,7 @@ import customtkinter as ctk
 from morajai_solver.event_dispatcher import EventDispatcher
 from morajai_solver.models.ColorHexMap import COLOR_HEX_MAP
 from morajai_solver.models.MoraColor import MoraColor
+from morajai_solver.models.MoraEvent import MoraEvent
 
 class ColorPalette(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
@@ -45,7 +46,7 @@ class ColorPalette(ctk.CTkFrame):
 
         self._update_highlight(MoraColor.GREY)
 
-        self.dispatcher.subscribe('mode_changed', self._on_mode_changed)
+        self.dispatcher.subscribe(MoraEvent.MODE_CHANGED, self._on_mode_changed)
 
     def _on_mode_changed(self, new_mode: str):
         if new_mode.lower() == 'play':

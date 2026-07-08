@@ -2,6 +2,7 @@ import customtkinter as ctk
 
 from morajai_solver.event_dispatcher import EventDispatcher
 from morajai_solver.models.MoraColor import MoraColor
+from morajai_solver.models.MoraEvent import MoraEvent
 
 class SolutionView(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
@@ -41,13 +42,13 @@ class SolutionView(ctk.CTkFrame):
 
         self.create_placeholder()
 
-        self.dispatcher.subscribe('solution_found', self.display_solution)
-        self.dispatcher.subscribe('randomize_board', self.clear_solution)
-        self.dispatcher.subscribe('tile_color_changed', lambda *args, **kwargs: self.clear_solution())
-        self.dispatcher.subscribe('target_color_changed', lambda *args, **kwargs: self.clear_solution())
+        self.dispatcher.subscribe(MoraEvent.SOLUTION_FOUND, self.display_solution)
+        self.dispatcher.subscribe(MoraEvent.RANDOMIZE_BOARD, self.clear_solution)
+        self.dispatcher.subscribe(MoraEvent.TILE_COLOR_CHANGED, lambda *args, **kwargs: self.clear_solution())
+        self.dispatcher.subscribe(MoraEvent.TARGET_COLOR_CHANGED, lambda *args, **kwargs: self.clear_solution())
 
-        self.dispatcher.subscribe('reset_save', self._reset_progress)
-        self.dispatcher.subscribe('tile_clicked', self._on_tile_clicked)
+        self.dispatcher.subscribe(MoraEvent.RESET_SAVE, self._reset_progress)
+        self.dispatcher.subscribe(MoraEvent.TILE_CLICKED, self._on_tile_clicked)
 
     def create_placeholder(self):
         self.placeholder = ctk.CTkLabel(

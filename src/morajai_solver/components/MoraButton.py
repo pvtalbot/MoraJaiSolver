@@ -5,6 +5,7 @@ import logging
 
 from morajai_solver.models.ColorHexMap import COLOR_HEX_MAP
 from morajai_solver.models.MoraColor import MoraColor
+from morajai_solver.models.MoraEvent import MoraEvent
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
         self.c = c
 
         self.dispatcher = EventDispatcher()
-        self.dispatcher.subscribe("mode_changed", self._on_mode_changed)
+        self.dispatcher.subscribe(MoraEvent.MODE_CHANGED, self._on_mode_changed)
 
         self._set_color(MoraColor.GREY)
         self._current_mode = "config"
@@ -47,7 +48,7 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
         self._set_color(AbstractMoraButton._selected_brush_color)
 
     @abstractmethod
-    def _get_event_name_when_color_changed(self) -> str :
+    def _get_event_name_when_color_changed(self) -> MoraEvent :
         pass
 
     def _on_tile_color_update(self, r: int, c: int, color: MoraColor):
@@ -69,7 +70,7 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
 class MoraButton(AbstractMoraButton):
     def __init__(self, master, r: int, c: int):
         super().__init__(master, r, c)
-        self.dispatcher.subscribe("board_updated", self._on_board_updated)
+        self.dispatcher.subscribe(MoraEvent.BOARD_UPDATED, self._on_board_updated)
 
     def _on_board_updated(self, board_state: dict):
         new_color = board_state.get((self.r, self.c))
@@ -83,10 +84,10 @@ class MoraButton(AbstractMoraButton):
         if self._current_mode == 'config':
             super()._on_click()
         else:
-            self.dispatcher.emit("tile_clicked", r=self.r, c=self.c, color=self.current_color)
+            self.dispatcher.emit(MoraEvent.TILE_CLICKED, r=self.r, c=self.c, color=self.current_color)
 
     def _get_event_name_when_color_changed(self):
-        return 'tile_color_changed'
+        return MoraEvent.TILE_COLOR_CHANGED
 
     def _get_init_parameters(self) -> dict:
         return {
@@ -106,7 +107,7 @@ class MoraTargetButton(AbstractMoraButton):
             logger.info("Non disponible en mode play")
 
     def _get_event_name_when_color_changed(self):
-        return 'target_color_changed'
+        return MoraEvent.TARGET_COLOR_CHANGED
 
     def _get_init_parameters(self) -> dict:
         return {
