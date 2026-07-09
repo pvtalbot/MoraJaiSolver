@@ -1,12 +1,14 @@
-import random, logging
+import random
+import logging
 from morajai_solver.event_dispatcher import EventDispatcher, SingletonMeta
 from morajai_solver.components.MoraButton import MoraColor
-from morajai_solver.core.movement_strategies import *
+from morajai_solver.core.movement_strategies import STRATEGY_MAP
 from morajai_solver.models.MoraBoard import DictMoraBoard
 from morajai_solver.models.MoraEvent import MoraEvent
 from morajai_solver.models.MoraMode import MoraMode
 
 logger = logging.getLogger(__name__)
+
 
 class GameEngine(metaclass=SingletonMeta):
     def __init__(self):
@@ -16,14 +18,18 @@ class GameEngine(metaclass=SingletonMeta):
         self.target_state = {}
 
         self.dispatcher.subscribe(MoraEvent.TILE_CLICKED, self._on_tile_clicked)
-        self.dispatcher.subscribe(MoraEvent.TILE_COLOR_CHANGED, self._on_tile_color_changed)
-        self.dispatcher.subscribe(MoraEvent.TARGET_COLOR_CHANGED, self._on_target_color_changed)
+        self.dispatcher.subscribe(
+            MoraEvent.TILE_COLOR_CHANGED, self._on_tile_color_changed
+        )
+        self.dispatcher.subscribe(
+            MoraEvent.TARGET_COLOR_CHANGED, self._on_target_color_changed
+        )
         self.dispatcher.subscribe(MoraEvent.RANDOMIZE_BOARD, self._on_randomize_board)
 
         self.dispatcher.subscribe(MoraEvent.MODE_CHANGED, self._on_mode_changed)
         self.dispatcher.subscribe(MoraEvent.RESET_SAVE, self._on_reset_save)
 
-        logger.debug('Moteur de jeu initialisé.')
+        logger.debug("Moteur de jeu initialisé.")
 
     def _on_mode_changed(self, new_mode: MoraMode):
         if new_mode != MoraMode.PLAY:
@@ -66,15 +72,12 @@ class GameEngine(metaclass=SingletonMeta):
 
         self.dispatcher.emit(MoraEvent.BOARD_UPDATED, board_state=self.board_state)
 
-    def check_victory(self, board = None):
-        mapping = {
-            (0, 0): (1, 1),
-            (0, 4): (1, 3),
-            (4, 4): (3, 3),
-            (4, 0): (3, 1)
-        }
+    def check_victory(self, board=None):
+        mapping = {(0, 0): (1, 1), (0, 4): (1, 3), (4, 4): (3, 3), (4, 0): (3, 1)}
 
         if board:
             return all([self.target_state[a] == board[b] for (a, b) in mapping.items()])
 
-        return all([self.target_state[a] == self.board_state[b] for (a, b) in mapping.items()])
+        return all(
+            [self.target_state[a] == self.board_state[b] for (a, b) in mapping.items()]
+        )

@@ -7,6 +7,7 @@ from morajai_solver.models.MoraBoard import BitmaskMoraBoard
 
 logger = logging.getLogger(__name__)
 
+
 class MoraSolver:
     def __init__(self):
         self.engine = GameEngine()
@@ -23,7 +24,7 @@ class MoraSolver:
         for r in range(1, 4):
             for c in range(1, 4):
                 color_val = int(board_state[(r, c)])
-                bitmask |= (color_val << (index * 4))
+                bitmask |= color_val << (index * 4)
                 index += 1
         return bitmask
 

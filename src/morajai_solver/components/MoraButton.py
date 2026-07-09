@@ -10,6 +10,7 @@ from morajai_solver.models.MoraMode import MoraMode
 
 logger = logging.getLogger(__name__)
 
+
 class AbstractMoraButton(ctk.CTkButton, ABC):
     r: int
     c: int
@@ -49,7 +50,7 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
         self._set_color(AbstractMoraButton._selected_brush_color)
 
     @abstractmethod
-    def _get_event_name_when_color_changed(self) -> MoraEvent :
+    def _get_event_name_when_color_changed(self) -> MoraEvent:
         pass
 
     def _on_tile_color_update(self, r: int, c: int, color: MoraColor):
@@ -66,7 +67,13 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
         self.configure(fg_color=new_hex, hover_color=new_hex)
 
         if emit_event:
-            self.dispatcher.emit(self._get_event_name_when_color_changed(), r=self.r, c=self.c, color=self._current_color)
+            self.dispatcher.emit(
+                self._get_event_name_when_color_changed(),
+                r=self.r,
+                c=self.c,
+                color=self._current_color,
+            )
+
 
 class MoraButton(AbstractMoraButton):
     def __init__(self, master, r: int, c: int):
@@ -85,7 +92,9 @@ class MoraButton(AbstractMoraButton):
         if self._current_mode == MoraMode.CONFIG:
             super()._on_click()
         else:
-            self.dispatcher.emit(MoraEvent.TILE_CLICKED, r=self.r, c=self.c, color=self._current_color)
+            self.dispatcher.emit(
+                MoraEvent.TILE_CLICKED, r=self.r, c=self.c, color=self._current_color
+            )
 
     def _get_event_name_when_color_changed(self):
         return MoraEvent.TILE_COLOR_CHANGED
@@ -97,8 +106,9 @@ class MoraButton(AbstractMoraButton):
             "height": 95,
             "corner_radius": 6,
             "border_width": 1,
-            "border_color": UITheme.BORDER_DEFAULT.value
+            "border_color": UITheme.BORDER_DEFAULT.value,
         }
+
 
 class MoraTargetButton(AbstractMoraButton):
     def _on_click(self):
@@ -117,5 +127,5 @@ class MoraTargetButton(AbstractMoraButton):
             "height": 24,
             "corner_radius": 8,
             "border_width": 1,
-            "border_color": UITheme.BORDER_DEFAULT.value
+            "border_color": UITheme.BORDER_DEFAULT.value,
         }

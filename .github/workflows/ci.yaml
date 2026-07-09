@@ -18,11 +18,9 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-        
+
       - name: Configurer Python
         run: uv python install
 
       - name: Exécuter la suite de tests
         run: uv run pytest
-
-      

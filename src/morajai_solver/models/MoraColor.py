@@ -1,5 +1,6 @@
 from enum import IntEnum
 
+
 class MoraColor(IntEnum):
     GREY = 0
     WHITE = 1

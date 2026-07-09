@@ -6,6 +6,7 @@ from morajai_solver.models.MoraColor import MoraColor
 from morajai_solver.models.MoraEvent import MoraEvent
 from morajai_solver.models.MoraMode import MoraMode
 
+
 class ColorPalette(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, fg_color="transparent", height=75, **kwargs)
@@ -20,11 +21,19 @@ class ColorPalette(ctk.CTkFrame):
         self.content_container.pack(fill="both", expand=True)
 
         # Le label (attaché au content_container)
-        self.label = ctk.CTkLabel(self.content_container, text="Palette (Mode Config) :", font=('Arial', 11, 'bold'))
+        self.label = ctk.CTkLabel(
+            self.content_container,
+            text="Palette (Mode Config) :",
+            font=("Arial", 11, "bold"),
+        )
         self.label.pack(anchor="w", padx=5, pady=(2, 2))
 
         # Conteneur horizontal pour les 10 couleurs (attaché au content_container)
-        self.palette_frame = ctk.CTkFrame(self.content_container, fg_color=UITheme.BG_TILE_CONTAINER.value, corner_radius=8)
+        self.palette_frame = ctk.CTkFrame(
+            self.content_container,
+            fg_color=UITheme.BG_TILE_CONTAINER.value,
+            corner_radius=8,
+        )
         self.palette_frame.pack(fill="x", padx=2, pady=2)
 
         for color in MoraColor:
@@ -38,7 +47,7 @@ class ColorPalette(ctk.CTkFrame):
                 corner_radius=4,
                 border_width=1,
                 border_color=UITheme.BORDER_DARK.value,
-                command=lambda c=color: self._select_color(c)
+                command=lambda c=color: self._select_color(c),
             )
             btn.pack(side="left", padx=4, pady=6, expand=True)
             self.buttons[color] = btn
@@ -56,11 +65,14 @@ class ColorPalette(ctk.CTkFrame):
     def _update_highlight(self, active_color: MoraColor):
         for color, btn in self.buttons.items():
             if color == active_color:
-                btn.configure(border_width=2, border_color=UITheme.BORDER_HIGHLIGHT.value)
+                btn.configure(
+                    border_width=2, border_color=UITheme.BORDER_HIGHLIGHT.value
+                )
             else:
                 btn.configure(border_width=1, border_color=UITheme.BORDER_DARK.value)
 
     def _select_color(self, color: MoraColor):
         from morajai_solver.components.MoraButton import AbstractMoraButton
+
         AbstractMoraButton.set_brush_color(color)
         self._update_highlight(color)

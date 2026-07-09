@@ -1,12 +1,16 @@
 """
 Configuration du système de log du script.
 """
-import logging, sys
+
+import logging
+import sys
+
 
 class ColorFormatter(logging.Formatter):
     """
     Formateur de logs appliquant des couleurs selon le niveau de sévérité.
     """
+
     # ANSI Codes
     GRAY = "\033[90m"
     CYAN = "\033[36m"
@@ -22,27 +26,29 @@ class ColorFormatter(logging.Formatter):
         self.formatters = {
             level: logging.Formatter(
                 f"{color}%(levelname)-8s{self.RESET} | %(name)-25s | %(message)s",
-                datefmt="%H:%M:%S"
+                datefmt="%H:%M:%S",
             )
             for level, color in {
                 logging.DEBUG: self.GRAY,
                 logging.INFO: self.CYAN,
                 logging.WARNING: self.YELLOW,
                 logging.ERROR: self.RED,
-                logging.CRITICAL: self.BOLD_RED
+                logging.CRITICAL: self.BOLD_RED,
             }.items()
         }
         # default formatter
         self.default_formatter = logging.Formatter(
-            "%(levelname)-8s | %(name)-25s | %(message)s", 
-            datefmt="%H:%M:%S"
+            "%(levelname)-8s | %(name)-25s | %(message)s", datefmt="%H:%M:%S"
         )
 
     def format(self, record):
         """Sélectionne le formateur en fonction du niveau du message"""
-        if record.name and '.' in record.name:
-            record.name = record.name.split('.', 1)[1]
-        return self.formatters.get(record.levelno, self.default_formatter).format(record)
+        if record.name and "." in record.name:
+            record.name = record.name.split(".", 1)[1]
+        return self.formatters.get(record.levelno, self.default_formatter).format(
+            record
+        )
+
 
 def configure_logging(logger_level=logging.INFO):
     """

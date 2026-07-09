@@ -7,7 +7,7 @@ def test_blue_strategy_with_yellow_center():
     """Le centre est jaune, cliquer sur une case bleue déclenche le mouvement jaune (monte)."""
     board = BitmaskMoraBoard(0)
     board[2, 2] = MoraColor.YELLOW  # Centre jaune
-    board[3, 2] = MoraColor.BLUE    # Case cliquée
+    board[3, 2] = MoraColor.BLUE  # Case cliquée
 
     strategy = BlueStrategy()
     strategy.execute(3, 2, board)

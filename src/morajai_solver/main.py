@@ -1,22 +1,26 @@
-import argparse, logging
+import argparse
+import logging
 
-from  morajai_solver.logger import configure_logging
+from morajai_solver.logger import configure_logging
 from morajai_solver.core.game_engine import GameEngine
 from morajai_solver.gui import launch_gui
+
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-q', '--quiet',
-        action='store_true',
+        "-q",
+        "--quiet",
+        action="store_true",
         default=False,
-        help="Réduit le niveau de logs"
+        help="Réduit le niveau de logs",
     )
     parser.add_argument(
-        '-v', '--verbose',
-        action='store_true',
+        "-v",
+        "--verbose",
+        action="store_true",
         default=False,
-        help="Augmente le niveau de logs"
+        help="Augmente le niveau de logs",
     )
 
     args = parser.parse_args()
@@ -30,5 +34,6 @@ def main():
     GameEngine()
     launch_gui()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

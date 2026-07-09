@@ -5,6 +5,7 @@ from morajai_solver.models.MoraColor import MoraColor
 
 type Coord = tuple[int, int]
 
+
 class AbstractMoraBoard(ABC):
     @abstractmethod
     def __getitem__(self, pos: Coord) -> MoraColor:
@@ -19,7 +20,7 @@ class AbstractMoraBoard(ABC):
         color2 = self[pos2]
         self[pos1] = color2
         self[pos2] = color1
-    
+
     def get(self, pos: Coord, default=None) -> MoraColor | None:
         if pos in self:
             return self[pos]
@@ -33,6 +34,7 @@ class AbstractMoraBoard(ABC):
         r, c = pos
         return 1 <= r <= 3 and 1 <= c <= 3
 
+
 class DictMoraBoard(AbstractMoraBoard):
     def __init__(self, board_dict: dict):
         self._data = board_dict
@@ -44,8 +46,9 @@ class DictMoraBoard(AbstractMoraBoard):
         self._data[pos] = color
 
     def items(self):
-        for (pos, color) in self._data.items():
+        for pos, color in self._data.items():
             yield pos, color
+
 
 class BitmaskMoraBoard(AbstractMoraBoard):
     def __init__(self, bitmask: int):
@@ -53,7 +56,7 @@ class BitmaskMoraBoard(AbstractMoraBoard):
 
     def _pos_to_index(self, pos: Coord) -> int:
         r, c = pos
-        return (r-1) * 3 + (c-1)
+        return (r - 1) * 3 + (c - 1)
 
     def __getitem__(self, pos: Coord) -> MoraColor:
         i = self._pos_to_index(pos)

@@ -9,28 +9,33 @@ from morajai_solver.models.ColorHexMap import UITheme
 from morajai_solver.models.MoraEvent import MoraEvent
 from morajai_solver.models.MoraMode import MoraMode
 
+
 class ControlPanelView(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
-        super().__init__(master, fg_color=UITheme.BG_PANEL.value, corner_radius=10, **kwargs)
+        super().__init__(
+            master, fg_color=UITheme.BG_PANEL.value, corner_radius=10, **kwargs
+        )
         self.dispatcher = EventDispatcher()
         self.logger = logging.getLogger(__name__)
-        
-        panel_title = ctk.CTkLabel(self, text="Controls & Logs", font=('Arial', 14, 'bold'))
+
+        panel_title = ctk.CTkLabel(
+            self, text="Controls & Logs", font=("Arial", 14, "bold")
+        )
         panel_title.pack(pady=10)
 
-        mode_label = ctk.CTkLabel(self, text="Application Mode :", font=('Arial', 11))
+        mode_label = ctk.CTkLabel(self, text="Application Mode :", font=("Arial", 11))
         mode_label.pack(anchor="w", padx=20, pady=(5, 2))
 
         self.mode_selector = ctk.CTkSegmentedButton(
             self,
             values=["Config", "Play"],
-            font=('Arial', 12, 'bold'),
+            font=("Arial", 12, "bold"),
             fg_color=UITheme.BTN_CONFIG_BG.value,
             unselected_color=UITheme.BTN_CONFIG_BG.value,
             selected_color=UITheme.BTN_SELECT_SELECTED.value,
             selected_hover_color=UITheme.BTN_SELECT_HOVER.value,
             unselected_hover_color=UITheme.BTN_CONFIG_HOVER.value,
-            command=self._on_mode_change
+            command=self._on_mode_change,
         )
         self.mode_selector.pack(padx=20, pady=(0, 15), fill="x")
         self.mode_selector.set("Config")
@@ -40,7 +45,7 @@ class ControlPanelView(ctk.CTkFrame):
             text="Randomize",
             fg_color=UITheme.BTN_CONFIG_BG.value,
             hover_color=UITheme.BTN_CONFIG_HOVER.value,
-            command=self._on_random_click
+            command=self._on_random_click,
         )
         self.random_button.pack(pady=5, padx=20, fill="x")
 
@@ -49,16 +54,16 @@ class ControlPanelView(ctk.CTkFrame):
             text="Solve Box",
             fg_color=UITheme.BTN_SOLVE_BG.value,
             hover_color=UITheme.BTN_SOLVE_HOVER.value,
-            command=self._on_solve
+            command=self._on_solve,
         )
         self.solve_button.pack(pady=10, padx=20, fill="x")
 
         self.log_box = ctk.CTkTextbox(
-            self, 
-            height=220, 
-            fg_color=UITheme.BG_CONSOLE.value, 
-            text_color=UITheme.TEXT_CONSOLE.value, 
-            font=("Courier New", 12)
+            self,
+            height=220,
+            fg_color=UITheme.BG_CONSOLE.value,
+            text_color=UITheme.TEXT_CONSOLE.value,
+            font=("Courier New", 12),
         )
         self.log_box.pack(pady=10, padx=20, fill="both", expand=True)
         self.log_box.insert("0.0", "> Application démarrée.\n> Prêt à résoudre...\n")
@@ -69,10 +74,10 @@ class ControlPanelView(ctk.CTkFrame):
         self.solver = MoraSolver()
 
     def _on_solve(self):
-        self._set_controls_state('disabled')
-        self._append_log('Calcul de la solution en cours...')
-        self.mode_selector.set('Play')
-        self._on_mode_change('Play')
+        self._set_controls_state("disabled")
+        self._append_log("Calcul de la solution en cours...")
+        self.mode_selector.set("Play")
+        self._on_mode_change("Play")
 
         threading.Thread(target=self._run_solver_async, daemon=True).start()
 
@@ -82,7 +87,7 @@ class ControlPanelView(ctk.CTkFrame):
         self.after(0, self._update_ui_after_solve, result)
 
     def _update_ui_after_solve(self, result):
-        self._set_controls_state('normal')
+        self._set_controls_state("normal")
 
         if result is None:
             self._append_log("Aucune solution possible")
@@ -94,7 +99,6 @@ class ControlPanelView(ctk.CTkFrame):
             self._append_log(f"Solution trouvée en {len(result)} coups")
 
         self.dispatcher.emit(MoraEvent.SOLUTION_FOUND, steps=result)
-
 
     def _on_mode_change(self, value: str):
         new_mode = MoraMode(value.lower())
@@ -125,7 +129,7 @@ class ControlPanelView(ctk.CTkFrame):
         self.solve_button.configure(state=state)
 
     def _append_log(self, message: str):
-        self.log_box.configure(state='normal')
-        self.log_box.insert('end', f'> {message}\n')
-        self.log_box.see('end')
-        self.log_box.configure(state='disabled')
+        self.log_box.configure(state="normal")
+        self.log_box.insert("end", f"> {message}\n")
+        self.log_box.see("end")
+        self.log_box.configure(state="disabled")

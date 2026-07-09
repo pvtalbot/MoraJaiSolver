@@ -14,6 +14,7 @@ def test_yellow_strategy_moves_up():
     assert board[1, 2] == MoraColor.YELLOW
     assert board[2, 2] == MoraColor.WHITE
 
+
 def test_yellow_strategy_on_edge():
     board = BitmaskMoraBoard(0)
     board[1, 2] = MoraColor.YELLOW

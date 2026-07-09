@@ -9,7 +9,7 @@ def test_pink_strategy_center_all_neighbors():
     board[2, 2] = MoraColor.PINK
 
     board[1, 2] = MoraColor.WHITE
-    board[1, 3] = MoraColor.BLACK 
+    board[1, 3] = MoraColor.BLACK
     board[2, 3] = MoraColor.RED
     board[3, 3] = MoraColor.YELLOW
     board[3, 2] = MoraColor.PURPLE

@@ -2,6 +2,7 @@
 from morajai_solver.event_dispatcher import EventDispatcher
 from morajai_solver.models.MoraEvent import MoraEvent
 
+
 def test_event_dispatcher_singleton_and_emission():
     dispatcher1 = EventDispatcher()
     dispatcher2 = EventDispatcher()

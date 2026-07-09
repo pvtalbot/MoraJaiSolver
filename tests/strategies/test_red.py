@@ -2,6 +2,7 @@ from morajai_solver.core.movement_strategies import RedStrategy
 from morajai_solver.models.MoraBoard import BitmaskMoraBoard
 from morajai_solver.models.MoraColor import MoraColor
 
+
 def test_red_strategy_evolves_colors():
     board = BitmaskMoraBoard(0)
     board[1, 1] = MoraColor.WHITE

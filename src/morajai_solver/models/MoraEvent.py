@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class MoraEvent(Enum):
     # Configuration
     MODE_CHANGED = "mode_changed"

@@ -4,6 +4,7 @@ from morajai_solver.models.MoraEvent import MoraEvent
 
 logger = logging.getLogger(__name__)
 
+
 class SingletonMeta(type):
     _instances = {}
 
@@ -13,6 +14,7 @@ class SingletonMeta(type):
             instance = super().__call__(*args, **kwargs)
             cls._instances[cls] = instance
         return cls._instances[cls]
+
 
 class EventDispatcher(metaclass=SingletonMeta):
     def __init__(self):
