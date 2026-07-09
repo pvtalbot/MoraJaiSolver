@@ -1,3 +1,5 @@
+![CI Status](https://github.com/pvtalbot/MoraJaiSolver/actions/workflows/ci.yaml/badge.svg)
+
 # Mora Jai Box Solver
 
 Interface graphique et solveur pour le jeu de plateau Mora Jai de Blue Prince, développé par Tonda Ros (développeur Dogubomb, éditeur Raw Fury).
