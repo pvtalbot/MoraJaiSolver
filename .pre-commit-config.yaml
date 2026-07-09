@@ -1,0 +1,22 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace      # Supprime les espaces inutiles en fin de ligne
+      - id: end-of-file-fixer        # S'assure qu'il y a une ligne vide à la fin des fichiers
+      - id: check-yaml               # Vérifie la syntaxe de tes fichiers YAML (CI/CD !)
+      - id: check-added-large-files  # Évite de commit par erreur un énorme fichier (ex: le .exe de build_output)
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.4
+    hooks:
+      - id: ruff                     # Alerte sur les variables inutilisées, imports morts...
+        args: [ --fix ]              # Répare automatiquement ce qu'il peut réparer !
+      - id: ruff-format              # Formate automatiquement ton code proprement
+
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.16.0
+    hooks:
+      - id: commitlint
+        stages: [commit-msg]
+        additional_dependencies: ['@commitlint/config-conventional']
