@@ -3,6 +3,7 @@ import logging
 
 from morajai_solver.core.game_engine import GameEngine
 from morajai_solver.core.movement_strategies import STRATEGY_MAP
+from morajai_solver.models.MoraBoard import BitmaskMoraBoard
 
 logger = logging.getLogger(__name__)
 
@@ -16,28 +17,50 @@ class MoraSolver:
     def _tuple_to_dict(self, board_tuple: tuple) -> dict:
         return dict(board_tuple)
 
+    def dict_to_bitmask(self, board_state: dict) -> int:
+        bitmask = 0
+        index = 0
+        for r in range(1, 4):
+            for c in range(1, 4):
+                color_val = int(board_state[(r, c)])
+                bitmask |= (color_val << (index * 4))
+                index += 1
+        return bitmask
+
+    def bitmask_get_color(self, bitmask: int, index: int) -> int:
+        return (bitmask >> (index * 4)) & 0xF
+
+    def bitmask_set_color(self, bitmask: int, index: int, new_color: int) -> int:
+        clear_mask = ~(0xF << (index * 4))
+        bitmask_cleared = bitmask & clear_mask
+        return bitmask_cleared | (new_color << (index * 4))
+
     def solve(self):
         start_dict = self.engine.board_state
 
-        if self.engine.check_victory():
+        initial_board = BitmaskMoraBoard(0)
+        for (r, c), color in start_dict.items():
+            initial_board[r, c] = color
+
+        start_bitmask = initial_board._data
+
+        if self.engine.check_victory(initial_board):
             return []
 
-        start_tuple = self._dict_to_tuple(start_dict)
-        queue = deque([(start_tuple, [])])
+        queue = deque([(start_bitmask, [])])
 
-        visited = {start_tuple}
+        visited = {start_bitmask}
         logger.info("Début de la recherche de solution")
 
         while queue:
-            current_tuple, path = queue.popleft()
+            current_bitmask, path = queue.popleft()
             logger.debug(f"Queue length : {len(queue)}")
 
             for r in range(1, 4):
                 for c in range(1, 4):
-                    simulated_board = self._tuple_to_dict(current_tuple)
+                    simulated_board = BitmaskMoraBoard(current_bitmask)
 
-                    color = simulated_board.get((r, c))
-                    assert color is not None
+                    color = simulated_board[r, c]
                     strategy = STRATEGY_MAP.get(color)
 
                     if not strategy:
@@ -49,10 +72,10 @@ class MoraSolver:
                         logger.info(f"Solution trouvée en {len(final_path)} coups")
                         return final_path
 
-                    next_tuple = self._dict_to_tuple(simulated_board)
-                    if next_tuple not in visited:
-                        visited.add(next_tuple)
-                        queue.append((next_tuple, path + [(r, c)]))
+                    next_bitmask = simulated_board._data
+                    if next_bitmask not in visited:
+                        visited.add(next_bitmask)
+                        queue.append((next_bitmask, path + [(r, c)]))
 
         logger.warning("Aucune solution")
         return None

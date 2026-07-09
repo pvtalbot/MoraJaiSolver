@@ -2,6 +2,7 @@ import random, logging
 from morajai_solver.event_dispatcher import EventDispatcher, SingletonMeta
 from morajai_solver.components.MoraButton import MoraColor
 from morajai_solver.core.movement_strategies import *
+from morajai_solver.models.MoraBoard import DictMoraBoard
 from morajai_solver.models.MoraEvent import MoraEvent
 from morajai_solver.models.MoraMode import MoraMode
 
@@ -49,7 +50,8 @@ class GameEngine(metaclass=SingletonMeta):
             logger.warning("Aucune stratégie trouvée")
             return
 
-        strategy.execute(r, c, self.board_state, self.dispatcher)
+        board_wrapper = DictMoraBoard(self.board_state)
+        strategy.execute(r, c, board_wrapper, self.dispatcher)
 
         if self.check_victory():
             self.dispatcher.emit(MoraEvent.VICTORY_ACHIEVED)
