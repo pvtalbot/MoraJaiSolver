@@ -9,9 +9,9 @@ import sys
 import os
 
 if sys.stdout is None:
-    sys.stdout = open(os.devnull, 'w')
+    sys.stdout = open(os.devnull, "w")
 if sys.stderr is None:
-    sys.stderr = open(os.devnull, 'w')
+    sys.stderr = open(os.devnull, "w")
 
 
 def main():
