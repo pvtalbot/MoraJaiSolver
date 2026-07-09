@@ -1,0 +1,38 @@
+name: CD (Publication de l'exécutable avec Nuitka)
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Installation d'uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Configuration de Python
+        run: uv python install
+
+      - name: Installation des dépendances du projet
+        run: uv sync
+
+      - name: Compilation de l'application avec Nuitka
+        run: uv run nuitka --standalone --onefile --windows-console-mode=disable --assume-yes-for-downloads --enable-plugin=tk-inter --include-package=customtkinter --output-dir=build_output -o MoraJaiSolver.exe src/morajai_solver/main.py
+      
+      - name: Publication de l'exécutable sur GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build_output/MoraJaiSolver.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

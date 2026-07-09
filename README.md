@@ -1,4 +1,5 @@
 ![CI Status](https://github.com/pvtalbot/MoraJaiSolver/actions/workflows/ci.yaml/badge.svg)
+![GitHub Release](https://img.shields.io/github/v/release/pvtalbot/MoraJaiSolver)
 
 # Mora Jai Box Solver
 
