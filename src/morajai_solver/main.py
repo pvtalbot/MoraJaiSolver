@@ -5,6 +5,14 @@ from morajai_solver.logger import configure_logging
 from morajai_solver.core.game_engine import GameEngine
 from morajai_solver.gui import launch_gui
 
+import sys
+import os
+
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, 'w')
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, 'w')
+
 
 def main():
     parser = argparse.ArgumentParser()

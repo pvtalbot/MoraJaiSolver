@@ -28,7 +28,7 @@ jobs:
         run: uv sync
 
       - name: Compilation de l'application avec Nuitka
-        run: uv run nuitka --standalone --onefile --windows-console-mode=attach --assume-yes-for-downloads --enable-plugin=tk-inter --include-package=customtkinter --output-dir=build_output -o MoraJaiSolver.exe src/morajai_solver/main.py
+        run: uv run nuitka --standalone --onefile --windows-console-mode=disable --assume-yes-for-downloads --enable-plugin=tk-inter --include-package=customtkinter --output-dir=build_output -o MoraJaiSolver.exe src/morajai_solver/main.py
 
       - name: Publication de l'exécutable sur GitHub Releases
         uses: softprops/action-gh-release@v2
