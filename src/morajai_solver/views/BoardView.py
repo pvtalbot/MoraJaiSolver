@@ -27,17 +27,17 @@ class BoardView(ctk.CTkFrame):
 
         # Cibles aux 4 coins (Grille virtuelle 5x5 de 0 à 4)
         CORNER_TARGETS = [
-            {"row": 0, "column": 0},
-            {"row": 0, "column": 4},
-            {"row": 4, "column": 4},
-            {"row": 4, "column": 0},
+            {"row": 0, "column": 0, "logical_row": 1, "logical_column": 1},
+            {"row": 0, "column": 4, "logical_row": 1, "logical_column": 3},
+            {"row": 4, "column": 4, "logical_row": 3, "logical_column": 3},
+            {"row": 4, "column": 0, "logical_row": 3, "logical_column": 1},
         ]
 
         for target_pos in CORNER_TARGETS:
             target = MoraTargetButton(
-                grid_frame, target_pos["row"], target_pos["column"]
+                grid_frame, target_pos["logical_row"], target_pos["logical_column"]
             )
-            target.grid(**target_pos)
+            target.grid(row=target_pos["row"], column=target_pos["column"])
 
         palette = ColorPalette(outer_frame)
         palette.pack(fill="x", padx=15, pady=(0, 15))
