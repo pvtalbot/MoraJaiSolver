@@ -46,7 +46,9 @@ class GameEngine(metaclass=SingletonMeta):
             return
 
         self._board.data = self.saved_board_state.copy()
-        self.dispatcher.emit(MoraEvent.BOARD_UPDATED, board_state=self._board.data.copy())
+        self.dispatcher.emit(
+            MoraEvent.BOARD_UPDATED, board_state=self._board.data.copy()
+        )
 
     def _on_tile_color_changed(self, r: int, c: int, color: MoraColor):
         self._board[(r, c)] = color
@@ -74,7 +76,9 @@ class GameEngine(metaclass=SingletonMeta):
                 random_color = random.choice(available_colors)
                 self._board[(r, c)] = random_color
 
-        self.dispatcher.emit(MoraEvent.BOARD_UPDATED, board_state=self._board.data.copy())
+        self.dispatcher.emit(
+            MoraEvent.BOARD_UPDATED, board_state=self._board.data.copy()
+        )
 
     def _on_solver_start(self):
         threading.Thread(target=self._run_solver_async, daemon=True).start()

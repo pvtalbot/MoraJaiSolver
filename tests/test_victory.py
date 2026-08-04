@@ -1,6 +1,10 @@
-from morajai_solver.core.GameEngine import GameEngine
-from morajai_solver.models.MoraBoard import AbstractMoraBoard, BitmaskMoraBoard, DictMoraBoard
+from morajai_solver.models.MoraBoard import (
+    AbstractMoraBoard,
+    BitmaskMoraBoard,
+    DictMoraBoard,
+)
 from morajai_solver.models.MoraColor import MoraColor
+
 
 def abstract_test(board: AbstractMoraBoard):
     # Configuration des objectifs aux 4 coins (positions 0 et 4)
@@ -22,6 +26,7 @@ def abstract_test(board: AbstractMoraBoard):
     board[(3, 1)] = MoraColor.GREEN
 
     assert board.check_victory() is True
+
 
 def test_check_victory_with_internal_board_state():
     """Vérifie check_victory en mode jeu standard (utilise engine.board_state)."""

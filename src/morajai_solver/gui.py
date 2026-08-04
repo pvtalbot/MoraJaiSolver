@@ -32,7 +32,7 @@ def launch_gui():
         fg_color=UITheme.BTN_QUIT_BG.value,
         hover_color=UITheme.BTN_QUIT_HOVER.value,
         command=lambda: fade_out(app),
-        border_width=0
+        border_width=0,
     )
     quit_button.pack(side="bottom", pady=20)
 

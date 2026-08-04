@@ -89,7 +89,7 @@ class SolutionView(ctk.CTkFrame):
             label = ctk.CTkLabel(
                 self.scroll_frame,
                 text="Pas de solution possible",
-                font=('Arial', 13, 'bold')
+                font=("Arial", 13, "bold"),
             )
             label.pack(pady=20)
             return

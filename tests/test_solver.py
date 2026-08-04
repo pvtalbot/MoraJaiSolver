@@ -27,7 +27,7 @@ def test_solver_finds_short_solution():
         (3, 3): MoraColor.GREY,
     }
 
-    assert board.check_victory() == False
+    assert not board.check_victory()
 
     solver = MoraSolver(board)
 

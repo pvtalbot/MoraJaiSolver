@@ -46,7 +46,9 @@ class AbstractMoraBoard(ABC):
 
 class DictMoraBoard(AbstractMoraBoard):
     def __init__(self, board_dict: dict[Coord, MoraColor] | None = None):
-        self._data: dict[Coord, MoraColor] = board_dict if board_dict is not None else {}
+        self._data: dict[Coord, MoraColor] = (
+            board_dict if board_dict is not None else {}
+        )
         self._targets: dict[Coord, MoraColor] = {}
 
     def __getitem__(self, pos: Coord) -> MoraColor:
@@ -63,9 +65,7 @@ class DictMoraBoard(AbstractMoraBoard):
         self._targets[(row, col)] = color
 
     def check_victory(self) -> bool:
-        return all(
-            self._data[x] == self._targets[x] for x in self._targets
-        )
+        return all(self._data[x] == self._targets[x] for x in self._targets)
 
     @property
     def data(self):
@@ -74,6 +74,7 @@ class DictMoraBoard(AbstractMoraBoard):
     @data.setter
     def data(self, value: dict[Coord, MoraColor]) -> None:
         self._data = value
+
 
 class BitmaskMoraBoard(AbstractMoraBoard):
     def __init__(self, bitmask: int = 0):
@@ -89,8 +90,8 @@ class BitmaskMoraBoard(AbstractMoraBoard):
         shift = self._pos_to_shift((row, col))
 
         self._target_state &= ~(0xF << shift)
-        self._target_state |= (color.value << shift)
-        self._target_mask |= (0xF << shift)
+        self._target_state |= color.value << shift
+        self._target_mask |= 0xF << shift
 
     def check_victory(self) -> bool:
         if self._target_mask == 0:
