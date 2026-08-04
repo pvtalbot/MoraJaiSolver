@@ -1,5 +1,5 @@
 # tests/test_green.py
-from morajai_solver.core.movement_strategies import GreenStrategy
+from morajai_solver.core.MovementStrategies import GreenStrategy
 from morajai_solver.models.MoraBoard import BitmaskMoraBoard
 from morajai_solver.models.MoraColor import MoraColor
 

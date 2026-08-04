@@ -1,4 +1,4 @@
-from morajai_solver.core.movement_strategies import BlueStrategy
+from morajai_solver.core.MovementStrategies import BlueStrategy
 from morajai_solver.models.MoraBoard import BitmaskMoraBoard
 from morajai_solver.models.MoraColor import MoraColor
 

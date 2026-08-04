@@ -139,13 +139,13 @@ class SolutionView(ctk.CTkFrame):
                 if self._has_error:
                     frame.configure(
                         fg_color=UITheme.STEP_ERROR_BG.value,
-                        border_width=1,
+                        border_width=2,
                         border_color=UITheme.STEP_ERROR_BORDER.value,
                     )
                 else:
                     frame.configure(
                         fg_color=UITheme.STEP_ACTIVE_BG.value,
-                        border_width=1,
+                        border_width=2,
                         border_color=UITheme.STEP_ACTIVE_BORDER.value,
                     )
                     self.scroll_frame._parent_canvas.yview_moveto(

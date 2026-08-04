@@ -3,7 +3,7 @@ import threading
 import customtkinter as ctk
 import logging
 
-from morajai_solver.core.solver import MoraSolver
+from morajai_solver.core.Solver import MoraSolver
 from morajai_solver.event_dispatcher import EventDispatcher
 from morajai_solver.models.ColorHexMap import UITheme
 from morajai_solver.models.MoraEvent import MoraEvent
@@ -43,6 +43,8 @@ class ControlPanelView(ctk.CTkFrame):
         self.random_button = ctk.CTkButton(
             self,
             text="Randomize",
+            corner_radius=6,
+            bg_color="transparent",
             fg_color=UITheme.BTN_CONFIG_BG.value,
             hover_color=UITheme.BTN_CONFIG_HOVER.value,
             command=self._on_random_click,

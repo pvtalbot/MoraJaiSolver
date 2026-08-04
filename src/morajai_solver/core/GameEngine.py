@@ -2,8 +2,8 @@ import random
 import logging
 from morajai_solver.event_dispatcher import EventDispatcher, SingletonMeta
 from morajai_solver.components.MoraButton import MoraColor
-from morajai_solver.core.movement_strategies import STRATEGY_MAP
-from morajai_solver.models.MoraBoard import DictMoraBoard
+from morajai_solver.core.MovementStrategies import STRATEGY_MAP
+from morajai_solver.models.MoraBoard import AbstractMoraBoard, DictMoraBoard
 from morajai_solver.models.MoraEvent import MoraEvent
 from morajai_solver.models.MoraMode import MoraMode
 
@@ -13,10 +13,11 @@ logger = logging.getLogger(__name__)
 class GameEngine(metaclass=SingletonMeta):
     def __init__(self):
         self.dispatcher = EventDispatcher()
+        self._board = DictMoraBoard({})
 
-        self.board_state = {}
-        self.target_state = {}
+        self._subscribe_events()
 
+    def _subscribe_events(self):
         self.dispatcher.subscribe(MoraEvent.TILE_CLICKED, self._on_tile_clicked)
         self.dispatcher.subscribe(
             MoraEvent.TILE_COLOR_CHANGED, self._on_tile_color_changed
@@ -34,20 +35,20 @@ class GameEngine(metaclass=SingletonMeta):
     def _on_mode_changed(self, new_mode: MoraMode):
         if new_mode != MoraMode.PLAY:
             return
-        self.saved_board_state = self.board_state.copy()
+        self.saved_board_state = self._board.data.copy()
 
     def _on_reset_save(self):
         if not self.saved_board_state:
             return
 
-        self.board_state = self.saved_board_state.copy()
-        self.dispatcher.emit(MoraEvent.BOARD_UPDATED, board_state=self.board_state)
+        self._board.data = self.saved_board_state.copy()
+        self.dispatcher.emit(MoraEvent.BOARD_UPDATED, board_state=self._board.data.copy())
 
     def _on_tile_color_changed(self, r: int, c: int, color: MoraColor):
-        self.board_state[(r, c)] = color
+        self._board[(r, c)] = color
 
     def _on_target_color_changed(self, r: int, c: int, color: MoraColor):
-        self.target_state[(r, c)] = color
+        self._board.set_target(r, c, color)
 
     def _on_tile_clicked(self, r: int, c: int, color: MoraColor):
         strategy = STRATEGY_MAP.get(color)
@@ -56,8 +57,7 @@ class GameEngine(metaclass=SingletonMeta):
             logger.warning("Aucune stratégie trouvée")
             return
 
-        board_wrapper = DictMoraBoard(self.board_state)
-        strategy.execute(r, c, board_wrapper, self.dispatcher)
+        strategy.execute(r, c, self._board, self.dispatcher)
 
         if self.check_victory():
             self.dispatcher.emit(MoraEvent.VICTORY_ACHIEVED)
@@ -68,14 +68,12 @@ class GameEngine(metaclass=SingletonMeta):
         for r in range(1, 4):
             for c in range(1, 4):
                 random_color = random.choice(available_colors)
-                self.board_state[(r, c)] = random_color
+                self._board[(r, c)] = random_color
 
-        self.dispatcher.emit(MoraEvent.BOARD_UPDATED, board_state=self.board_state)
+        self.dispatcher.emit(MoraEvent.BOARD_UPDATED, board_state=self._board.data.copy())
 
-    def check_victory(self, board=None):
+    def check_victory(self, board: AbstractMoraBoard | None = None):
         if board:
-            return all([self.target_state[x] == board[x] for x in self.target_state])
+            return board.check_victory()
 
-        return all(
-            [self.target_state[x] == self.board_state[x] for x in self.target_state]
-        )
+        return self._board.check_victory()

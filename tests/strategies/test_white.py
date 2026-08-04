@@ -1,5 +1,5 @@
 # tests/test_white.py
-from morajai_solver.core.movement_strategies import WhiteStrategy
+from morajai_solver.core.MovementStrategies import WhiteStrategy
 from morajai_solver.models.MoraBoard import BitmaskMoraBoard
 from morajai_solver.models.MoraColor import MoraColor
 
