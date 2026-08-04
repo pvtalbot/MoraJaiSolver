@@ -83,7 +83,10 @@ def generate_report(results: List[BenchmarkResult]):
 
 def main():
     print("Exécution des benchmarks sur les grilles pré-enregistrées...")
-    results = [run_single_bench(name, board) for name, board in PRESET_BOARDS]
+    results = []
+    for name, board in PRESET_BOARDS:
+        print(name)
+        results.append(run_single_bench(name, board))
     generate_report(results)
 
 
