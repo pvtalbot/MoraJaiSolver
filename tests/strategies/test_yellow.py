@@ -4,7 +4,7 @@ from morajai_solver.models.MoraColor import MoraColor
 
 
 def test_yellow_strategy_moves_up():
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     board[2, 2] = MoraColor.YELLOW
     board[1, 2] = MoraColor.WHITE
 
@@ -16,7 +16,7 @@ def test_yellow_strategy_moves_up():
 
 
 def test_yellow_strategy_on_edge():
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     board[1, 2] = MoraColor.YELLOW
 
     strategy = YellowStrategy()

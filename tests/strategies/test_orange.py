@@ -5,7 +5,7 @@ from morajai_solver.models.MoraColor import MoraColor
 
 def test_orange_strategy_takes_strict_majority():
     """Majorité stricte (2 BLACK, 1 WHITE) -> La case devient BLACK."""
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     board[2, 2] = MoraColor.ORANGE
 
     # Voisins orthogonaux valides de (2,2)
@@ -24,7 +24,7 @@ def test_orange_strategy_takes_strict_majority():
 
 def test_orange_strategy_with_equality_does_nothing():
     """Égalité parfaite (2 BLACK, 2 WHITE) -> Pas de majorité, la case reste inchangée."""
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     board[2, 2] = MoraColor.ORANGE
 
     # Voisins orthogonaux de (2,2) en égalité 2 vs 2

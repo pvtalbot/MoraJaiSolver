@@ -5,7 +5,7 @@ from morajai_solver.models.MoraColor import MoraColor
 
 
 def test_white_strategy_toggles_grey():
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     # On remplit tout en WHITE pour le test
     for r in range(1, 4):
         for c in range(1, 4):
@@ -27,7 +27,7 @@ def test_white_strategy_toggles_grey():
 
 
 def test_white_strategy_on_corner_ignores_outside():
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     # On clique dans le coin supérieur gauche (1, 1) qui est WHITE
     board[1, 1] = MoraColor.WHITE
     board[1, 2] = MoraColor.WHITE  # Voisin de droite

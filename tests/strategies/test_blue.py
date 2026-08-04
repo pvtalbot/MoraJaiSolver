@@ -5,7 +5,7 @@ from morajai_solver.models.MoraColor import MoraColor
 
 def test_blue_strategy_with_yellow_center():
     """Le centre est jaune, cliquer sur une case bleue déclenche le mouvement jaune (monte)."""
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     board[2, 2] = MoraColor.YELLOW  # Centre jaune
     board[3, 2] = MoraColor.BLUE  # Case cliquée
 
@@ -19,7 +19,7 @@ def test_blue_strategy_with_yellow_center():
 
 def test_blue_strategy_with_blue_center():
     """Le centre est bleu, la stratégie doit s'arrêter pour éviter une boucle infinie."""
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     board[2, 2] = MoraColor.BLUE  # Centre bleu
     board[3, 2] = MoraColor.BLUE  # Case cliquée
 
@@ -33,7 +33,7 @@ def test_blue_strategy_with_blue_center():
 
 def test_blue_strategy_with_orange_center():
     """Le centre est orange, cliquer sur une case bleue déclenche la majorité orange."""
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     board[2, 2] = MoraColor.ORANGE  # Centre orange
 
     # On clique sur (1,2) qui est bleue

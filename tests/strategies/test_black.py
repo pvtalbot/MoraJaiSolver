@@ -4,7 +4,7 @@ from morajai_solver.models.MoraColor import MoraColor
 
 
 def test_black_strategy_shifts_row():
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     board[1, 1] = MoraColor.WHITE
     board[1, 2] = MoraColor.BLACK
     board[1, 3] = MoraColor.RED

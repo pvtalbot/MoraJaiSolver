@@ -17,7 +17,7 @@ def test_dict_and_bitmask_consistency():
 
     dict_board = DictMoraBoard(intial_data.copy())
 
-    bitmask_board = BitmaskMoraBoard(0)
+    bitmask_board = BitmaskMoraBoard()
     for pos, color in intial_data.items():
         bitmask_board[pos] = color
 

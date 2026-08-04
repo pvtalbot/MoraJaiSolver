@@ -5,7 +5,7 @@ from morajai_solver.models.MoraColor import MoraColor
 
 
 def test_green_strategy_swaps_opposite():
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     board[1, 1] = MoraColor.GREEN
     board[3, 3] = MoraColor.BLACK  # L'opposé de (1, 1)
 
@@ -17,7 +17,7 @@ def test_green_strategy_swaps_opposite():
 
 
 def test_green_strategy_on_center_does_nothing():
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     board[2, 2] = MoraColor.GREEN
 
     strategy = GreenStrategy()

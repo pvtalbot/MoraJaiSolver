@@ -4,7 +4,7 @@ from morajai_solver.models.MoraColor import MoraColor
 
 
 def test_purple_strategy_moves_down():
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     board[2, 2] = MoraColor.PURPLE
     board[3, 2] = MoraColor.WHITE  # La case du dessous
 
@@ -17,7 +17,7 @@ def test_purple_strategy_moves_down():
 
 
 def test_purple_strategy_on_bottom_edge():
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     board[3, 2] = MoraColor.PURPLE
 
     strategy = PurpleStrategy()

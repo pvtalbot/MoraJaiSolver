@@ -4,7 +4,7 @@ from morajai_solver.models.MoraColor import MoraColor
 
 
 def test_red_strategy_evolves_colors():
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     board[1, 1] = MoraColor.WHITE
     board[1, 2] = MoraColor.BLACK
     board[2, 2] = MoraColor.YELLOW  # Ne doit pas bouger

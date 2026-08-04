@@ -5,7 +5,7 @@ from morajai_solver.models.MoraColor import MoraColor
 
 def test_pink_strategy_center_all_neighbors():
     """Test au milieu (2,2) : les 8 voisins autour tournent d'un cran."""
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     board[2, 2] = MoraColor.PINK
 
     board[1, 2] = MoraColor.WHITE
@@ -33,7 +33,7 @@ def test_pink_strategy_center_all_neighbors():
 
 def test_pink_strategy_left_edge():
     """Test sur un côté (2,1) : seuls 5 voisins sont valides et doivent tourner."""
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     board[2, 1] = MoraColor.PINK
 
     board[1, 1] = MoraColor.WHITE
@@ -54,7 +54,7 @@ def test_pink_strategy_left_edge():
 
 def test_pink_strategy_top_right_corner():
     """Test dans un angle (1,3) : seuls 3 voisins sont valides et doivent tourner."""
-    board = BitmaskMoraBoard(0)
+    board = BitmaskMoraBoard()
     board[1, 3] = MoraColor.PINK
 
     board[2, 3] = MoraColor.WHITE

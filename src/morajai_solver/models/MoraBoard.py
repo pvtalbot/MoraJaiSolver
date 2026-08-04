@@ -51,7 +51,7 @@ class DictMoraBoard(AbstractMoraBoard):
 
 
 class BitmaskMoraBoard(AbstractMoraBoard):
-    def __init__(self, bitmask: int):
+    def __init__(self, bitmask: int = 0):
         self._data = bitmask
 
     def _pos_to_index(self, pos: Coord) -> int:
