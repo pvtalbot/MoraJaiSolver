@@ -1,9 +1,6 @@
-import threading
-
 import customtkinter as ctk
 import logging
 
-from morajai_solver.core.Solver import MoraSolver
 from morajai_solver.event_dispatcher import EventDispatcher
 from morajai_solver.models.ColorHexMap import UITheme
 from morajai_solver.models.MoraEvent import MoraEvent
@@ -72,8 +69,7 @@ class ControlPanelView(ctk.CTkFrame):
         self.log_box.configure(state="disabled")
 
         self.dispatcher.subscribe(MoraEvent.VICTORY_ACHIEVED, self._on_victory_achieved)
-
-        self.solver = MoraSolver()
+        self.dispatcher.subscribe(MoraEvent.SOLUTION_FOUND, self._on_solution_found)
 
     def _on_solve(self):
         self._set_controls_state("disabled")
@@ -81,26 +77,23 @@ class ControlPanelView(ctk.CTkFrame):
         self.mode_selector.set("Play")
         self._on_mode_change("Play")
 
-        threading.Thread(target=self._run_solver_async, daemon=True).start()
+        self.dispatcher.emit(MoraEvent.SOLVER_START)
 
-    def _run_solver_async(self):
-        result = self.solver.solve()
+    def _on_solution_found(self, steps):
+        # Back to main thread
+        self.after(0, self._update_ui_on_solution_found, steps)
 
-        self.after(0, self._update_ui_after_solve, result)
-
-    def _update_ui_after_solve(self, result):
+    def _update_ui_on_solution_found(self, steps):
         self._set_controls_state("normal")
 
-        if result is None:
+        if steps is None:
             self._append_log("Aucune solution possible")
             return
 
-        elif len(result) == 0:
+        elif len(steps) == 0:
             self._append_log("La grille est déjà résolue !")
         else:
-            self._append_log(f"Solution trouvée en {len(result)} coups")
-
-        self.dispatcher.emit(MoraEvent.SOLUTION_FOUND, steps=result)
+            self._append_log(f"Solution trouvée en {len(steps)} coups")
 
     def _on_mode_change(self, value: str):
         new_mode = MoraMode(value.lower())

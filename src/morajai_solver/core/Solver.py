@@ -1,30 +1,26 @@
 from collections import deque
 import logging
 
-from morajai_solver.core.GameEngine import GameEngine
 from morajai_solver.core.MovementStrategies import STRATEGY_MAP
-from morajai_solver.models.MoraBoard import BitmaskMoraBoard
+from morajai_solver.models.MoraBoard import BitmaskMoraBoard, DictMoraBoard
 
 logger = logging.getLogger(__name__)
 
 
 class MoraSolver:
-    def __init__(self):
-        self.engine = GameEngine()
+    def __init__(self, board: DictMoraBoard):
+        self._board = BitmaskMoraBoard()
+
+        for (r, c), color in board.data.items():
+            self._board[r, c] = color
+
+        for (r, c), color in board._targets.items():
+            self._board.set_target(r, c, color)
 
     def solve(self):
-        start_dict = self.engine._board.data
+        start_bitmask = self._board._data
 
-        board = BitmaskMoraBoard()
-        for (r, c), color in start_dict.items():
-            board[r, c] = color
-
-        for (r, c), color in self.engine._board._targets.items():
-            board.set_target(r, c, color)
-
-        start_bitmask = board._data
-
-        if board.check_victory():
+        if self._board.check_victory():
             return []
 
         queue = deque([(start_bitmask, [])])
@@ -38,21 +34,21 @@ class MoraSolver:
 
             for r in range(1, 4):
                 for c in range(1, 4):
-                    board._data = current_bitmask
+                    self._board._data = current_bitmask
 
-                    color = board[r, c]
+                    color = self._board[r, c]
                     strategy = STRATEGY_MAP.get(color)
 
                     if not strategy:
                         continue
-                    strategy.execute(r, c, board)
+                    strategy.execute(r, c, self._board)
 
-                    if board.check_victory():
+                    if self._board.check_victory():
                         final_path = path + [(r, c)]
                         logger.info(f"Solution trouvée en {len(final_path)} coups")
                         return final_path
 
-                    next_bitmask = board._data
+                    next_bitmask = self._board._data
                     if next_bitmask not in visited:
                         visited.add(next_bitmask)
                         queue.append((next_bitmask, path + [(r, c)]))

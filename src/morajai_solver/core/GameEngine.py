@@ -1,5 +1,7 @@
 import random
 import logging
+import threading
+from morajai_solver.core.Solver import MoraSolver
 from morajai_solver.event_dispatcher import EventDispatcher, SingletonMeta
 from morajai_solver.components.MoraButton import MoraColor
 from morajai_solver.core.MovementStrategies import STRATEGY_MAP
@@ -29,6 +31,8 @@ class GameEngine(metaclass=SingletonMeta):
 
         self.dispatcher.subscribe(MoraEvent.MODE_CHANGED, self._on_mode_changed)
         self.dispatcher.subscribe(MoraEvent.RESET_SAVE, self._on_reset_save)
+
+        self.dispatcher.subscribe(MoraEvent.SOLVER_START, self._on_solver_start)
 
         logger.debug("Moteur de jeu initialisé.")
 
@@ -71,6 +75,15 @@ class GameEngine(metaclass=SingletonMeta):
                 self._board[(r, c)] = random_color
 
         self.dispatcher.emit(MoraEvent.BOARD_UPDATED, board_state=self._board.data.copy())
+
+    def _on_solver_start(self):
+        threading.Thread(target=self._run_solver_async, daemon=True).start()
+
+    def _run_solver_async(self):
+        solver = MoraSolver(self._board)
+        result = solver.solve()
+
+        self.dispatcher.emit(MoraEvent.SOLUTION_FOUND, steps=result)
 
     def check_victory(self, board: AbstractMoraBoard | None = None):
         if board:

@@ -30,7 +30,7 @@ class SolutionView(ctk.CTkFrame):
 
         self.create_placeholder()
 
-        self.dispatcher.subscribe(MoraEvent.SOLUTION_FOUND, self.display_solution)
+        self.dispatcher.subscribe(MoraEvent.SOLUTION_FOUND, self._on_solution_found)
         self.dispatcher.subscribe(MoraEvent.RANDOMIZE_BOARD, self.clear_solution)
         self.dispatcher.subscribe(
             MoraEvent.TILE_COLOR_CHANGED, lambda *args, **kwargs: self.clear_solution()
@@ -71,6 +71,10 @@ class SolutionView(ctk.CTkFrame):
         self._has_error = False
         self._update_steps_highlighting()
 
+    def _on_solution_found(self, steps: list):
+        # Back to main thread
+        self.after(0, self.display_solution, steps)
+
     def display_solution(self, steps: list):
         for widget in self.scroll_frame.winfo_children():
             widget.destroy()
@@ -80,6 +84,15 @@ class SolutionView(ctk.CTkFrame):
         self._step_frames = []
         self._has_error = False
         self._solution_displayed = True
+
+        if self._steps is None:
+            label = ctk.CTkLabel(
+                self.scroll_frame,
+                text="Pas de solution possible",
+                font=('Arial', 13, 'bold')
+            )
+            label.pack(pady=20)
+            return
 
         if not self._steps:
             label = ctk.CTkLabel(

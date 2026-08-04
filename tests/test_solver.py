@@ -1,21 +1,21 @@
 # tests/test_solver.py
 from morajai_solver.core.Solver import MoraSolver
+from morajai_solver.models.MoraBoard import DictMoraBoard
 from morajai_solver.models.MoraColor import MoraColor
 
 
 def test_solver_finds_short_solution():
-    solver = MoraSolver()
-    engine = solver.engine
+    board = DictMoraBoard()
 
     # 1. On configure une cible (les 4 coins)
-    engine._board.set_target(1, 1, MoraColor.YELLOW)
-    engine._board.set_target(1, 3, MoraColor.GREY)
-    engine._board.set_target(3, 3, MoraColor.GREY)
-    engine._board.set_target(3, 1, MoraColor.GREY)
+    board.set_target(1, 1, MoraColor.YELLOW)
+    board.set_target(1, 3, MoraColor.GREY)
+    board.set_target(3, 3, MoraColor.GREY)
+    board.set_target(3, 1, MoraColor.GREY)
 
     # 2. On configure un plateau initial à exactement 1 coup de la victoire
     # Si on clique sur le Jaune en (2,1), il monte en (1,1) et valide le coin (0,0) !
-    engine._board.data = {
+    board.data = {
         (1, 1): MoraColor.WHITE,
         (1, 2): MoraColor.GREY,
         (1, 3): MoraColor.GREY,
@@ -27,7 +27,9 @@ def test_solver_finds_short_solution():
         (3, 3): MoraColor.GREY,
     }
 
-    assert engine._board.check_victory() == False
+    assert board.check_victory() == False
+
+    solver = MoraSolver(board)
 
     # 3. On lance la résolution
     path = solver.solve()

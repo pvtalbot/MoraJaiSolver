@@ -14,5 +14,6 @@ class MoraEvent(Enum):
     RESET_SAVE = "reset_save"
 
     # Solveur
+    SOLVER_START = "solver_start"
     SOLUTION_FOUND = "solution_found"
     VICTORY_ACHIEVED = "victory_achieved"
