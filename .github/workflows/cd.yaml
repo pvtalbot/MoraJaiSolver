@@ -22,7 +22,7 @@ jobs:
           enable-cache: true
 
       - name: Clean up des fichiers dev-only
-        run: rm -rf src/benchmarks
+        run: Remove-Item -Recurse -Force src/benchmarks
 
       - name: Configuration de Python
         run: uv python install
