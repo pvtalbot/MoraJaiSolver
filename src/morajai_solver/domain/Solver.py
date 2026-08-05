@@ -2,20 +2,14 @@ from collections import deque
 import logging
 
 from morajai_solver.domain.MovementVisitors import COLOR_VISITORS
-from morajai_solver.models.MoraBoard import BitmaskMoraBoard, DictMoraBoard
+from morajai_solver.models.MoraBoard import DictMoraBoard
 
 logger = logging.getLogger(__name__)
 
 
 class MoraSolver:
     def __init__(self, board: DictMoraBoard):
-        self._board = BitmaskMoraBoard()
-
-        for (r, c), color in board.data.items():
-            self._board[r, c] = color
-
-        for (r, c), color in board.targets.items():
-            self._board.set_target(r, c, color)
+        self._board = board.get_bitmask_board()
 
     def solve(self):
         start_bitmask = self._board.data

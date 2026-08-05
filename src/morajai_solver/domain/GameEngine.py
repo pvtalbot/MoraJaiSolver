@@ -5,6 +5,7 @@ from morajai_solver.domain.MovementVisitors import COLOR_VISITORS
 from morajai_solver.domain.Solver import MoraSolver
 from morajai_solver.domain.colors import MoraColor
 from morajai_solver.infra.EventDispatcher import EventDispatcher
+from morajai_solver.infra.repositories.json_board_repository import JsonBoardRepository
 from morajai_solver.infra.singleton import SingletonMeta
 from morajai_solver.models.MoraBoard import AbstractMoraBoard, DictMoraBoard
 from morajai_solver.infra.events import MoraEvent
@@ -17,6 +18,7 @@ class GameEngine(metaclass=SingletonMeta):
     def __init__(self):
         self.dispatcher = EventDispatcher()
         self._board = DictMoraBoard({})
+        self._repository = JsonBoardRepository()
 
         self._subscribe_events()
 
@@ -34,6 +36,13 @@ class GameEngine(metaclass=SingletonMeta):
         self.dispatcher.subscribe(MoraEvent.RESET_SAVE, self._on_reset_save)
 
         self.dispatcher.subscribe(MoraEvent.SOLVER_START, self._on_solver_start)
+
+        self.dispatcher.subscribe(
+            MoraEvent.SAVE_BOARD_REQUESTED, self._on_save_requested
+        )
+        self.dispatcher.subscribe(
+            MoraEvent.LIST_LEVELS_REQUESTED, self._on_list_levels_requested
+        )
 
         logger.debug("Moteur de jeu initialisé.")
 
@@ -90,3 +99,18 @@ class GameEngine(metaclass=SingletonMeta):
             return board.check_victory()
 
         return self._board.check_victory()
+
+    def _on_save_requested(self, board_id: str):
+        try:
+            saved_path = self._repository.save(
+                board_id, self._board.get_bitmask_board()
+            )
+            logger.info(f"Niveau {saved_path} sauvegardé")
+        except PermissionError:
+            logger.error("Impossible de sauvegarder : mode dev inactif.")
+        except Exception as e:
+            logger.error(f"Erreur lors de la sauvegarde : {e}")
+
+    def _on_list_levels_requested(self):
+        levels = self._repository.list_available_boards()
+        self.dispatcher.emit(MoraEvent.LIST_LEVELS, levels=levels)

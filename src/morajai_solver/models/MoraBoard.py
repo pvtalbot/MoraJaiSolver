@@ -78,6 +78,14 @@ class DictMoraBoard(AbstractMoraBoard):
     def accept(self, visitor: MovementVisitor, pos: Coord) -> None:
         visitor.visit_dict_board(self, pos)
 
+    def get_bitmask_board(self):
+        result = BitmaskMoraBoard()
+        for k, v in self.data.items():
+            result[k] = v
+        for (r, c), v in self.targets.items():
+            result.set_target(r, c, v)
+        return result
+
 
 class BitmaskMoraBoard(AbstractMoraBoard):
     data: int
