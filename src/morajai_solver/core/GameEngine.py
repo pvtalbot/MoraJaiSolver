@@ -1,10 +1,10 @@
 import random
 import logging
 import threading
+from morajai_solver.core.MovementVisitors import COLOR_VISITORS
 from morajai_solver.core.Solver import MoraSolver
 from morajai_solver.event_dispatcher import EventDispatcher, SingletonMeta
 from morajai_solver.components.MoraButton import MoraColor
-from morajai_solver.core.MovementStrategies import STRATEGY_MAP
 from morajai_solver.models.MoraBoard import AbstractMoraBoard, DictMoraBoard
 from morajai_solver.models.MoraEvent import MoraEvent
 from morajai_solver.models.MoraMode import MoraMode
@@ -57,13 +57,8 @@ class GameEngine(metaclass=SingletonMeta):
         self._board.set_target(r, c, color)
 
     def _on_tile_clicked(self, r: int, c: int, color: MoraColor):
-        strategy = STRATEGY_MAP.get(color)
-
-        if not strategy:
-            logger.warning("Aucune stratégie trouvée")
-            return
-
-        strategy.execute(r, c, self._board, self.dispatcher)
+        visitor = COLOR_VISITORS[color]
+        self._board.accept(visitor, (r, c))
 
         if self.check_victory():
             self.dispatcher.emit(MoraEvent.VICTORY_ACHIEVED)
