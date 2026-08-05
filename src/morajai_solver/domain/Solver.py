@@ -14,7 +14,7 @@ class MoraSolver:
         for (r, c), color in board.data.items():
             self._board[r, c] = color
 
-        for (r, c), color in board._targets.items():
+        for (r, c), color in board.targets.items():
             self._board.set_target(r, c, color)
 
     def solve(self):

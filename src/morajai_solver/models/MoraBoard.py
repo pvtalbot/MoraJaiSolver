@@ -57,7 +57,7 @@ class DictMoraBoard(AbstractMoraBoard):
 
     def __init__(self, board_dict: dict[Coord, MoraColor] | None = None):
         self.data: dict[Coord, MoraColor] = board_dict if board_dict is not None else {}
-        self._targets: dict[Coord, MoraColor] = {}
+        self.targets: dict[Coord, MoraColor] = {}
 
     def __getitem__(self, pos: Coord) -> MoraColor:
         return self.data[pos]
@@ -70,10 +70,10 @@ class DictMoraBoard(AbstractMoraBoard):
             yield pos, color
 
     def set_target(self, row: int, col: int, color: MoraColor) -> None:
-        self._targets[(row, col)] = color
+        self.targets[(row, col)] = color
 
     def check_victory(self) -> bool:
-        return all(self.data[x] == self._targets[x] for x in self._targets)
+        return all(self.data[x] == self.targets[x] for x in self.targets)
 
     def accept(self, visitor: MovementVisitor, pos: Coord) -> None:
         visitor.visit_dict_board(self, pos)
@@ -82,12 +82,12 @@ class DictMoraBoard(AbstractMoraBoard):
 class BitmaskMoraBoard(AbstractMoraBoard):
     data: int
     target_state: int
-    target_mask: int
+
+    TARGET_MASK: int = 0xF0F_000_F0F
 
     def __init__(self, bitmask: int = 0):
         self.data = bitmask
         self.target_state: int = 0
-        self.target_mask: int = 0
 
     def _pos_to_shift(self, pos: Coord) -> int:
         r, c = pos
@@ -98,13 +98,9 @@ class BitmaskMoraBoard(AbstractMoraBoard):
 
         self.target_state &= ~(0xF << shift)
         self.target_state |= color.value << shift
-        self.target_mask |= 0xF << shift
 
     def check_victory(self) -> bool:
-        if self.target_mask == 0:
-            return False
-
-        return (self.data & self.target_mask) == self.target_state
+        return (self.data & self.TARGET_MASK) == self.target_state
 
     # Should not be used for computation, only for tests
     def __getitem__(self, pos: Coord) -> MoraColor:
