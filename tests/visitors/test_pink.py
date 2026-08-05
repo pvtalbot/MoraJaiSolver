@@ -1,10 +1,10 @@
-from morajai_solver.core.MovementVisitors import PinkVisitor
+from morajai_solver.domain.MovementVisitors import PinkVisitor
 from morajai_solver.models.MoraBoard import (
     AbstractMoraBoard,
     BitmaskMoraBoard,
     DictMoraBoard,
 )
-from morajai_solver.models.MoraColor import MoraColor
+from morajai_solver.domain.colors import MoraColor
 
 
 def center_all_neighbors(board: AbstractMoraBoard):

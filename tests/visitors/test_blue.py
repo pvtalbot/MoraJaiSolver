@@ -1,10 +1,10 @@
-from morajai_solver.core.MovementVisitors import BlueVisitor
+from morajai_solver.domain.MovementVisitors import BlueVisitor
 from morajai_solver.models.MoraBoard import (
     AbstractMoraBoard,
     BitmaskMoraBoard,
     DictMoraBoard,
 )
-from morajai_solver.models.MoraColor import MoraColor
+from morajai_solver.domain.colors import MoraColor
 
 
 def yellow_center(board: AbstractMoraBoard):

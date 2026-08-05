@@ -1,4 +1,4 @@
-from morajai_solver.models.MoraColor import MoraColor
+from morajai_solver.domain.colors import MoraColor
 from enum import Enum
 
 COLOR_HEX_MAP = {

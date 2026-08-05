@@ -2,11 +2,11 @@ from abc import ABC, abstractmethod
 import customtkinter as ctk
 import logging
 
-from morajai_solver.event_dispatcher import EventDispatcher
-from morajai_solver.models.ColorHexMap import COLOR_HEX_MAP, UITheme
-from morajai_solver.models.MoraColor import MoraColor
-from morajai_solver.models.MoraEvent import MoraEvent
-from morajai_solver.models.MoraMode import MoraMode
+from morajai_solver.infra.EventDispatcher import EventDispatcher
+from morajai_solver.ui.ui_colors import COLOR_HEX_MAP, UITheme
+from morajai_solver.domain.colors import MoraColor
+from morajai_solver.infra.events import MoraEvent
+from morajai_solver.ui.game_modes import MoraMode
 
 logger = logging.getLogger(__name__)
 

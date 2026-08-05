@@ -1,5 +1,5 @@
 from morajai_solver.models.MoraBoard import BitmaskMoraBoard, DictMoraBoard
-from morajai_solver.models.MoraColor import MoraColor
+from morajai_solver.domain.colors import MoraColor
 
 
 def test_dict_and_bitmask_consistency():

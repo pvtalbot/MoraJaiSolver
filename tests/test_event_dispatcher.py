@@ -1,6 +1,6 @@
 # tests/test_event_dispatcher.py
-from morajai_solver.event_dispatcher import EventDispatcher
-from morajai_solver.models.MoraEvent import MoraEvent
+from morajai_solver.infra.EventDispatcher import EventDispatcher
+from morajai_solver.infra.events import MoraEvent
 
 
 def test_event_dispatcher_singleton_and_emission():

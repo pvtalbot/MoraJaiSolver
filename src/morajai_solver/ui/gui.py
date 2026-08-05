@@ -1,9 +1,9 @@
 import customtkinter as ctk
 
-from morajai_solver.models.ColorHexMap import UITheme
-from morajai_solver.views.SolutionView import SolutionView
-from morajai_solver.views.BoardView import BoardView
-from morajai_solver.views.ControlPanelView import ControlPanelView
+from morajai_solver.ui.ui_colors import UITheme
+from morajai_solver.ui.views.SolutionView import SolutionView
+from morajai_solver.ui.views.BoardView import BoardView
+from morajai_solver.ui.views.ControlPanelView import ControlPanelView
 
 
 def fade_out(app, alpha=1.0):

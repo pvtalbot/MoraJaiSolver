@@ -7,7 +7,7 @@ import tracemalloc
 from typing import List
 
 from benchmarks.boards import PRESET_BOARDS
-from morajai_solver.core.Solver import MoraSolver
+from morajai_solver.domain.Solver import MoraSolver
 from morajai_solver.models.MoraBoard import DictMoraBoard
 
 

@@ -1,10 +1,11 @@
 from abc import ABC
 from collections import Counter
 
-from morajai_solver.event_dispatcher import EventDispatcher
-from morajai_solver.models.MoraBoard import BitmaskMoraBoard, Coord, DictMoraBoard
-from morajai_solver.models.MoraColor import MoraColor
-from morajai_solver.models.MoraEvent import MoraEvent
+from morajai_solver.infra.EventDispatcher import EventDispatcher
+from morajai_solver.models.MoraBoard import BitmaskMoraBoard, DictMoraBoard
+from morajai_solver.domain.colors import MoraColor
+from morajai_solver.infra.events import MoraEvent
+from morajai_solver.models.types import Coord
 
 
 class MovementVisitor(ABC):

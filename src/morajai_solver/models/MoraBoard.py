@@ -3,12 +3,11 @@ from typing import TYPE_CHECKING
 from abc import ABC, abstractmethod
 from typing import Generator
 
-from morajai_solver.models.MoraColor import MoraColor
+from morajai_solver.domain.colors import MoraColor
+from morajai_solver.models.types import Coord
 
 if TYPE_CHECKING:
-    from morajai_solver.core.MovementVisitors import MovementVisitor
-
-type Coord = tuple[int, int]
+    from morajai_solver.domain.MovementVisitors import MovementVisitor
 
 
 class AbstractMoraBoard(ABC):

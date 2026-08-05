@@ -1,9 +1,9 @@
 import customtkinter as ctk
 
-from morajai_solver.event_dispatcher import EventDispatcher
-from morajai_solver.models.ColorHexMap import UITheme
-from morajai_solver.models.MoraColor import MoraColor
-from morajai_solver.models.MoraEvent import MoraEvent
+from morajai_solver.infra.EventDispatcher import EventDispatcher
+from morajai_solver.ui.ui_colors import UITheme
+from morajai_solver.domain.colors import MoraColor
+from morajai_solver.infra.events import MoraEvent
 
 
 class SolutionView(ctk.CTkFrame):

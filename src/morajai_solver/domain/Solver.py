@@ -1,7 +1,7 @@
 from collections import deque
 import logging
 
-from morajai_solver.core.MovementVisitors import COLOR_VISITORS
+from morajai_solver.domain.MovementVisitors import COLOR_VISITORS
 from morajai_solver.models.MoraBoard import BitmaskMoraBoard, DictMoraBoard
 
 logger = logging.getLogger(__name__)

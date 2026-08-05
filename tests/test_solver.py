@@ -1,7 +1,7 @@
 # tests/test_solver.py
-from morajai_solver.core.Solver import MoraSolver
+from morajai_solver.domain.Solver import MoraSolver
 from morajai_solver.models.MoraBoard import DictMoraBoard
-from morajai_solver.models.MoraColor import MoraColor
+from morajai_solver.domain.colors import MoraColor
 
 
 def test_solver_finds_short_solution():

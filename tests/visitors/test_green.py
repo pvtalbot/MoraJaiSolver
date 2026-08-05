@@ -1,11 +1,11 @@
 # tests/test_green.py
-from morajai_solver.core.MovementVisitors import GreenVisitor
+from morajai_solver.domain.MovementVisitors import GreenVisitor
 from morajai_solver.models.MoraBoard import (
     AbstractMoraBoard,
     BitmaskMoraBoard,
     DictMoraBoard,
 )
-from morajai_solver.models.MoraColor import MoraColor
+from morajai_solver.domain.colors import MoraColor
 
 
 def swaps_opposite(board: AbstractMoraBoard):

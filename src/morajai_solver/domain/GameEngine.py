@@ -1,13 +1,14 @@
 import random
 import logging
 import threading
-from morajai_solver.core.MovementVisitors import COLOR_VISITORS
-from morajai_solver.core.Solver import MoraSolver
-from morajai_solver.event_dispatcher import EventDispatcher, SingletonMeta
-from morajai_solver.components.MoraButton import MoraColor
+from morajai_solver.domain.MovementVisitors import COLOR_VISITORS
+from morajai_solver.domain.Solver import MoraSolver
+from morajai_solver.domain.colors import MoraColor
+from morajai_solver.infra.EventDispatcher import EventDispatcher
+from morajai_solver.infra.singleton import SingletonMeta
 from morajai_solver.models.MoraBoard import AbstractMoraBoard, DictMoraBoard
-from morajai_solver.models.MoraEvent import MoraEvent
-from morajai_solver.models.MoraMode import MoraMode
+from morajai_solver.infra.events import MoraEvent
+from morajai_solver.ui.game_modes import MoraMode
 
 logger = logging.getLogger(__name__)
 

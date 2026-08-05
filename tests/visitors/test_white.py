@@ -1,11 +1,11 @@
 # tests/test_white.py
-from morajai_solver.core.MovementVisitors import WhiteVisitor
+from morajai_solver.domain.MovementVisitors import WhiteVisitor
 from morajai_solver.models.MoraBoard import (
     AbstractMoraBoard,
     BitmaskMoraBoard,
     DictMoraBoard,
 )
-from morajai_solver.models.MoraColor import MoraColor
+from morajai_solver.domain.colors import MoraColor
 
 
 def toggles_grey(board: AbstractMoraBoard):

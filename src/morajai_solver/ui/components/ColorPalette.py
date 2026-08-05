@@ -1,10 +1,10 @@
 import customtkinter as ctk
 
-from morajai_solver.event_dispatcher import EventDispatcher
-from morajai_solver.models.ColorHexMap import COLOR_HEX_MAP, UITheme
-from morajai_solver.models.MoraColor import MoraColor
-from morajai_solver.models.MoraEvent import MoraEvent
-from morajai_solver.models.MoraMode import MoraMode
+from morajai_solver.infra.EventDispatcher import EventDispatcher
+from morajai_solver.ui.ui_colors import COLOR_HEX_MAP, UITheme
+from morajai_solver.domain.colors import MoraColor
+from morajai_solver.infra.events import MoraEvent
+from morajai_solver.ui.game_modes import MoraMode
 
 
 class ColorPalette(ctk.CTkFrame):
@@ -72,7 +72,7 @@ class ColorPalette(ctk.CTkFrame):
                 btn.configure(border_width=1, border_color=UITheme.BORDER_DARK.value)
 
     def _select_color(self, color: MoraColor):
-        from morajai_solver.components.MoraButton import AbstractMoraButton
+        from morajai_solver.ui.components.MoraButton import AbstractMoraButton
 
         AbstractMoraButton.set_brush_color(color)
         self._update_highlight(color)
