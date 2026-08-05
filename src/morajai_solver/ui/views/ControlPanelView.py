@@ -9,16 +9,9 @@ from morajai_solver.ui.game_modes import MoraMode
 
 class ControlPanelView(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
-        super().__init__(
-            master, fg_color=UITheme.BG_PANEL.value, corner_radius=10, **kwargs
-        )
+        super().__init__(master, **kwargs)
         self.dispatcher = EventDispatcher()
         self.logger = logging.getLogger(__name__)
-
-        panel_title = ctk.CTkLabel(
-            self, text="Controls & Logs", font=("Arial", 14, "bold")
-        )
-        panel_title.pack(pady=10)
 
         mode_label = ctk.CTkLabel(self, text="Application Mode :", font=("Arial", 11))
         mode_label.pack(anchor="w", padx=20, pady=(5, 2))
@@ -37,16 +30,17 @@ class ControlPanelView(ctk.CTkFrame):
         self.mode_selector.pack(padx=20, pady=(0, 15), fill="x")
         self.mode_selector.set("Config")
 
-        self.random_button = ctk.CTkButton(
+        self.reset_button = ctk.CTkButton(
             self,
-            text="Randomize",
+            text="Reset",
             corner_radius=6,
             bg_color="transparent",
             fg_color=UITheme.BTN_CONFIG_BG.value,
             hover_color=UITheme.BTN_CONFIG_HOVER.value,
-            command=self._on_random_click,
+            command=self._on_reset_click,
+            state="disabled",
         )
-        self.random_button.pack(pady=5, padx=20, fill="x")
+        self.reset_button.pack(pady=5, padx=20, fill="x")
 
         self.solve_button = ctk.CTkButton(
             self,
@@ -101,26 +95,19 @@ class ControlPanelView(ctk.CTkFrame):
         self.logger.info(f"Nouveau mode : {value}")
 
         if new_mode == MoraMode.PLAY:
-            self.random_button.configure(
-                text="Reset",
-            )
+            self.reset_button.configure(state="normal")
         else:
-            self.random_button.configure(
-                text="Randomize",
-            )
+            self.reset_button.configure(state="disabled")
 
-    def _on_random_click(self):
-        if self.mode_selector.get().lower() == MoraMode.PLAY.value:
-            self.dispatcher.emit(MoraEvent.RESET_SAVE)
-        else:
-            self.dispatcher.emit(MoraEvent.RANDOMIZE_BOARD)
+    def _on_reset_click(self):
+        self.dispatcher.emit(MoraEvent.RESET_SAVE)
 
     def _on_victory_achieved(self):
         self._append_log("VICTOIRE !")
 
     def _set_controls_state(self, state: str):
         self.mode_selector.configure(state=state)
-        self.random_button.configure(state=state)
+        self.reset_button.configure(state=state)
         self.solve_button.configure(state=state)
 
     def _append_log(self, message: str):

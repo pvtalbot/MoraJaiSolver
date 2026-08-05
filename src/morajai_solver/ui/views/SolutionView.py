@@ -20,8 +20,10 @@ class SolutionView(ctk.CTkFrame):
         self._has_error = False
         self._solution_displayed = False
 
-        title = ctk.CTkLabel(self, text="Solution", font=("Arial", 14, "bold"))
-        title.pack(pady=10, padx=10)
+        header_frame = ctk.CTkFrame(self, fg_color="transparent")
+        header_frame.pack(fill="x", padx=15, pady=(10, 5))
+        title = ctk.CTkLabel(header_frame, text="Solution", font=("Arial", 14, "bold"))
+        title.pack(side="left")
 
         self.scroll_frame = ctk.CTkScrollableFrame(
             self, fg_color=UITheme.BG_CONSOLE.value, corner_radius=6
