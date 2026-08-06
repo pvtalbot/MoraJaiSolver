@@ -4,11 +4,7 @@ from morajai_solver.infra.events import MoraEvent
 
 
 def test_event_dispatcher_singleton_and_emission():
-    dispatcher1 = EventDispatcher()
-    dispatcher2 = EventDispatcher()
-
-    # Vérification que c'est bien le même Singleton
-    assert dispatcher1 is dispatcher2
+    dispatcher = EventDispatcher()
 
     # Variable locale pour capturer l'exécution du callback
     callback_called = False
@@ -19,11 +15,8 @@ def test_event_dispatcher_singleton_and_emission():
         callback_called = True
         received_kwargs = kwargs
 
-    # On s'abonne via la première instance
-    dispatcher1.subscribe(MoraEvent.VICTORY_ACHIEVED, mock_callback)
-
-    # On émet via la deuxième instance
-    dispatcher2.emit(MoraEvent.VICTORY_ACHIEVED, message="Gagné !")
+    dispatcher.subscribe(MoraEvent.VICTORY_ACHIEVED, mock_callback)
+    dispatcher.emit(MoraEvent.VICTORY_ACHIEVED, message="Gagné !")
 
     # Vérifications
     assert callback_called is True

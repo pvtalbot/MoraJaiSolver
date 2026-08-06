@@ -7,9 +7,9 @@ from morajai_solver.ui.ui_colors import UITheme
 
 
 class AdminPanelView(ctk.CTkFrame):
-    def __init__(self, master, **kwargs):
+    def __init__(self, master, ui_bus: EventDispatcher, **kwargs):
         super().__init__(master, **kwargs)
-        self.dispatcher = EventDispatcher()
+        self.dispatcher = ui_bus
         self.logger = logging.getLogger(__name__)
 
         self.random_button = ctk.CTkButton(

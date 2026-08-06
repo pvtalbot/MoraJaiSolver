@@ -1,6 +1,7 @@
 import argparse
 import logging
 
+from morajai_solver.infra.EventDispatcher import EventDispatcher
 from morajai_solver.infra.logger import configure_logging
 from morajai_solver.domain.GameEngine import GameEngine
 from morajai_solver.ui.gui import launch_gui
@@ -39,8 +40,11 @@ def main():
     else:
         configure_logging(logger_level=logging.INFO)
 
-    GameEngine()
-    launch_gui()
+    ui_bus = EventDispatcher()
+
+    GameEngine(ui_bus=ui_bus)
+    app = launch_gui(ui_bus=ui_bus)
+    app.mainloop()
 
 
 if __name__ == "__main__":

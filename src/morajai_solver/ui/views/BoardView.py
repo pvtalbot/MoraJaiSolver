@@ -15,10 +15,10 @@ class BoardView(ctk.CTkFrame):
     targets: list[MoraTargetButton]
     palette: ColorPalette
 
-    def __init__(self, master, **kwargs):
+    def __init__(self, master, ui_bus: EventDispatcher, **kwargs):
         super().__init__(master, fg_color="transparent", **kwargs)
 
-        self.dispatcher = EventDispatcher()
+        self.dispatcher = ui_bus
         self.buttons = []
         self.targets = []
 

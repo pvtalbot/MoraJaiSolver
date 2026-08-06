@@ -7,12 +7,12 @@ from morajai_solver.infra.events import MoraEvent
 
 
 class SolutionView(ctk.CTkFrame):
-    def __init__(self, master, **kwargs):
+    def __init__(self, master, ui_bus: EventDispatcher, **kwargs):
         super().__init__(
             master, fg_color=UITheme.BG_PANEL.value, corner_radius=10, **kwargs
         )
 
-        self.dispatcher = EventDispatcher()
+        self.dispatcher = ui_bus
 
         self._steps = []
         self._current_step_index = 0

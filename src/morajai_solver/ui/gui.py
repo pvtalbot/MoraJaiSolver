@@ -17,7 +17,7 @@ def fade_out(app, alpha=1.0):
         app.destroy()
 
 
-def launch_gui():
+def launch_gui(ui_bus: EventDispatcher) -> ctk.CTk:
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("blue")
 
@@ -44,16 +44,15 @@ def launch_gui():
     main_container.grid_columnconfigure(1, weight=1, minsize=300)
     main_container.grid_columnconfigure(2, weight=1)
 
-    board_view = BoardView(main_container)
+    board_view = BoardView(main_container, ui_bus)
     board_view.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-    control_panel = CenterColumnView(main_container)
+    control_panel = CenterColumnView(main_container, ui_bus)
     control_panel.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
-    solution_view = SolutionView(main_container)
+    solution_view = SolutionView(main_container, ui_bus)
     solution_view.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
 
-    event_dispatcher = EventDispatcher()
-    event_dispatcher.emit(MoraEvent.UI_READY)
+    ui_bus.emit(MoraEvent.UI_READY)
 
-    app.mainloop()
+    return app

@@ -1,17 +1,14 @@
 from abc import ABC
 from collections import Counter
 
-from morajai_solver.infra.EventDispatcher import EventDispatcher
 from morajai_solver.models.MoraBoard import BitmaskMoraBoard, DictMoraBoard
 from morajai_solver.domain.colors import MoraColor
-from morajai_solver.infra.events import MoraEvent
 from morajai_solver.models.types import Coord
 
 
 class MovementVisitor(ABC):
     def visit_dict_board(self, board: DictMoraBoard, pos: Coord) -> None:
-        dispatcher = EventDispatcher()
-        dispatcher.emit(MoraEvent.BOARD_UPDATED, board_state=board.data.copy())
+        pass
 
     def visit_bitmask_board(self, board: BitmaskMoraBoard, pos: int) -> None:
         pass
@@ -25,8 +22,6 @@ class YellowVisitor(MovementVisitor):
 
         dest_pos = (r - 1, c)
         board[pos], board[dest_pos] = board[dest_pos], board[pos]
-
-        super().visit_dict_board(board, pos)
 
     def visit_bitmask_board(self, board: BitmaskMoraBoard, pos: int) -> None:
         if pos < 3:
@@ -53,8 +48,6 @@ class PurpleVisitor(MovementVisitor):
             return
         dest_pos = (r + 1, c)
         board[pos], board[dest_pos] = board[dest_pos], board[pos]
-
-        super().visit_dict_board(board, pos)
 
     def visit_bitmask_board(self, board: BitmaskMoraBoard, pos: int) -> None:
         if pos > 5:
@@ -83,8 +76,6 @@ class GreenVisitor(MovementVisitor):
 
         board[pos], board[dest_pos] = board[dest_pos], board[pos]
 
-        super().visit_dict_board(board, pos)
-
     def visit_bitmask_board(self, board: BitmaskMoraBoard, pos: int) -> None:
         dest = 8 - pos
 
@@ -108,8 +99,6 @@ class BlackVisitor(MovementVisitor):
         r, _ = pos
         board[(r, 1)], board[(r, 3)] = board[(r, 3)], board[(r, 1)]
         board[(r, 2)], board[(r, 3)] = board[(r, 3)], board[(r, 2)]
-
-        super().visit_dict_board(board, pos)
 
     def visit_bitmask_board(self, board: BitmaskMoraBoard, pos: int) -> None:
         first_pos = (pos // 3) * 3
@@ -143,8 +132,6 @@ class OrangeVisitor(MovementVisitor):
             board[pos] = most_common[0][0]
         elif len(most_common) == 2 and most_common[0][1] > most_common[1][1]:
             board[pos] = most_common[0][0]
-
-        super().visit_dict_board(board, pos)
 
     def visit_bitmask_board(self, board: BitmaskMoraBoard, pos: int) -> None:
         neighbors_indices = ORTHOGONAL_NEIGHBORS[pos]
@@ -186,8 +173,6 @@ class PinkVisitor(MovementVisitor):
         for coord, val in zip(ring_coords, rotated):
             board[coord] = val
 
-        super().visit_dict_board(board, pos)
-
     def visit_bitmask_board(self, board: BitmaskMoraBoard, pos: int) -> None:
         ring = PINK_ROTATION_RINGS[pos]
 
@@ -217,8 +202,6 @@ class RedVisitor(MovementVisitor):
             elif color == MoraColor.WHITE:
                 board[pos] = MoraColor.BLACK
 
-        super().visit_dict_board(board, pos)
-
     def visit_bitmask_board(self, board: BitmaskMoraBoard, pos: int) -> None:
         for shift in (0, 4, 8, 12, 16, 20, 24, 28, 32):
             color = (board.data >> shift) & 0xF
@@ -241,8 +224,6 @@ class WhiteVisitor(MovementVisitor):
                 board[candidate] = color
             elif board[candidate] == color:
                 board[candidate] = MoraColor.GREY
-
-        super().visit_dict_board(board, pos)
 
     def visit_bitmask_board(self, board: BitmaskMoraBoard, pos: int) -> None:
         target_color = (board.data >> (pos * 4)) & 0xF
@@ -267,8 +248,6 @@ class BlueVisitor(MovementVisitor):
         visitor = COLOR_VISITORS[center_color]
         if visitor:
             visitor.visit_dict_board(board, pos)
-
-        super().visit_dict_board(board, pos)
 
     def visit_bitmask_board(self, board: BitmaskMoraBoard, pos: int) -> None:
         center_color = (board.data >> 16) & 0xF

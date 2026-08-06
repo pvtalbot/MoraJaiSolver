@@ -1,12 +1,11 @@
 import logging
 
 from morajai_solver.infra.events import MoraEvent
-from morajai_solver.infra.singleton import SingletonMeta
 
 logger = logging.getLogger(__name__)
 
 
-class EventDispatcher(metaclass=SingletonMeta):
+class EventDispatcher:
     def __init__(self):
         self._listeners = {}
 
