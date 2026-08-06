@@ -1,26 +1,29 @@
+from typing import Callable
+
 import customtkinter as ctk
 
-from morajai_solver.infra.EventDispatcher import EventDispatcher
 from morajai_solver.ui.ui_colors import COLOR_HEX_MAP, UITheme
 from morajai_solver.domain.colors import MoraColor
-from morajai_solver.infra.events import MoraEvent
 from morajai_solver.ui.game_modes import MoraMode
 
 
 class ColorPalette(ctk.CTkFrame):
-    def __init__(self, master, **kwargs):
+    def __init__(
+        self, master, on_color_selected: Callable[[MoraColor], None], **kwargs
+    ):
         super().__init__(master, fg_color="transparent", height=75, **kwargs)
-        self.dispatcher = EventDispatcher()
-        self.buttons = {}
 
-        # CRUCIAL : On interdit à la frame de se déformer ou rétrécir selon ce qu'elle contient
+        self._on_color_selected = on_color_selected
+        self.buttons: dict[MoraColor, ctk.CTkButton] = {}
+
+        # Empêche la frame de se déformer selon son contenu
         self.pack_propagate(False)
 
-        # On crée un sous-conteneur qui contiendra tout le visuel (label + boutons)
+        # Conteneur visuel (label + boutons)
         self.content_container = ctk.CTkFrame(self, fg_color="transparent")
         self.content_container.pack(fill="both", expand=True)
 
-        # Le label (attaché au content_container)
+        # Label
         self.label = ctk.CTkLabel(
             self.content_container,
             text="Palette :",
@@ -28,7 +31,7 @@ class ColorPalette(ctk.CTkFrame):
         )
         self.label.pack(anchor="w", padx=5, pady=(2, 2))
 
-        # Conteneur horizontal pour les 10 couleurs (attaché au content_container)
+        # Conteneur horizontal pour les couleurs
         self.palette_frame = ctk.CTkFrame(
             self.content_container,
             fg_color=UITheme.BG_TILE_CONTAINER.value,
@@ -54,9 +57,7 @@ class ColorPalette(ctk.CTkFrame):
 
         self._update_highlight(MoraColor.GREY)
 
-        self.dispatcher.subscribe(MoraEvent.MODE_CHANGED, self._on_mode_changed)
-
-    def _on_mode_changed(self, new_mode: MoraMode):
+    def set_mode(self, new_mode: MoraMode) -> None:
         if new_mode == MoraMode.PLAY:
             self.content_container.pack_forget()
         else:
@@ -72,7 +73,5 @@ class ColorPalette(ctk.CTkFrame):
                 btn.configure(border_width=1, border_color=UITheme.BORDER_DARK.value)
 
     def _select_color(self, color: MoraColor):
-        from morajai_solver.ui.components.MoraButton import AbstractMoraButton
-
-        AbstractMoraButton.set_brush_color(color)
         self._update_highlight(color)
+        self._on_color_selected(color)

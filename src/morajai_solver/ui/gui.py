@@ -1,5 +1,7 @@
 import customtkinter as ctk
 
+from morajai_solver.infra.EventDispatcher import EventDispatcher
+from morajai_solver.infra.events import MoraEvent
 from morajai_solver.ui.ui_colors import UITheme
 from morajai_solver.ui.views.CenterColumnView import CenterColumnView
 from morajai_solver.ui.views.SolutionView import SolutionView
@@ -50,5 +52,8 @@ def launch_gui():
 
     solution_view = SolutionView(main_container)
     solution_view.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
+
+    event_dispatcher = EventDispatcher()
+    event_dispatcher.emit(MoraEvent.UI_READY)
 
     app.mainloop()

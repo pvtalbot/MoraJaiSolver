@@ -17,7 +17,14 @@ logger = logging.getLogger(__name__)
 class GameEngine(metaclass=SingletonMeta):
     def __init__(self):
         self.dispatcher = EventDispatcher()
-        self._board = DictMoraBoard({})
+        self._board = DictMoraBoard()
+        for r in range(1, 4):
+            for c in range(1, 4):
+                self._board[r, c] = MoraColor.GREY
+        for target in ((1, 1), (1, 3), (3, 1), (3, 3)):
+            r, c = target
+            self._board.set_target(r, c, MoraColor.GREY)
+
         self._repository = JsonBoardRepository()
 
         self._subscribe_events()
@@ -43,6 +50,7 @@ class GameEngine(metaclass=SingletonMeta):
         self.dispatcher.subscribe(
             MoraEvent.LIST_LEVELS_REQUESTED, self._on_list_levels_requested
         )
+        self.dispatcher.subscribe(MoraEvent.UI_READY, self._on_ui_ready)
 
         logger.debug("Moteur de jeu initialisé.")
 
@@ -58,6 +66,13 @@ class GameEngine(metaclass=SingletonMeta):
         self._board.data = self.saved_board_state.copy()
         self.dispatcher.emit(
             MoraEvent.BOARD_UPDATED, board_state=self._board.data.copy()
+        )
+
+    def _on_ui_ready(self):
+        self.dispatcher.emit(
+            MoraEvent.BOARD_UPDATED,
+            board_state=self._board.data.copy(),
+            targets=self._board.targets,
         )
 
     def _on_tile_color_changed(self, r: int, c: int, color: MoraColor):

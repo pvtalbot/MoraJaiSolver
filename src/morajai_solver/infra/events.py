@@ -7,6 +7,7 @@ class MoraEvent(Enum):
     TILE_COLOR_CHANGED = "tile_color_changed"
     TARGET_COLOR_CHANGED = "target_color_changed"
     RANDOMIZE_BOARD = "randomize_board"
+    UI_READY = "ui_ready"
 
     # Jeu
     TILE_CLICKED = "tile_clicked"
