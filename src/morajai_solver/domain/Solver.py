@@ -1,15 +1,15 @@
 from collections import deque
 import logging
 
-from morajai_solver.domain.MovementVisitors import COLOR_VISITORS
-from morajai_solver.models.MoraBoard import DictMoraBoard
+from morajai_solver.domain.MovementStrategies import COLOR_STRATEGIES
+from morajai_solver.models.MoraBoard import MoraBoard
 
 logger = logging.getLogger(__name__)
 
 
 class MoraSolver:
-    def __init__(self, board: DictMoraBoard):
-        self._board = board.get_bitmask_board()
+    def __init__(self, board: MoraBoard):
+        self._board = board.copy()
 
     def solve(self):
         start_bitmask = self._board.data
@@ -43,8 +43,8 @@ class MoraSolver:
 
                 color = (self._board.data >> (i * 4)) & 0xF
 
-                visitor = COLOR_VISITORS[color]
-                visitor.visit_bitmask_board(self._board, i)
+                strategy = COLOR_STRATEGIES[color]
+                strategy.visit(self._board, i)
                 next_bitmask = self._board.data
 
                 if next_bitmask in visited:

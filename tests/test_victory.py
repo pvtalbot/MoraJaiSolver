@@ -1,17 +1,16 @@
 from morajai_solver.models.MoraBoard import (
-    AbstractMoraBoard,
-    BitmaskMoraBoard,
-    DictMoraBoard,
+    MoraBoard,
 )
 from morajai_solver.domain.colors import MoraColor
 
 
-def abstract_test(board: AbstractMoraBoard):
+def test_check_victory():
     # Configuration des objectifs aux 4 coins (positions 0 et 4)
-    board.set_target(1, 1, MoraColor.YELLOW)
-    board.set_target(1, 3, MoraColor.BLUE)
-    board.set_target(3, 3, MoraColor.RED)
-    board.set_target(3, 1, MoraColor.GREEN)
+    board = MoraBoard()
+    board.set_target((1, 1), MoraColor.YELLOW)
+    board.set_target((1, 3), MoraColor.BLUE)
+    board.set_target((3, 3), MoraColor.RED)
+    board.set_target((3, 1), MoraColor.GREEN)
 
     # ÉCHEC : Le plateau du moteur est entièrement gris au départ
     for r in range(1, 4):
@@ -26,15 +25,3 @@ def abstract_test(board: AbstractMoraBoard):
     board[(3, 1)] = MoraColor.GREEN
 
     assert board.check_victory() is True
-
-
-def test_check_victory_with_internal_board_state():
-    """Vérifie check_victory en mode jeu standard (utilise engine.board_state)."""
-    board = DictMoraBoard()
-    abstract_test(board)
-
-
-def test_check_victory_with_external_simulated_board():
-    """Vérifie check_victory en mode solveur (reçoit un BitmaskMoraBoard en argument)."""
-    board = BitmaskMoraBoard()
-    abstract_test(board)

@@ -2,14 +2,14 @@ import json
 from pathlib import Path
 
 from morajai_solver.infra.env import IS_DEV_MODE, get_levels_dir
-from morajai_solver.models.MoraBoard import BitmaskMoraBoard
+from morajai_solver.models.MoraBoard import MoraBoard
 
 
 class JsonBoardRepository:
     def __init__(self) -> None:
         self._levels_dir = get_levels_dir()
 
-    def load(self, board_id: str) -> BitmaskMoraBoard | None:
+    def load(self, board_id: str) -> MoraBoard | None:
         file_path = self._levels_dir / f"{board_id}.json"
         if not file_path.exists():
             return None
@@ -26,12 +26,12 @@ class JsonBoardRepository:
             else data["target"]
         )
 
-        result = BitmaskMoraBoard(board)
+        result = MoraBoard(board)
         result.target_state = target
 
         return result
 
-    def save(self, board_id: str, board: BitmaskMoraBoard) -> Path:
+    def save(self, board_id: str, board: MoraBoard) -> Path:
         if not IS_DEV_MODE:
             raise PermissionError("Forbidden")
 
