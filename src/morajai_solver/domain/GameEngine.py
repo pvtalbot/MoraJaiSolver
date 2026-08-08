@@ -8,6 +8,7 @@ from morajai_solver.infra.EventDispatcher import EventDispatcher
 from morajai_solver.infra.repositories.json_board_repository import JsonBoardRepository
 from morajai_solver.models.MoraBoard import AbstractMoraBoard, DictMoraBoard
 from morajai_solver.infra.events import MoraEvent
+from morajai_solver.models.types import Coord
 from morajai_solver.ui.game_modes import MoraMode
 
 logger = logging.getLogger(__name__)
@@ -30,11 +31,8 @@ class GameEngine:
         self._subscribe_events()
 
     def _subscribe_events(self):
+        self.ui_bus.subscribe(MoraEvent.BOARD_READY, self._on_board_ready)
         self.ui_bus.subscribe(MoraEvent.TILE_CLICKED, self._on_tile_clicked)
-        self.ui_bus.subscribe(MoraEvent.TILE_COLOR_CHANGED, self._on_tile_color_changed)
-        self.ui_bus.subscribe(
-            MoraEvent.TARGET_COLOR_CHANGED, self._on_target_color_changed
-        )
         self.ui_bus.subscribe(MoraEvent.RANDOMIZE_BOARD, self._on_randomize_board)
 
         self.ui_bus.subscribe(MoraEvent.MODE_CHANGED, self._on_mode_changed)
@@ -46,7 +44,6 @@ class GameEngine:
         self.ui_bus.subscribe(
             MoraEvent.LIST_LEVELS_REQUESTED, self._on_list_levels_requested
         )
-        self.ui_bus.subscribe(MoraEvent.UI_READY, self._on_ui_ready)
 
         logger.debug("Moteur de jeu initialisé.")
 
@@ -62,20 +59,16 @@ class GameEngine:
         self._board.data = self.saved_board_state.copy()
         self.ui_bus.emit(MoraEvent.BOARD_UPDATED, board_state=self._board.data.copy())
 
-    def _on_ui_ready(self):
-        self.ui_bus.emit(
-            MoraEvent.BOARD_UPDATED,
-            board_state=self._board.data.copy(),
-            targets=self._board.targets,
-        )
+    def _on_board_ready(
+        self, board_state: dict[Coord, MoraColor], targets: dict[Coord, MoraColor]
+    ):
+        for k, v in board_state.items():
+            self._board[k] = v
+        for k, v in targets.items():
+            self._board.set_target(*k, v)
 
-    def _on_tile_color_changed(self, r: int, c: int, color: MoraColor):
-        self._board[(r, c)] = color
-
-    def _on_target_color_changed(self, r: int, c: int, color: MoraColor):
-        self._board.set_target(r, c, color)
-
-    def _on_tile_clicked(self, r: int, c: int, color: MoraColor):
+    def _on_tile_clicked(self, r: int, c: int):
+        color = self._board[r, c]
         visitor = COLOR_VISITORS[color]
         self._board.accept(visitor, (r, c))
         self.ui_bus.emit(MoraEvent.BOARD_UPDATED, board_state=self._board.data.copy())

@@ -2,7 +2,6 @@ import customtkinter as ctk
 
 from morajai_solver.infra.EventDispatcher import EventDispatcher
 from morajai_solver.ui.ui_colors import UITheme
-from morajai_solver.domain.colors import MoraColor
 from morajai_solver.infra.events import MoraEvent
 
 
@@ -34,16 +33,10 @@ class SolutionView(ctk.CTkFrame):
 
         self.dispatcher.subscribe(MoraEvent.SOLUTION_FOUND, self._on_solution_found)
         self.dispatcher.subscribe(MoraEvent.RANDOMIZE_BOARD, self.clear_solution)
-        self.dispatcher.subscribe(
-            MoraEvent.TILE_COLOR_CHANGED, lambda *args, **kwargs: self.clear_solution()
-        )
-        self.dispatcher.subscribe(
-            MoraEvent.TARGET_COLOR_CHANGED,
-            lambda *args, **kwargs: self.clear_solution(),
-        )
 
         self.dispatcher.subscribe(MoraEvent.RESET_SAVE, self._reset_progress)
         self.dispatcher.subscribe(MoraEvent.TILE_CLICKED, self._on_tile_clicked)
+        self.dispatcher.subscribe(MoraEvent.SOLUTION_INVALIDATED, self.clear_solution)
 
     def create_placeholder(self):
         self.placeholder = ctk.CTkLabel(
@@ -134,7 +127,7 @@ class SolutionView(ctk.CTkFrame):
 
         self._update_steps_highlighting()
 
-    def _on_tile_clicked(self, r: int, c: int, color: MoraColor):
+    def _on_tile_clicked(self, r: int, c: int):
         if not self._steps or self._has_error:
             return
         if self._current_step_index < len(self._steps):

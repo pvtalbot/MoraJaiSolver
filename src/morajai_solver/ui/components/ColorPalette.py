@@ -9,7 +9,11 @@ from morajai_solver.ui.game_modes import MoraMode
 
 class ColorPalette(ctk.CTkFrame):
     def __init__(
-        self, master, on_color_selected: Callable[[MoraColor], None], **kwargs
+        self,
+        master,
+        on_color_selected: Callable[[MoraColor], None],
+        initial_color: MoraColor = MoraColor.GREY,
+        **kwargs,
     ):
         super().__init__(master, fg_color="transparent", height=75, **kwargs)
 
@@ -55,7 +59,7 @@ class ColorPalette(ctk.CTkFrame):
             btn.pack(side="left", padx=4, pady=6, expand=True)
             self.buttons[color] = btn
 
-        self._update_highlight(MoraColor.GREY)
+        self._update_highlight(initial_color)
 
     def set_mode(self, new_mode: MoraMode) -> None:
         if new_mode == MoraMode.PLAY:
