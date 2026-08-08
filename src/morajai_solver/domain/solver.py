@@ -1,8 +1,8 @@
 from collections import deque
 import logging
 
-from morajai_solver.domain.MovementStrategies import COLOR_STRATEGIES
-from morajai_solver.models.MoraBoard import MoraBoard
+from morajai_solver.domain.movement_strategies import COLOR_STRATEGIES
+from morajai_solver.models.mora_board import MoraBoard
 
 logger = logging.getLogger(__name__)
 

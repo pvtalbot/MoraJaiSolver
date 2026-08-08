@@ -1,5 +1,5 @@
 from morajai_solver.domain.colors import MoraColor
-from morajai_solver.models.MoraBoard import DictMoraBoard
+from morajai_solver.models.mora_board import DictMoraBoard
 from morajai_solver.models.types import Coord
 
 STORED_BOARDS = {

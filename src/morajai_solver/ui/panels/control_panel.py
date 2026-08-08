@@ -1,13 +1,13 @@
 import customtkinter as ctk
 import logging
 
-from morajai_solver.infra.EventDispatcher import EventDispatcher
+from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.ui.ui_colors import UITheme
 from morajai_solver.infra.events import MoraEvent
 from morajai_solver.ui.game_modes import MoraMode
 
 
-class ControlPanelView(ctk.CTkFrame):
+class ControlPanel(ctk.CTkFrame):
     def __init__(self, master, ui_bus: EventDispatcher, **kwargs):
         super().__init__(master, **kwargs)
         self.dispatcher = ui_bus

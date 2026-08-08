@@ -1,5 +1,5 @@
-from morajai_solver.domain.MovementStrategies import YellowStrategy
-from morajai_solver.models.MoraBoard import (
+from morajai_solver.domain.movement_strategies import YellowStrategy
+from morajai_solver.models.mora_board import (
     MoraBoard,
 )
 from morajai_solver.domain.colors import MoraColor

@@ -1,6 +1,6 @@
 from abc import ABC
 
-from morajai_solver.models.MoraBoard import MoraBoard
+from morajai_solver.models.mora_board import MoraBoard
 from morajai_solver.domain.colors import MoraColor
 
 

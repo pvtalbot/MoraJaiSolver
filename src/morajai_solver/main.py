@@ -1,9 +1,9 @@
 import argparse
 import logging
 
-from morajai_solver.infra.EventDispatcher import EventDispatcher
+from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.logger import configure_logging
-from morajai_solver.domain.GameEngine import GameEngine
+from morajai_solver.domain.game_engine import GameEngine
 from morajai_solver.ui.gui import launch_gui
 
 import sys

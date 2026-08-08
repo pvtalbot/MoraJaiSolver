@@ -1,11 +1,11 @@
 import customtkinter as ctk
 
-from morajai_solver.infra.EventDispatcher import EventDispatcher
+from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.ui.ui_colors import UITheme
 from morajai_solver.infra.events import MoraEvent
 
 
-class SolutionView(ctk.CTkFrame):
+class SolutionPanel(ctk.CTkFrame):
     def __init__(self, master, ui_bus: EventDispatcher, **kwargs):
         super().__init__(
             master, fg_color=UITheme.BG_PANEL.value, corner_radius=10, **kwargs

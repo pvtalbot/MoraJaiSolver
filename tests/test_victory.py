@@ -1,4 +1,4 @@
-from morajai_solver.models.MoraBoard import (
+from morajai_solver.models.mora_board import (
     MoraBoard,
 )
 from morajai_solver.domain.colors import MoraColor

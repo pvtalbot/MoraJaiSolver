@@ -1,13 +1,13 @@
 import customtkinter as ctk
 
-from morajai_solver.infra.EventDispatcher import EventDispatcher
+from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.env import IS_DEV_MODE
 from morajai_solver.ui.ui_colors import UITheme
-from morajai_solver.ui.views.AdminPanelView import AdminPanelView
-from morajai_solver.ui.views.ControlPanelView import ControlPanelView
+from morajai_solver.ui.panels.admin_panel import AdminPanel
+from morajai_solver.ui.panels.control_panel import ControlPanel
 
 
-class CenterColumnView(ctk.CTkFrame):
+class CenterPanel(ctk.CTkFrame):
     def __init__(self, parent, ui_bus: EventDispatcher, *args, **kwargs):
         super().__init__(
             parent, fg_color=UITheme.BG_PANEL.value, corner_radius=10, **kwargs
@@ -33,8 +33,8 @@ class CenterColumnView(ctk.CTkFrame):
             )
             self._mode_switch.pack(side="right")
 
-        self.control_panel = ControlPanelView(self, ui_bus, fg_color="transparent")
-        self.admin_panel = AdminPanelView(self, ui_bus, fg_color="transparent")
+        self.control_panel = ControlPanel(self, ui_bus, fg_color="transparent")
+        self.admin_panel = AdminPanel(self, ui_bus, fg_color="transparent")
 
         self.control_panel.grid(row=1, column=0, sticky="nsew", pady=(0, 10))
         self.admin_panel.grid(row=1, column=0, sticky="nsew", pady=(0, 10))

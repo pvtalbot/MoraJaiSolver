@@ -2,16 +2,16 @@ import customtkinter as ctk
 from itertools import product
 
 from morajai_solver.domain.colors import MoraColor
-from morajai_solver.infra.EventDispatcher import EventDispatcher
+from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import MoraEvent
 from morajai_solver.models.types import Coord
-from morajai_solver.ui.components.ColorPalette import ColorPalette
-from morajai_solver.ui.components.MoraButton import MoraButton, MoraTargetButton
+from morajai_solver.ui.components.color_palette import ColorPalette
+from morajai_solver.ui.components.mora_button import MoraButton, MoraTargetButton
 from morajai_solver.ui.game_modes import MoraMode
 from morajai_solver.ui.ui_colors import UITheme
 
 
-class BoardView(ctk.CTkFrame):
+class BoardPanel(ctk.CTkFrame):
     buttons: dict[Coord, MoraButton]
     targets: dict[Coord, MoraTargetButton]
     palette: ColorPalette

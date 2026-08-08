@@ -1,12 +1,12 @@
 import random
 import logging
 import threading
-from morajai_solver.domain.MovementStrategies import COLOR_STRATEGIES
-from morajai_solver.domain.Solver import MoraSolver
+from morajai_solver.domain.movement_strategies import COLOR_STRATEGIES
+from morajai_solver.domain.solver import MoraSolver
 from morajai_solver.domain.colors import MoraColor
-from morajai_solver.infra.EventDispatcher import EventDispatcher
+from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.repositories.json_board_repository import JsonBoardRepository
-from morajai_solver.models.MoraBoard import MoraBoard
+from morajai_solver.models.mora_board import MoraBoard
 from morajai_solver.infra.events import MoraEvent
 from morajai_solver.models.types import Coord
 

@@ -1,5 +1,5 @@
 # tests/test_event_dispatcher.py
-from morajai_solver.infra.EventDispatcher import EventDispatcher
+from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import MoraEvent
 
 

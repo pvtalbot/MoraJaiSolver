@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from morajai_solver.infra.env import IS_DEV_MODE, get_levels_dir
-from morajai_solver.models.MoraBoard import MoraBoard
+from morajai_solver.models.mora_board import MoraBoard
 
 
 class JsonBoardRepository:

@@ -1,6 +1,6 @@
 # tests/test_solver.py
-from morajai_solver.domain.Solver import MoraSolver
-from morajai_solver.models.MoraBoard import MoraBoard
+from morajai_solver.domain.solver import MoraSolver
+from morajai_solver.models.mora_board import MoraBoard
 from morajai_solver.domain.colors import MoraColor
 
 

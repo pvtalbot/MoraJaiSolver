@@ -5,7 +5,7 @@ from morajai_solver.domain.colors import MoraColor
 from morajai_solver.models.types import Coord
 
 if TYPE_CHECKING:
-    from morajai_solver.domain.MovementStrategies import MovementStrategy
+    from morajai_solver.domain.movement_strategies import MovementStrategy
 
 
 class MoraBoard:

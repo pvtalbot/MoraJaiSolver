@@ -1,10 +1,10 @@
 import customtkinter as ctk
 
-from morajai_solver.infra.EventDispatcher import EventDispatcher
+from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.ui.ui_colors import UITheme
-from morajai_solver.ui.views.CenterColumnView import CenterColumnView
-from morajai_solver.ui.views.SolutionView import SolutionView
-from morajai_solver.ui.views.BoardView import BoardView
+from morajai_solver.ui.panels.center_panel import CenterPanel
+from morajai_solver.ui.panels.solution_panel import SolutionPanel
+from morajai_solver.ui.panels.board_panel import BoardPanel
 
 
 def fade_out(app, alpha=1.0):
@@ -43,13 +43,13 @@ def launch_gui(ui_bus: EventDispatcher) -> ctk.CTk:
     main_container.grid_columnconfigure(1, weight=1, minsize=300)
     main_container.grid_columnconfigure(2, weight=1)
 
-    board_view = BoardView(main_container, ui_bus)
+    board_view = BoardPanel(main_container, ui_bus)
     board_view.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-    control_panel = CenterColumnView(main_container, ui_bus)
+    control_panel = CenterPanel(main_container, ui_bus)
     control_panel.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
-    solution_view = SolutionView(main_container, ui_bus)
+    solution_view = SolutionPanel(main_container, ui_bus)
     solution_view.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
 
     return app
