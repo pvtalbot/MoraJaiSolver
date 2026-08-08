@@ -1,12 +1,10 @@
-import random
 import logging
 import threading
-from morajai_solver.domain.movement_strategies import COLOR_STRATEGIES
+from morajai_solver.domain.board_manager import BoardManager
 from morajai_solver.domain.solver import MoraSolver
 from morajai_solver.domain.colors import MoraColor
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.repositories.json_board_repository import JsonBoardRepository
-from morajai_solver.models.mora_board import MoraBoard
 from morajai_solver.infra.events import MoraEvent
 from morajai_solver.models.types import Coord
 
@@ -17,7 +15,7 @@ class GameEngine:
     def __init__(self, ui_bus: EventDispatcher):
         self.ui_bus = ui_bus
         self.domain_bus = EventDispatcher()
-        self._board = MoraBoard()
+        self.board_manager = BoardManager()
         self._repository = JsonBoardRepository()
 
         self._subscribe_events()
@@ -38,62 +36,43 @@ class GameEngine:
 
         logger.debug("Moteur de jeu initialisé.")
 
-    def _on_reset_save(self):
-        if not self.saved_board_state:
-            return
-
-        self._board.data = self.saved_board_state
-        self.emit_board_updated()
-
     def emit_board_updated(self):
-        result = dict()
-        for k, v in self._board.items():
-            result[k] = v
-        self.ui_bus.emit(MoraEvent.BOARD_UPDATED, board_state=result)
+        self.ui_bus.emit(
+            MoraEvent.BOARD_UPDATED, board_state=self.board_manager.get_state_as_dict()
+        )
+
+    def _on_reset_save(self):
+        self.board_manager.reset()
+        self.emit_board_updated()
 
     def _on_board_ready(
         self, board_state: dict[Coord, MoraColor], targets: dict[Coord, MoraColor]
     ):
-        for k, v in board_state.items():
-            self._board[k] = v
-        for k, v in targets.items():
-            self._board.set_target(k, v)
-        self.saved_board_state = self._board.data
+        self.board_manager.load_state_from_dict(board_state, targets)
 
     def _on_tile_clicked(self, r: int, c: int):
-        color = self._board[r, c]
-        strategy = COLOR_STRATEGIES[color]
-        self._board.accept(strategy, (r, c))
+        victory = self.board_manager.play_move((r, c))
         self.emit_board_updated()
 
-        if self.check_victory():
+        if victory:
             self.ui_bus.emit(MoraEvent.VICTORY_ACHIEVED)
 
     def _on_randomize_board(self):
-        available_colors = list(MoraColor)
-
-        for r in range(1, 4):
-            for c in range(1, 4):
-                random_color = random.choice(available_colors)
-                self._board[(r, c)] = random_color
-
+        self.board_manager.randomize()
         self.emit_board_updated()
 
     def _on_solver_start(self):
         threading.Thread(target=self._run_solver_async, daemon=True).start()
 
     def _run_solver_async(self):
-        solver = MoraSolver(self._board)
+        solver = MoraSolver(self.board_manager.board)
         result = solver.solve()
 
         self.ui_bus.emit(MoraEvent.SOLUTION_FOUND, steps=result)
 
-    def check_victory(self):
-        return self._board.check_victory()
-
     def _on_save_requested(self, board_id: str):
         try:
-            saved_path = self._repository.save(board_id, self._board)
+            saved_path = self._repository.save(board_id, self.board_manager.board)
             logger.info(f"Niveau {saved_path} sauvegardé")
         except PermissionError:
             logger.error("Impossible de sauvegarder : mode dev inactif.")
