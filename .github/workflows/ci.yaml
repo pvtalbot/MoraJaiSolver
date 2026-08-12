@@ -22,5 +22,14 @@ jobs:
       - name: Configurer Python
         run: uv python install
 
+      - name: Installer les dépendances système IHM
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+
+      - name: Installer les dépendances Python
+        run: uv sync
+
       - name: Exécuter la suite de tests
-        run: uv run pytest
+        run: |
+          xvfb-run -a uv run pytest

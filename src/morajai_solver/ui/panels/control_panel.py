@@ -1,3 +1,5 @@
+import queue
+
 import customtkinter as ctk
 import logging
 
@@ -12,6 +14,8 @@ class ControlPanel(ctk.CTkFrame):
         super().__init__(master, **kwargs)
         self.dispatcher = ui_bus
         self.logger = logging.getLogger(__name__)
+
+        self.queue = queue.Queue()
 
         mode_label = ctk.CTkLabel(self, text="Application Mode :", font=("Arial", 11))
         mode_label.pack(anchor="w", padx=20, pady=(5, 2))
@@ -70,12 +74,22 @@ class ControlPanel(ctk.CTkFrame):
         self._append_log("Calcul de la solution en cours...")
         self.mode_selector.set("Play")
         self._on_mode_change("Play")
+        self._check_queue()
 
         self.dispatcher.emit(MoraEvent.SOLVER_START)
 
+    def _check_queue(self):
+        solution_found = not self.queue.empty()
+
+        if not solution_found:
+            self.after(50, self._check_queue)
+            return
+
+        steps = self.queue.get_nowait()
+        self._update_ui_on_solution_found(steps)
+
     def _on_solution_found(self, steps):
-        # Back to main thread
-        self.after(0, self._update_ui_on_solution_found, steps)
+        self.queue.put(steps)
 
     def _update_ui_on_solution_found(self, steps):
         self._set_controls_state("normal")

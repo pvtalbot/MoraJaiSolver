@@ -1,3 +1,5 @@
+import queue
+
 import customtkinter as ctk
 
 from morajai_solver.infra.event_dispatcher import EventDispatcher
@@ -12,10 +14,11 @@ class SolutionPanel(ctk.CTkFrame):
         )
 
         self.dispatcher = ui_bus
+        self.queue = queue.Queue()
 
         self._steps = []
         self._current_step_index = 0
-        self._step_frames = []
+        self._step_frames: list[ctk.CTkFrame] = []
         self._has_error = False
         self._solution_displayed = False
 
@@ -37,6 +40,7 @@ class SolutionPanel(ctk.CTkFrame):
         self.dispatcher.subscribe(MoraEvent.RESET_SAVE, self._reset_progress)
         self.dispatcher.subscribe(MoraEvent.TILE_CLICKED, self._on_tile_clicked)
         self.dispatcher.subscribe(MoraEvent.SOLUTION_INVALIDATED, self.clear_solution)
+        self.dispatcher.subscribe(MoraEvent.SOLVER_START, self._check_queue)
 
     def create_placeholder(self):
         self.placeholder = ctk.CTkLabel(
@@ -66,11 +70,19 @@ class SolutionPanel(ctk.CTkFrame):
         self._has_error = False
         self._update_steps_highlighting()
 
-    def _on_solution_found(self, steps: list):
-        # Back to main thread
-        self.after(0, self.display_solution, steps)
+    def _check_queue(self):
+        solution_found = not self.queue.empty()
+        if not solution_found:
+            self.after(50, self._check_queue)
+            return
 
-    def display_solution(self, steps: list):
+        steps = self.queue.get_nowait()
+        self.display_solution(steps)
+
+    def _on_solution_found(self, steps: list):
+        self.queue.put(steps)
+
+    def display_solution(self, steps):
         for widget in self.scroll_frame.winfo_children():
             widget.destroy()
 
@@ -142,7 +154,7 @@ class SolutionPanel(ctk.CTkFrame):
     def _update_steps_highlighting(self):
         for i, frame in enumerate(self._step_frames):
             if i < self._current_step_index:
-                frame.configure(fg_color=UITheme.STEP_SUCCESS.value, border_width=0)
+                frame.configure(fg_color=UITheme.STEP_SUCCESS_BG.value, border_width=0)
             elif i == self._current_step_index:
                 if self._has_error:
                     frame.configure(

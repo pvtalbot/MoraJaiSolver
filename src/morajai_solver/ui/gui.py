@@ -16,11 +16,19 @@ def fade_out(app, alpha=1.0):
         app.destroy()
 
 
-def launch_gui(ui_bus: EventDispatcher) -> ctk.CTk:
+class MoraApp(ctk.CTk):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.board_panel: BoardPanel
+        self.center_panel: CenterPanel
+        self.solution_panel: SolutionPanel
+
+
+def launch_gui(ui_bus: EventDispatcher) -> MoraApp:
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("blue")
 
-    app = ctk.CTk()
+    app = MoraApp()
     app.title("Mora Jai Box Solver")
     app.geometry("1180x680")
 
@@ -43,13 +51,13 @@ def launch_gui(ui_bus: EventDispatcher) -> ctk.CTk:
     main_container.grid_columnconfigure(1, weight=1, minsize=300)
     main_container.grid_columnconfigure(2, weight=1)
 
-    board_view = BoardPanel(main_container, ui_bus)
-    board_view.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+    app.board_panel = BoardPanel(main_container, ui_bus)
+    app.board_panel.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-    control_panel = CenterPanel(main_container, ui_bus)
-    control_panel.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+    app.center_panel = CenterPanel(main_container, ui_bus)
+    app.center_panel.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
-    solution_view = SolutionPanel(main_container, ui_bus)
-    solution_view.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
+    app.solution_panel = SolutionPanel(main_container, ui_bus)
+    app.solution_panel.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
 
     return app

@@ -35,7 +35,7 @@ class UITheme(Enum):
     BTN_SOLVE_HOVER = "#1B5E20"
 
     # États du pas-à-pas et Éléments de jeu
-    STEP_SUCCESS = "#1B5E20"  # Vert de validation
+    STEP_SUCCESS_BG = "#1B5E20"  # Vert de validation
     STEP_ERROR_BG = "#421515"  # Fond rouge sombre d'erreur
     STEP_ERROR_BORDER = "#E53935"  # Bordure rouge d'erreur
     STEP_ACTIVE_BG = "#152535"  # Fond bleu nuit de l'étape active
