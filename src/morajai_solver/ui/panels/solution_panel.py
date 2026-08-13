@@ -6,11 +6,11 @@ from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.ui.ui_colors import UITheme
 from morajai_solver.infra.events import (
     RandomizeBoardCommand,
-    ResetSaveCommand,
+    ResetGameCommand,
     SolutionFoundEvent,
     SolutionInvalidatedEvent,
     StartSolverCommand,
-    TileClickedCommand,
+    PlayTileCommand,
 )
 
 
@@ -44,8 +44,8 @@ class SolutionPanel(ctk.CTkFrame):
         self.dispatcher.subscribe(SolutionFoundEvent, self._on_solution_found)
         self.dispatcher.subscribe(RandomizeBoardCommand, self.clear_solution)
 
-        self.dispatcher.subscribe(ResetSaveCommand, self._reset_progress)
-        self.dispatcher.subscribe(TileClickedCommand, self._on_tile_clicked)
+        self.dispatcher.subscribe(ResetGameCommand, self._reset_progress)
+        self.dispatcher.subscribe(PlayTileCommand, self._on_tile_clicked)
         self.dispatcher.subscribe(SolutionInvalidatedEvent, self.clear_solution)
         self.dispatcher.subscribe(StartSolverCommand, self._check_queue)
 
@@ -146,7 +146,7 @@ class SolutionPanel(ctk.CTkFrame):
 
         self._update_steps_highlighting()
 
-    def _on_tile_clicked(self, event: TileClickedCommand):
+    def _on_tile_clicked(self, event: PlayTileCommand):
         if not self._steps or self._has_error:
             return
         if self._current_step_index < len(self._steps):

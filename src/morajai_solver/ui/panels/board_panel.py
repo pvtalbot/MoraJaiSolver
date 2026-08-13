@@ -4,12 +4,12 @@ from itertools import product
 from morajai_solver.domain.colors import MoraColor
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import (
-    BoardReadyEvent,
+    SubmitBoardCommand,
     BoardUpdatedEvent,
     ModeChangedEvent,
     SolutionFoundEvent,
     SolutionInvalidatedEvent,
-    TileClickedCommand,
+    PlayTileCommand,
 )
 from morajai_solver.models.types import Coord
 from morajai_solver.ui.components.color_palette import ColorPalette
@@ -95,7 +95,7 @@ class BoardPanel(ctk.CTkFrame):
                 self.dispatcher.emit(SolutionInvalidatedEvent())
                 self._solution_found = False
         else:
-            self.dispatcher.emit(TileClickedCommand((r, c)))
+            self.dispatcher.emit(PlayTileCommand((r, c)))
 
     def _on_target_clicked(self, r: int, c: int) -> None:
         if self.mode == MoraMode.CONFIG:
@@ -108,7 +108,9 @@ class BoardPanel(ctk.CTkFrame):
     def _board_ready(self) -> None:
         board_state = {k: btn._current_color for k, btn in self.buttons.items()}
         targets_state = {k: btn._current_color for k, btn in self.targets.items()}
-        self.dispatcher.emit(BoardReadyEvent(board=board_state, targets=targets_state))
+        self.dispatcher.emit(
+            SubmitBoardCommand(board=board_state, targets=targets_state)
+        )
 
     # --- RECEPTION DES ÉVÉNEMENTS GLOBAUX & RÉPARTITION VERS LES ENFANTS ---
     def _on_mode_changed(self, event: ModeChangedEvent) -> None:

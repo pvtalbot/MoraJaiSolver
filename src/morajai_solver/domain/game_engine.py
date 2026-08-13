@@ -5,16 +5,16 @@ from morajai_solver.domain.solver import MoraSolver
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.repositories.json_board_repository import JsonBoardRepository
 from morajai_solver.infra.events import (
-    BoardReadyEvent,
+    SubmitBoardCommand,
     BoardUpdatedEvent,
     ListLevelsEvent,
     ListLevelsQuery,
     RandomizeBoardCommand,
-    ResetSaveCommand,
+    ResetGameCommand,
     SaveLevelCommand,
     SolutionFoundEvent,
     StartSolverCommand,
-    TileClickedCommand,
+    PlayTileCommand,
     VictoryAchievedEvent,
 )
 
@@ -31,12 +31,12 @@ class GameEngine:
         self._subscribe_events()
 
     def _subscribe_events(self):
-        self.ui_bus.subscribe(BoardReadyEvent, self._on_board_ready)
-        self.ui_bus.subscribe(TileClickedCommand, self._on_tile_clicked)
+        self.ui_bus.subscribe(SubmitBoardCommand, self._on_submit_board)
+        self.ui_bus.subscribe(PlayTileCommand, self._on_play_tile)
         self.ui_bus.subscribe(RandomizeBoardCommand, self._on_randomize_board)
-        self.ui_bus.subscribe(ResetSaveCommand, self._on_reset_save)
+        self.ui_bus.subscribe(ResetGameCommand, self._on_reset_game)
         self.ui_bus.subscribe(StartSolverCommand, self._on_solver_start)
-        self.ui_bus.subscribe(SaveLevelCommand, self._on_save_requested)
+        self.ui_bus.subscribe(SaveLevelCommand, self._on_save_level)
         self.ui_bus.subscribe(ListLevelsQuery, self._on_list_levels_requested)
 
         logger.debug("Moteur de jeu initialisé.")
@@ -46,14 +46,14 @@ class GameEngine:
         targets = self.board_manager.get_targets_as_dict()
         self.ui_bus.emit(BoardUpdatedEvent(board=board, targets=targets))
 
-    def _on_reset_save(self):
+    def _on_reset_game(self):
         self.board_manager.reset()
         self.emit_board_updated()
 
-    def _on_board_ready(self, event: BoardReadyEvent):
+    def _on_submit_board(self, event: SubmitBoardCommand):
         self.board_manager.load_state_from_dict(event.board, event.targets)
 
-    def _on_tile_clicked(self, event: TileClickedCommand):
+    def _on_play_tile(self, event: PlayTileCommand):
         victory = self.board_manager.play_move(event.position)
         self.emit_board_updated()
 
@@ -73,7 +73,7 @@ class GameEngine:
 
         self.ui_bus.emit(SolutionFoundEvent(result=result))
 
-    def _on_save_requested(self, command: SaveLevelCommand):
+    def _on_save_level(self, command: SaveLevelCommand):
         try:
             saved_path = self._repository.save(command.id, self.board_manager.board)
             logger.info(f"Niveau {saved_path} sauvegardé")

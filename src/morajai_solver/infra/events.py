@@ -16,13 +16,13 @@ class ModeChangedEvent(MoraEvent):
 
 
 @dataclass(frozen=True)
-class BoardReadyEvent(MoraEvent):
+class SubmitBoardCommand(MoraEvent):
     board: dict[Coord, MoraColor]
     targets: dict[Coord, MoraColor]
 
 
 @dataclass(frozen=True)
-class ResetSaveCommand(MoraEvent):
+class ResetGameCommand(MoraEvent):
     pass
 
 
@@ -37,7 +37,7 @@ class SolutionInvalidatedEvent(MoraEvent):
 
 
 @dataclass(frozen=True)
-class TileClickedCommand(MoraEvent):
+class PlayTileCommand(MoraEvent):
     position: Coord
 
 

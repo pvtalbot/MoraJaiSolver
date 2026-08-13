@@ -7,7 +7,7 @@ from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.ui.ui_colors import UITheme
 from morajai_solver.infra.events import (
     ModeChangedEvent,
-    ResetSaveCommand,
+    ResetGameCommand,
     SolutionFoundEvent,
     StartSolverCommand,
     VictoryAchievedEvent,
@@ -120,7 +120,7 @@ class ControlPanel(ctk.CTkFrame):
             self.reset_button.configure(state="disabled")
 
     def _on_reset_click(self):
-        self.dispatcher.emit(ResetSaveCommand())
+        self.dispatcher.emit(ResetGameCommand())
 
     def _on_victory_achieved(self):
         self._append_log("VICTOIRE !")
