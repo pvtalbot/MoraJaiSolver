@@ -34,7 +34,7 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
         self.configure(fg_color=new_hex, hover_color=new_hex)
 
 
-class MoraButton(AbstractMoraButton):
+class MoraTileButton(AbstractMoraButton):
     def _get_init_parameters(self) -> dict:
         return {
             "text": "",

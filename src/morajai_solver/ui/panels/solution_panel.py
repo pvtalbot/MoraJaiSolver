@@ -39,17 +39,17 @@ class SolutionPanel(ctk.CTkFrame):
         )
         self.scroll_frame.pack(fill="both", expand=True, padx=15, pady=(0, 15))
 
-        self.create_placeholder()
+        self._create_placeholder()
 
         self.dispatcher.subscribe(SolutionFoundEvent, self._on_solution_found)
-        self.dispatcher.subscribe(RandomizeBoardCommand, self.clear_solution)
-
+        self.dispatcher.subscribe(RandomizeBoardCommand, self._clear_solution)
         self.dispatcher.subscribe(ResetGameCommand, self._reset_progress)
         self.dispatcher.subscribe(PlayTileCommand, self._on_tile_clicked)
-        self.dispatcher.subscribe(SolutionInvalidatedEvent, self.clear_solution)
+        self.dispatcher.subscribe(SolutionInvalidatedEvent, self._clear_solution)
         self.dispatcher.subscribe(StartSolverCommand, self._check_queue)
 
-    def create_placeholder(self):
+    # --- Helpers ---
+    def _create_placeholder(self):
         self.placeholder = ctk.CTkLabel(
             self.scroll_frame,
             text="Aucune solution calculée.",
@@ -58,7 +58,7 @@ class SolutionPanel(ctk.CTkFrame):
         )
         self.placeholder.pack(expand=True, pady=40)
 
-    def clear_solution(self):
+    def _clear_solution(self):
         if not self._solution_displayed:
             return
 
@@ -70,7 +70,7 @@ class SolutionPanel(ctk.CTkFrame):
 
         for widget in self.scroll_frame.winfo_children():
             widget.destroy()
-        self.create_placeholder()
+        self._create_placeholder()
 
     def _reset_progress(self):
         self._current_step_index = 0
@@ -85,9 +85,6 @@ class SolutionPanel(ctk.CTkFrame):
 
         steps = self.queue.get_nowait()
         self.display_solution(steps)
-
-    def _on_solution_found(self, event: SolutionFoundEvent):
-        self.queue.put(event.result)
 
     def display_solution(self, steps):
         for widget in self.scroll_frame.winfo_children():
@@ -147,16 +144,16 @@ class SolutionPanel(ctk.CTkFrame):
         self._update_steps_highlighting()
 
     def _on_tile_clicked(self, event: PlayTileCommand):
-        if not self._steps or self._has_error:
+        if not self._solution_displayed or self._has_error:
             return
-        if self._current_step_index < len(self._steps):
-            next_r, next_c = self._steps[self._current_step_index]
-            if event.position[0] == next_r and event.position[1] == next_c:
-                self._current_step_index += 1
-                self._update_steps_highlighting()
-            else:
-                self._has_error = True
-                self._update_steps_highlighting()
+        if self._current_step_index >= len(self._steps):
+            return
+        if event.position == self._steps[self._current_step_index]:
+            self._current_step_index += 1
+            self._update_steps_highlighting()
+        else:
+            self._has_error = True
+            self._update_steps_highlighting()
 
     def _update_steps_highlighting(self):
         for i, frame in enumerate(self._step_frames):
@@ -182,3 +179,7 @@ class SolutionPanel(ctk.CTkFrame):
                 frame.configure(
                     fg_color=UITheme.BG_TILE_CONTAINER.value, border_width=0
                 )
+
+    # --- Event handlers ---
+    def _on_solution_found(self, event: SolutionFoundEvent):
+        self.queue.put(event.result)

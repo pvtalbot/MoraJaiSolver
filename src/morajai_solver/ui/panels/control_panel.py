@@ -4,6 +4,7 @@ import customtkinter as ctk
 import logging
 
 from morajai_solver.infra.event_dispatcher import EventDispatcher
+from morajai_solver.ui.factory import create_button
 from morajai_solver.ui.ui_colors import UITheme
 from morajai_solver.infra.events import (
     ModeChangedEvent,
@@ -24,6 +25,17 @@ class ControlPanel(ctk.CTkFrame):
 
         self.queue = queue.Queue()
 
+        self._setup_ui()
+
+        self._append_log("Application démarrée.")
+        self._append_log("Prêt à résoudre...")
+        self.log_box.configure(state="disabled")
+
+        self.dispatcher.subscribe(VictoryAchievedEvent, self._on_victory_achieved)
+        self.dispatcher.subscribe(SolutionFoundEvent, self._on_solution_found)
+
+    # --- UI Setup ---
+    def _setup_ui(self):
         mode_label = ctk.CTkLabel(self, text="Application Mode :", font=("Arial", 11))
         mode_label.pack(anchor="w", padx=20, pady=(5, 2))
 
@@ -41,16 +53,10 @@ class ControlPanel(ctk.CTkFrame):
         self.mode_selector.pack(padx=20, pady=(0, 15), fill="x")
         self.mode_selector.set("Config")
 
-        self.reset_button = ctk.CTkButton(
-            self,
-            text="Reset",
-            corner_radius=6,
-            bg_color="transparent",
-            fg_color=UITheme.BTN_CONFIG_BG.value,
-            hover_color=UITheme.BTN_CONFIG_HOVER.value,
-            command=self._on_reset_click,
-            state="disabled",
+        self.reset_button = create_button(
+            self, text="Reset", callback=self._on_reset_click
         )
+        self.reset_button.configure(state="disabled")
         self.reset_button.pack(pady=5, padx=20, fill="x")
 
         self.solve_button = ctk.CTkButton(
@@ -70,12 +76,8 @@ class ControlPanel(ctk.CTkFrame):
             font=("Courier New", 12),
         )
         self.log_box.pack(pady=10, padx=20, fill="both", expand=True)
-        self.log_box.insert("0.0", "> Application démarrée.\n> Prêt à résoudre...\n")
-        self.log_box.configure(state="disabled")
 
-        self.dispatcher.subscribe(VictoryAchievedEvent, self._on_victory_achieved)
-        self.dispatcher.subscribe(SolutionFoundEvent, self._on_solution_found)
-
+    # --- Click handlers & helpers ---
     def _on_solve(self):
         self._set_controls_state("disabled")
         self._append_log("Calcul de la solution en cours...")
@@ -84,9 +86,6 @@ class ControlPanel(ctk.CTkFrame):
         self._check_queue()
 
         self.dispatcher.emit(StartSolverCommand())
-
-    def _on_solution_found(self, event: SolutionFoundEvent):
-        self.queue.put(event.result)
 
     def _check_queue(self):
         solution_found = not self.queue.empty()
@@ -119,12 +118,6 @@ class ControlPanel(ctk.CTkFrame):
         else:
             self.reset_button.configure(state="disabled")
 
-    def _on_reset_click(self):
-        self.dispatcher.emit(ResetGameCommand())
-
-    def _on_victory_achieved(self):
-        self._append_log("VICTOIRE !")
-
     def _set_controls_state(self, state: str):
         self.mode_selector.configure(state=state)
         self.reset_button.configure(state=state)
@@ -135,3 +128,13 @@ class ControlPanel(ctk.CTkFrame):
         self.log_box.insert("end", f"> {message}\n")
         self.log_box.see("end")
         self.log_box.configure(state="disabled")
+
+    # --- Event handlers ---
+    def _on_solution_found(self, event: SolutionFoundEvent):
+        self.queue.put(event.result)
+
+    def _on_reset_click(self):
+        self.dispatcher.emit(ResetGameCommand())
+
+    def _on_victory_achieved(self):
+        self._append_log("VICTOIRE !")
