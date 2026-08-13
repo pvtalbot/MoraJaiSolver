@@ -9,7 +9,7 @@ class JsonBoardRepository:
     def __init__(self) -> None:
         self._levels_dir = get_levels_dir()
 
-    def load(self, board_id: str) -> MoraBoard | None:
+    def get(self, board_id: str) -> MoraBoard | None:
         file_path = self._levels_dir / f"{board_id}.json"
         if not file_path.exists():
             return None

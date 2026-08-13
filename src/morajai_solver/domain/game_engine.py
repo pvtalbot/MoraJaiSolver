@@ -5,6 +5,7 @@ from morajai_solver.domain.solver import MoraSolver
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.repositories.json_board_repository import JsonBoardRepository
 from morajai_solver.infra.events import (
+    LoadLevelCommand,
     SubmitBoardCommand,
     BoardUpdatedEvent,
     ListLevelsEvent,
@@ -24,7 +25,6 @@ logger = logging.getLogger(__name__)
 class GameEngine:
     def __init__(self, ui_bus: EventDispatcher):
         self.ui_bus = ui_bus
-        self.domain_bus = EventDispatcher()
         self.board_manager = BoardManager()
         self._repository = JsonBoardRepository()
 
@@ -38,6 +38,7 @@ class GameEngine:
         self.ui_bus.subscribe(StartSolverCommand, self._on_solver_start)
         self.ui_bus.subscribe(SaveLevelCommand, self._on_save_level)
         self.ui_bus.subscribe(ListLevelsQuery, self._on_list_levels_requested)
+        self.ui_bus.subscribe(LoadLevelCommand, self._on_load_level)
 
         logger.debug("Moteur de jeu initialisé.")
 
@@ -85,3 +86,13 @@ class GameEngine:
     def _on_list_levels_requested(self):
         levels = self._repository.list_available_boards()
         self.ui_bus.emit(ListLevelsEvent(levels=levels))
+
+    def _on_load_level(self, command: LoadLevelCommand):
+        board = self._repository.get(command.id)
+
+        if board is None:
+            return
+
+        self.board_manager.board.data = board.data
+        self.board_manager.board.target_state = board.target_state
+        self.emit_board_updated()

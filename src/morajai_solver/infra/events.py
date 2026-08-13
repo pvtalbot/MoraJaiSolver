@@ -80,3 +80,8 @@ class ListLevelsEvent(MoraEvent):
 @dataclass(frozen=True)
 class SaveLevelCommand(MoraEvent):
     id: str
+
+
+@dataclass(frozen=True)
+class LoadLevelCommand(MoraEvent):
+    id: str

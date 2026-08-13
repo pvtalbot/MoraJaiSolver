@@ -5,6 +5,7 @@ from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import (
     ListLevelsEvent,
     ListLevelsQuery,
+    LoadLevelCommand,
     RandomizeBoardCommand,
     SaveLevelCommand,
     SubmitRequiredEvent,
@@ -44,6 +45,17 @@ class AdminPanel(ctk.CTkFrame):
         levels_label = ctk.CTkLabel(levels_frame, text="Levels:", font=("Arial", 11))
         levels_label.pack(side="left", padx=(0, 5))
 
+        self.load_button = ctk.CTkButton(
+            levels_frame,
+            text="Load",
+            width=60,
+            corner_radius=6,
+            fg_color=UITheme.BTN_CONFIG_BG.value,
+            hover_color=UITheme.BTN_CONFIG_HOVER.value,
+            command=self._on_load_click,
+        )
+        self.load_button.pack(side="right")
+
         self.levels_dropdown = ctk.CTkOptionMenu(
             levels_frame,
             values=["Aucun niveau"],
@@ -51,7 +63,7 @@ class AdminPanel(ctk.CTkFrame):
             button_color=UITheme.BTN_CONFIG_BG.value,
             button_hover_color=UITheme.BTN_CONFIG_HOVER.value,
         )
-        self.levels_dropdown.pack(side="right", fill="x", expand=True)
+        self.levels_dropdown.pack(side="left", fill="x", expand=True)
 
         self.dispatcher.subscribe(ListLevelsEvent, self._on_list_levels)
         self.dispatcher.emit(ListLevelsQuery())
@@ -83,3 +95,11 @@ class AdminPanel(ctk.CTkFrame):
         board_id = board_id.strip()
         self.dispatcher.emit(SubmitRequiredEvent())
         self.dispatcher.emit(SaveLevelCommand(id=board_id))
+
+    def _on_load_click(self):
+        level_id = self.get_selected_level()
+
+        if not level_id:
+            return
+
+        self.dispatcher.emit(LoadLevelCommand(id=level_id))
