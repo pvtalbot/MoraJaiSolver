@@ -4,7 +4,14 @@ import customtkinter as ctk
 
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.ui.ui_colors import UITheme
-from morajai_solver.infra.events import MoraEvent
+from morajai_solver.infra.events import (
+    RandomizeBoardCommand,
+    ResetSaveCommand,
+    SolutionFoundEvent,
+    SolutionInvalidatedEvent,
+    StartSolverCommand,
+    TileClickedCommand,
+)
 
 
 class SolutionPanel(ctk.CTkFrame):
@@ -34,13 +41,13 @@ class SolutionPanel(ctk.CTkFrame):
 
         self.create_placeholder()
 
-        self.dispatcher.subscribe(MoraEvent.SOLUTION_FOUND, self._on_solution_found)
-        self.dispatcher.subscribe(MoraEvent.RANDOMIZE_BOARD, self.clear_solution)
+        self.dispatcher.subscribe(SolutionFoundEvent, self._on_solution_found)
+        self.dispatcher.subscribe(RandomizeBoardCommand, self.clear_solution)
 
-        self.dispatcher.subscribe(MoraEvent.RESET_SAVE, self._reset_progress)
-        self.dispatcher.subscribe(MoraEvent.TILE_CLICKED, self._on_tile_clicked)
-        self.dispatcher.subscribe(MoraEvent.SOLUTION_INVALIDATED, self.clear_solution)
-        self.dispatcher.subscribe(MoraEvent.SOLVER_START, self._check_queue)
+        self.dispatcher.subscribe(ResetSaveCommand, self._reset_progress)
+        self.dispatcher.subscribe(TileClickedCommand, self._on_tile_clicked)
+        self.dispatcher.subscribe(SolutionInvalidatedEvent, self.clear_solution)
+        self.dispatcher.subscribe(StartSolverCommand, self._check_queue)
 
     def create_placeholder(self):
         self.placeholder = ctk.CTkLabel(
@@ -79,8 +86,8 @@ class SolutionPanel(ctk.CTkFrame):
         steps = self.queue.get_nowait()
         self.display_solution(steps)
 
-    def _on_solution_found(self, steps: list):
-        self.queue.put(steps)
+    def _on_solution_found(self, event: SolutionFoundEvent):
+        self.queue.put(event.result)
 
     def display_solution(self, steps):
         for widget in self.scroll_frame.winfo_children():
@@ -139,12 +146,12 @@ class SolutionPanel(ctk.CTkFrame):
 
         self._update_steps_highlighting()
 
-    def _on_tile_clicked(self, r: int, c: int):
+    def _on_tile_clicked(self, event: TileClickedCommand):
         if not self._steps or self._has_error:
             return
         if self._current_step_index < len(self._steps):
             next_r, next_c = self._steps[self._current_step_index]
-            if r == next_r and c == next_c:
+            if event.position[0] == next_r and event.position[1] == next_c:
                 self._current_step_index += 1
                 self._update_steps_highlighting()
             else:

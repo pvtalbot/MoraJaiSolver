@@ -5,7 +5,13 @@ import logging
 
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.ui.ui_colors import UITheme
-from morajai_solver.infra.events import MoraEvent
+from morajai_solver.infra.events import (
+    ModeChangedEvent,
+    ResetSaveCommand,
+    SolutionFoundEvent,
+    StartSolverCommand,
+    VictoryAchievedEvent,
+)
 from morajai_solver.ui.game_modes import MoraMode
 
 
@@ -66,8 +72,8 @@ class ControlPanel(ctk.CTkFrame):
         self.log_box.insert("0.0", "> Application démarrée.\n> Prêt à résoudre...\n")
         self.log_box.configure(state="disabled")
 
-        self.dispatcher.subscribe(MoraEvent.VICTORY_ACHIEVED, self._on_victory_achieved)
-        self.dispatcher.subscribe(MoraEvent.SOLUTION_FOUND, self._on_solution_found)
+        self.dispatcher.subscribe(VictoryAchievedEvent, self._on_victory_achieved)
+        self.dispatcher.subscribe(SolutionFoundEvent, self._on_solution_found)
 
     def _on_solve(self):
         self._set_controls_state("disabled")
@@ -76,7 +82,7 @@ class ControlPanel(ctk.CTkFrame):
         self._on_mode_change("Play")
         self._check_queue()
 
-        self.dispatcher.emit(MoraEvent.SOLVER_START)
+        self.dispatcher.emit(StartSolverCommand())
 
     def _check_queue(self):
         solution_found = not self.queue.empty()
@@ -88,8 +94,8 @@ class ControlPanel(ctk.CTkFrame):
         steps = self.queue.get_nowait()
         self._update_ui_on_solution_found(steps)
 
-    def _on_solution_found(self, steps):
-        self.queue.put(steps)
+    def _on_solution_found(self, event: SolutionFoundEvent):
+        self.queue.put(event.result)
 
     def _update_ui_on_solution_found(self, steps):
         self._set_controls_state("normal")
@@ -105,7 +111,7 @@ class ControlPanel(ctk.CTkFrame):
 
     def _on_mode_change(self, value: str):
         new_mode = MoraMode(value.lower())
-        self.dispatcher.emit(MoraEvent.MODE_CHANGED, new_mode=new_mode)
+        self.dispatcher.emit(ModeChangedEvent(mode=new_mode))
         self.logger.info(f"Nouveau mode : {value}")
 
         if new_mode == MoraMode.PLAY:
@@ -114,7 +120,7 @@ class ControlPanel(ctk.CTkFrame):
             self.reset_button.configure(state="disabled")
 
     def _on_reset_click(self):
-        self.dispatcher.emit(MoraEvent.RESET_SAVE)
+        self.dispatcher.emit(ResetSaveCommand())
 
     def _on_victory_achieved(self):
         self._append_log("VICTOIRE !")

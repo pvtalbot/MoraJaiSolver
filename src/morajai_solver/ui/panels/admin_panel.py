@@ -2,7 +2,12 @@ import customtkinter as ctk
 import logging
 
 from morajai_solver.infra.event_dispatcher import EventDispatcher
-from morajai_solver.infra.events import MoraEvent
+from morajai_solver.infra.events import (
+    ListLevelsEvent,
+    ListLevelsQuery,
+    RandomizeBoardCommand,
+    SaveLevelCommand,
+)
 from morajai_solver.ui.ui_colors import UITheme
 
 
@@ -47,16 +52,16 @@ class AdminPanel(ctk.CTkFrame):
         )
         self.levels_dropdown.pack(side="right", fill="x", expand=True)
 
-        self.dispatcher.subscribe(MoraEvent.LIST_LEVELS, self._on_list_levels)
-        self.dispatcher.emit(MoraEvent.LIST_LEVELS_REQUESTED)
+        self.dispatcher.subscribe(ListLevelsEvent, self._on_list_levels)
+        self.dispatcher.emit(ListLevelsQuery())
 
-    def _on_list_levels(self, levels: list[str]):
-        if not levels:
+    def _on_list_levels(self, event: ListLevelsEvent):
+        if not event.levels:
             self.levels_dropdown.configure(values=["Aucun niveau"])
             self.levels_dropdown.set("Aucun niveau")
         else:
-            self.levels_dropdown.configure(values=levels)
-            self.levels_dropdown.set(levels[0])
+            self.levels_dropdown.configure(values=event.levels)
+            self.levels_dropdown.set(event.levels[0])
 
     def get_selected_level(self) -> str | None:
         selected = self.levels_dropdown.get()
@@ -65,7 +70,7 @@ class AdminPanel(ctk.CTkFrame):
         return selected
 
     def _on_random_click(self):
-        self.dispatcher.emit(MoraEvent.RANDOMIZE_BOARD)
+        self.dispatcher.emit(RandomizeBoardCommand())
 
     def _on_save_click(self):
         dialog = ctk.CTkInputDialog(text="Nom :", title="Save")
@@ -75,4 +80,4 @@ class AdminPanel(ctk.CTkFrame):
             return
 
         board_id = board_id.strip()
-        self.dispatcher.emit(MoraEvent.SAVE_BOARD_REQUESTED, board_id=board_id)
+        self.dispatcher.emit(SaveLevelCommand(id=board_id))

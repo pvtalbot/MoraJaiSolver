@@ -5,7 +5,13 @@ import pytest
 from morajai_solver.domain.colors import MoraColor
 from morajai_solver.domain.game_engine import GameEngine
 from morajai_solver.infra.event_dispatcher import EventDispatcher
-from morajai_solver.infra.events import MoraEvent
+from morajai_solver.infra.events import (
+    BoardReadyEvent,
+    ResetSaveCommand,
+    SolutionFoundEvent,
+    StartSolverCommand,
+    VictoryAchievedEvent,
+)
 from morajai_solver.ui.gui import launch_gui
 from morajai_solver.ui.ui_colors import UITheme
 
@@ -30,9 +36,9 @@ def event_spy(app_env):
     emitted_events = []
     original_emit = bus.emit
 
-    def spy_emit(event, **kwargs):
-        emitted_events.append((event, kwargs))
-        original_emit(event, **kwargs)
+    def spy_emit(event):
+        emitted_events.append(event)
+        original_emit(event)
 
     bus.emit = spy_emit
     return emitted_events
@@ -73,7 +79,7 @@ def test_full_game_scenario(app_env, event_spy):
     # VALIDATION 1
     # - BOARD_READY was emitted
     # - Tiles are of the expected color
-    assert event_spy[-1][0] == MoraEvent.BOARD_READY
+    assert isinstance(event_spy[-1], BoardReadyEvent)
     for coord, color in initial_grid.items():
         assert engine.board_manager.board[coord] == color
 
@@ -89,8 +95,8 @@ def test_full_game_scenario(app_env, event_spy):
     # VALIDATION 2
     # - The three expected events have been emitted
     # - The solver found the expected solution
-    assert event_spy[-3][0] == MoraEvent.BOARD_READY
-    assert event_spy[-2][0] == MoraEvent.SOLVER_START
+    assert isinstance(event_spy[-3], BoardReadyEvent)
+    assert isinstance(event_spy[-2], StartSolverCommand)
 
     expected_solution = [
         (1, 1),
@@ -105,8 +111,8 @@ def test_full_game_scenario(app_env, event_spy):
         (2, 1),
         (1, 2),
     ]
-    assert event_spy[-1][0] == MoraEvent.SOLUTION_FOUND
-    assert event_spy[-1][1]["steps"] == expected_solution
+    assert isinstance(event_spy[-1], SolutionFoundEvent)
+    assert event_spy[-1].result == expected_solution
 
     # VALIDATION 3
     # - The first step is active
@@ -167,7 +173,7 @@ def test_full_game_scenario(app_env, event_spy):
     # VALIDATION 7
     # - The event RESET_SAVE has been emitted
     # - All steps have been reinitialised
-    assert event_spy[-2][0] == MoraEvent.RESET_SAVE
+    assert isinstance(event_spy[-2], ResetSaveCommand)
     assert (
         app.solution_panel._step_frames[0].cget("fg_color")
         == UITheme.STEP_ACTIVE_BG.value
@@ -193,7 +199,7 @@ def test_full_game_scenario(app_env, event_spy):
     # - The VICTOIRE message is in the console
     for step in app.solution_panel._step_frames:
         assert step.cget("fg_color") == UITheme.STEP_SUCCESS_BG.value
-    assert event_spy[-1][0] == MoraEvent.VICTORY_ACHIEVED
+    assert isinstance(event_spy[-1], VictoryAchievedEvent)
 
     console_text = app.center_panel.control_panel.log_box.get("1.0", "end")
     assert "> VICTOIRE !" in console_text

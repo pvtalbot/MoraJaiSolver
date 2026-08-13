@@ -1,6 +1,6 @@
 # tests/test_event_dispatcher.py
 from morajai_solver.infra.event_dispatcher import EventDispatcher
-from morajai_solver.infra.events import MoraEvent
+from morajai_solver.infra.events import VictoryAchievedEvent
 
 
 def test_event_dispatcher_singleton_and_emission():
@@ -8,16 +8,13 @@ def test_event_dispatcher_singleton_and_emission():
 
     # Variable locale pour capturer l'exécution du callback
     callback_called = False
-    received_kwargs = {}
 
-    def mock_callback(**kwargs):
-        nonlocal callback_called, received_kwargs
+    def mock_callback():
+        nonlocal callback_called
         callback_called = True
-        received_kwargs = kwargs
 
-    dispatcher.subscribe(MoraEvent.VICTORY_ACHIEVED, mock_callback)
-    dispatcher.emit(MoraEvent.VICTORY_ACHIEVED, message="Gagné !")
+    dispatcher.subscribe(VictoryAchievedEvent, mock_callback)
+    dispatcher.emit(VictoryAchievedEvent())
 
     # Vérifications
     assert callback_called is True
-    assert received_kwargs.get("message") == "Gagné !"

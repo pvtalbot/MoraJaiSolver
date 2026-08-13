@@ -3,6 +3,7 @@ import logging
 
 from morajai_solver.domain.movement_strategies import COLOR_STRATEGIES
 from morajai_solver.models.mora_board import MoraBoard
+from morajai_solver.models.types import Coord
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +12,7 @@ class MoraSolver:
     def __init__(self, board: MoraBoard):
         self._board = board.copy()
 
-    def solve(self):
+    def solve(self) -> list[Coord] | None:
         start_bitmask = self._board.data
 
         if self._board.check_victory():
@@ -33,7 +34,7 @@ class MoraSolver:
             (3, 2),
             (3, 3),
         )
-        parent_map = dict()
+        parent_map: dict[int, tuple[int, Coord]] = dict()
 
         while queue:
             current_bitmask = queue.popleft()

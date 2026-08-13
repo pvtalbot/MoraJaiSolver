@@ -21,6 +21,12 @@ class BoardManager:
 
         return result
 
+    def get_targets_as_dict(self) -> dict[Coord, MoraColor]:
+        result = dict()
+        for pos in ((1, 1), (3, 1), (1, 3), (3, 3)):
+            result[pos] = self.board.get_target(pos)
+        return result
+
     def reset(self):
         if not self.saved_board:
             return

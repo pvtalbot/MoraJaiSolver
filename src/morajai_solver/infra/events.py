@@ -1,25 +1,77 @@
-from enum import Enum
+from abc import ABC
+from dataclasses import dataclass
+
+from morajai_solver.domain.colors import MoraColor
+from morajai_solver.models.types import Coord
+from morajai_solver.ui.game_modes import MoraMode
 
 
-class MoraEvent(Enum):
-    # Configuration
-    MODE_CHANGED = "mode_changed"
-    BOARD_READY = "board_ready"
-    RANDOMIZE_BOARD = "randomize_board"
-    SOLUTION_INVALIDATED = "solution_invalidated"
+class MoraEvent(ABC):
+    pass
 
-    # Jeu
-    TILE_CLICKED = "tile_clicked"
-    BOARD_UPDATED = "board_updated"
-    RESET_SAVE = "reset_save"
 
-    # Solveur
-    SOLVER_START = "solver_start"
-    SOLUTION_FOUND = "solution_found"
-    VICTORY_ACHIEVED = "victory_achieved"
+@dataclass(frozen=True)
+class ModeChangedEvent(MoraEvent):
+    mode: MoraMode
 
-    # LOAD/SAVE
-    LOAD_BOARD_REQUESTED = "load_board_requested"
-    LIST_LEVELS_REQUESTED = "list_levels_requested"
-    LIST_LEVELS = "list_levels"
-    SAVE_BOARD_REQUESTED = "save_board_requested"
+
+@dataclass(frozen=True)
+class BoardReadyEvent(MoraEvent):
+    board: dict[Coord, MoraColor]
+    targets: dict[Coord, MoraColor]
+
+
+@dataclass(frozen=True)
+class ResetSaveCommand(MoraEvent):
+    pass
+
+
+@dataclass(frozen=True)
+class RandomizeBoardCommand(MoraEvent):
+    pass
+
+
+@dataclass(frozen=True)
+class SolutionInvalidatedEvent(MoraEvent):
+    pass
+
+
+@dataclass(frozen=True)
+class TileClickedCommand(MoraEvent):
+    position: Coord
+
+
+@dataclass(frozen=True)
+class BoardUpdatedEvent(MoraEvent):
+    board: dict[Coord, MoraColor]
+    targets: dict[Coord, MoraColor] | None
+
+
+@dataclass(frozen=True)
+class StartSolverCommand(MoraEvent):
+    pass
+
+
+@dataclass(frozen=True)
+class SolutionFoundEvent(MoraEvent):
+    result: list[Coord] | None
+
+
+@dataclass(frozen=True)
+class VictoryAchievedEvent(MoraEvent):
+    pass
+
+
+@dataclass(frozen=True)
+class ListLevelsQuery(MoraEvent):
+    pass
+
+
+@dataclass(frozen=True)
+class ListLevelsEvent(MoraEvent):
+    levels: list[str] | None
+
+
+@dataclass(frozen=True)
+class SaveLevelCommand(MoraEvent):
+    id: str

@@ -28,6 +28,11 @@ class MoraBoard:
         self.target_state &= ~(0xF << shift)
         self.target_state |= color.value << shift
 
+    def get_target(self, pos: Coord) -> MoraColor:
+        shift = self._pos_to_shift(pos)
+
+        return MoraColor((self.target_state >> shift) & 0xF)
+
     def check_victory(self) -> bool:
         return (self.data & self.TARGET_MASK) == self.target_state
 

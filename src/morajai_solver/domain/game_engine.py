@@ -2,11 +2,21 @@ import logging
 import threading
 from morajai_solver.domain.board_manager import BoardManager
 from morajai_solver.domain.solver import MoraSolver
-from morajai_solver.domain.colors import MoraColor
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.repositories.json_board_repository import JsonBoardRepository
-from morajai_solver.infra.events import MoraEvent
-from morajai_solver.models.types import Coord
+from morajai_solver.infra.events import (
+    BoardReadyEvent,
+    BoardUpdatedEvent,
+    ListLevelsEvent,
+    ListLevelsQuery,
+    RandomizeBoardCommand,
+    ResetSaveCommand,
+    SaveLevelCommand,
+    SolutionFoundEvent,
+    StartSolverCommand,
+    TileClickedCommand,
+    VictoryAchievedEvent,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -21,41 +31,34 @@ class GameEngine:
         self._subscribe_events()
 
     def _subscribe_events(self):
-        self.ui_bus.subscribe(MoraEvent.BOARD_READY, self._on_board_ready)
-        self.ui_bus.subscribe(MoraEvent.TILE_CLICKED, self._on_tile_clicked)
-        self.ui_bus.subscribe(MoraEvent.RANDOMIZE_BOARD, self._on_randomize_board)
-
-        self.ui_bus.subscribe(MoraEvent.RESET_SAVE, self._on_reset_save)
-
-        self.ui_bus.subscribe(MoraEvent.SOLVER_START, self._on_solver_start)
-
-        self.ui_bus.subscribe(MoraEvent.SAVE_BOARD_REQUESTED, self._on_save_requested)
-        self.ui_bus.subscribe(
-            MoraEvent.LIST_LEVELS_REQUESTED, self._on_list_levels_requested
-        )
+        self.ui_bus.subscribe(BoardReadyEvent, self._on_board_ready)
+        self.ui_bus.subscribe(TileClickedCommand, self._on_tile_clicked)
+        self.ui_bus.subscribe(RandomizeBoardCommand, self._on_randomize_board)
+        self.ui_bus.subscribe(ResetSaveCommand, self._on_reset_save)
+        self.ui_bus.subscribe(StartSolverCommand, self._on_solver_start)
+        self.ui_bus.subscribe(SaveLevelCommand, self._on_save_requested)
+        self.ui_bus.subscribe(ListLevelsQuery, self._on_list_levels_requested)
 
         logger.debug("Moteur de jeu initialisé.")
 
     def emit_board_updated(self):
-        self.ui_bus.emit(
-            MoraEvent.BOARD_UPDATED, board_state=self.board_manager.get_state_as_dict()
-        )
+        board = self.board_manager.get_state_as_dict()
+        targets = self.board_manager.get_targets_as_dict()
+        self.ui_bus.emit(BoardUpdatedEvent(board=board, targets=targets))
 
     def _on_reset_save(self):
         self.board_manager.reset()
         self.emit_board_updated()
 
-    def _on_board_ready(
-        self, board_state: dict[Coord, MoraColor], targets: dict[Coord, MoraColor]
-    ):
-        self.board_manager.load_state_from_dict(board_state, targets)
+    def _on_board_ready(self, event: BoardReadyEvent):
+        self.board_manager.load_state_from_dict(event.board, event.targets)
 
-    def _on_tile_clicked(self, r: int, c: int):
-        victory = self.board_manager.play_move((r, c))
+    def _on_tile_clicked(self, event: TileClickedCommand):
+        victory = self.board_manager.play_move(event.position)
         self.emit_board_updated()
 
         if victory:
-            self.ui_bus.emit(MoraEvent.VICTORY_ACHIEVED)
+            self.ui_bus.emit(VictoryAchievedEvent())
 
     def _on_randomize_board(self):
         self.board_manager.randomize()
@@ -68,11 +71,11 @@ class GameEngine:
         solver = MoraSolver(self.board_manager.board)
         result = solver.solve()
 
-        self.ui_bus.emit(MoraEvent.SOLUTION_FOUND, steps=result)
+        self.ui_bus.emit(SolutionFoundEvent(result=result))
 
-    def _on_save_requested(self, board_id: str):
+    def _on_save_requested(self, command: SaveLevelCommand):
         try:
-            saved_path = self._repository.save(board_id, self.board_manager.board)
+            saved_path = self._repository.save(command.id, self.board_manager.board)
             logger.info(f"Niveau {saved_path} sauvegardé")
         except PermissionError:
             logger.error("Impossible de sauvegarder : mode dev inactif.")
@@ -81,4 +84,4 @@ class GameEngine:
 
     def _on_list_levels_requested(self):
         levels = self._repository.list_available_boards()
-        self.ui_bus.emit(MoraEvent.LIST_LEVELS, levels=levels)
+        self.ui_bus.emit(ListLevelsEvent(levels=levels))
