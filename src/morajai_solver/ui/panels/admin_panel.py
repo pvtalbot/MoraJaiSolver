@@ -7,6 +7,7 @@ from morajai_solver.infra.events import (
     ListLevelsQuery,
     RandomizeBoardCommand,
     SaveLevelCommand,
+    SubmitRequiredEvent,
 )
 from morajai_solver.ui.ui_colors import UITheme
 
@@ -80,4 +81,5 @@ class AdminPanel(ctk.CTkFrame):
             return
 
         board_id = board_id.strip()
+        self.dispatcher.emit(SubmitRequiredEvent())
         self.dispatcher.emit(SaveLevelCommand(id=board_id))

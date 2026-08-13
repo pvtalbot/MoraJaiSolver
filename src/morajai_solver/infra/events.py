@@ -16,6 +16,11 @@ class ModeChangedEvent(MoraEvent):
 
 
 @dataclass(frozen=True)
+class SubmitRequiredEvent(MoraEvent):
+    pass
+
+
+@dataclass(frozen=True)
 class SubmitBoardCommand(MoraEvent):
     board: dict[Coord, MoraColor]
     targets: dict[Coord, MoraColor]

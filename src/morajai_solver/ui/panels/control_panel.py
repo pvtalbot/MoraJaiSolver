@@ -10,6 +10,7 @@ from morajai_solver.infra.events import (
     ResetGameCommand,
     SolutionFoundEvent,
     StartSolverCommand,
+    SubmitRequiredEvent,
     VictoryAchievedEvent,
 )
 from morajai_solver.ui.game_modes import MoraMode
@@ -84,6 +85,9 @@ class ControlPanel(ctk.CTkFrame):
 
         self.dispatcher.emit(StartSolverCommand())
 
+    def _on_solution_found(self, event: SolutionFoundEvent):
+        self.queue.put(event.result)
+
     def _check_queue(self):
         solution_found = not self.queue.empty()
 
@@ -94,16 +98,11 @@ class ControlPanel(ctk.CTkFrame):
         steps = self.queue.get_nowait()
         self._update_ui_on_solution_found(steps)
 
-    def _on_solution_found(self, event: SolutionFoundEvent):
-        self.queue.put(event.result)
-
     def _update_ui_on_solution_found(self, steps):
         self._set_controls_state("normal")
 
         if steps is None:
             self._append_log("Aucune solution possible")
-            return
-
         elif len(steps) == 0:
             self._append_log("La grille est déjà résolue !")
         else:
@@ -116,6 +115,7 @@ class ControlPanel(ctk.CTkFrame):
 
         if new_mode == MoraMode.PLAY:
             self.reset_button.configure(state="normal")
+            self.dispatcher.emit(SubmitRequiredEvent())
         else:
             self.reset_button.configure(state="disabled")
 

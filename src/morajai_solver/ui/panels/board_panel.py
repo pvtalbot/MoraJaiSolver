@@ -10,6 +10,7 @@ from morajai_solver.infra.events import (
     SolutionFoundEvent,
     SolutionInvalidatedEvent,
     PlayTileCommand,
+    SubmitRequiredEvent,
 )
 from morajai_solver.models.types import Coord
 from morajai_solver.ui.components.color_palette import ColorPalette
@@ -38,6 +39,7 @@ class BoardPanel(ctk.CTkFrame):
         self.dispatcher.subscribe(ModeChangedEvent, self._on_mode_changed)
         self.dispatcher.subscribe(BoardUpdatedEvent, self._on_board_updated)
         self.dispatcher.subscribe(SolutionFoundEvent, self._on_solution_found)
+        self.dispatcher.subscribe(SubmitRequiredEvent, self._on_submit_required)
 
         outer_frame = ctk.CTkFrame(
             self, fg_color=UITheme.BG_PANEL.value, corner_radius=10
@@ -86,7 +88,6 @@ class BoardPanel(ctk.CTkFrame):
         self._on_mode_changed(ModeChangedEvent(mode=MoraMode.CONFIG))
         self._on_brush_color_changed(initial_color)
 
-    # --- TRANSMISSION DE l'IHM VERS LE DISPATCHER ---
     def _on_tile_clicked(self, r: int, c: int) -> None:
         if self.mode == MoraMode.CONFIG:
             self.buttons[r, c].set_color(self.color_selected)
@@ -105,19 +106,16 @@ class BoardPanel(ctk.CTkFrame):
                 self.dispatcher.emit(SolutionInvalidatedEvent())
                 self._solution_found = False
 
-    def _board_ready(self) -> None:
+    def _on_mode_changed(self, event: ModeChangedEvent) -> None:
+        self.mode = event.mode
+        self.palette.set_mode(event.mode)
+
+    def _on_submit_required(self) -> None:
         board_state = {k: btn._current_color for k, btn in self.buttons.items()}
         targets_state = {k: btn._current_color for k, btn in self.targets.items()}
         self.dispatcher.emit(
             SubmitBoardCommand(board=board_state, targets=targets_state)
         )
-
-    # --- RECEPTION DES ÉVÉNEMENTS GLOBAUX & RÉPARTITION VERS LES ENFANTS ---
-    def _on_mode_changed(self, event: ModeChangedEvent) -> None:
-        self.mode = event.mode
-        self.palette.set_mode(event.mode)
-        if event.mode == MoraMode.PLAY:
-            self._board_ready()
 
     def _on_brush_color_changed(self, color: MoraColor) -> None:
         self.color_selected = color
@@ -132,5 +130,5 @@ class BoardPanel(ctk.CTkFrame):
         for target in self.targets:
             self.targets[target].set_color(event.targets[target])
 
-    def _on_solution_found(self, steps):
+    def _on_solution_found(self):
         self._solution_found = True
