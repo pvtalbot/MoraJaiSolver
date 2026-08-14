@@ -1,5 +1,5 @@
-import pytest
 import customtkinter as ctk
+import pytest
 
 from morajai_solver.domain.game_engine import GameEngine
 from morajai_solver.infra.event_dispatcher import EventDispatcher

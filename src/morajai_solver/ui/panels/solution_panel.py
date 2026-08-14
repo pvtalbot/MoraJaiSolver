@@ -3,14 +3,15 @@ import queue
 import customtkinter as ctk
 
 from morajai_solver.infra.event_dispatcher import EventDispatcher
-from morajai_solver.ui.ui_colors import UITheme
 from morajai_solver.infra.events import (
+    PlayTileCommand,
     RandomizeBoardCommand,
     ResetGameCommand,
     SolutionFoundEvent,
     SolutionInvalidatedEvent,
-    PlayTileCommand,
 )
+from morajai_solver.models.types import Coord
+from morajai_solver.ui.ui_colors import UITheme
 
 
 class SolutionPanel(ctk.CTkFrame):
@@ -20,11 +21,11 @@ class SolutionPanel(ctk.CTkFrame):
         )
 
         self.dispatcher = ui_bus
-        self.queue = queue.Queue()
+        self.queue: queue.Queue = queue.Queue()
 
-        self._steps = []
+        self._steps: list[Coord] | None = list()
         self._current_step_index = 0
-        self._step_frames: list[ctk.CTkFrame] = []
+        self._step_frames: list[ctk.CTkFrame] = list()
         self._has_error = False
         self._solution_displayed = False
 
@@ -60,9 +61,9 @@ class SolutionPanel(ctk.CTkFrame):
         if not self._solution_displayed:
             return
 
-        self._steps = []
+        self._steps = list()
         self._current_step_index = 0
-        self._step_frames = []
+        self._step_frames = list()
         self._has_error = False
         self._solution_displayed = False
 

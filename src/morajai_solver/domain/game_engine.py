@@ -1,23 +1,24 @@
 import logging
 import threading
+
 from morajai_solver.domain.board_manager import BoardManager
 from morajai_solver.domain.solver import MoraSolver
 from morajai_solver.infra.event_dispatcher import EventDispatcher
-from morajai_solver.infra.repositories.json_board_repository import JsonBoardRepository
 from morajai_solver.infra.events import (
-    LoadLevelCommand,
-    SubmitBoardCommand,
     BoardUpdatedEvent,
     ListLevelsEvent,
     ListLevelsQuery,
+    LoadLevelCommand,
+    PlayTileCommand,
     RandomizeBoardCommand,
     ResetGameCommand,
     SaveLevelCommand,
     SolutionFoundEvent,
     StartSolverCommand,
-    PlayTileCommand,
+    SubmitBoardCommand,
     VictoryAchievedEvent,
 )
+from morajai_solver.infra.repositories.json_board_repository import JsonBoardRepository
 
 logger = logging.getLogger(__name__)
 

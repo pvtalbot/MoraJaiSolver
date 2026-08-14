@@ -1,5 +1,5 @@
-from collections import deque
 import logging
+from collections import deque
 
 from morajai_solver.domain.movement_strategies import COLOR_STRATEGIES
 from morajai_solver.models.mora_board import MoraBoard
@@ -16,7 +16,7 @@ class MoraSolver:
         start_bitmask = self._board.data
 
         if self._board.check_victory():
-            return []
+            return list()
 
         queue = deque([start_bitmask])
 
@@ -56,7 +56,7 @@ class MoraSolver:
                 parent_map[next_bitmask] = (current_bitmask, rc)
 
                 if self._board.check_victory():
-                    path = []
+                    path = list()
                     curr = next_bitmask
                     while curr in parent_map:
                         prev, move = parent_map[curr]

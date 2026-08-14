@@ -1,18 +1,10 @@
 import argparse
 import logging
 
+from morajai_solver.domain.game_engine import GameEngine
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.logger import configure_logging
-from morajai_solver.domain.game_engine import GameEngine
 from morajai_solver.ui.gui import launch_gui
-
-import sys
-import os
-
-if sys.stdout is None:
-    sys.stdout = open(os.devnull, "w")
-if sys.stderr is None:
-    sys.stderr = open(os.devnull, "w")
 
 
 def main():

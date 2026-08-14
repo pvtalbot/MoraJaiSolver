@@ -1,10 +1,10 @@
 import customtkinter as ctk
 
-from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.env import IS_DEV_MODE
-from morajai_solver.ui.ui_colors import UITheme
+from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.ui.panels.admin_panel import AdminPanel
 from morajai_solver.ui.panels.control_panel import ControlPanel
+from morajai_solver.ui.ui_colors import UITheme
 
 
 class CenterPanel(ctk.CTkFrame):

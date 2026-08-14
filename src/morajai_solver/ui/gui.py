@@ -1,10 +1,10 @@
 import customtkinter as ctk
 
 from morajai_solver.infra.event_dispatcher import EventDispatcher
-from morajai_solver.ui.ui_colors import UITheme
+from morajai_solver.ui.panels.board_panel import BoardPanel
 from morajai_solver.ui.panels.center_panel import CenterPanel
 from morajai_solver.ui.panels.solution_panel import SolutionPanel
-from morajai_solver.ui.panels.board_panel import BoardPanel
+from morajai_solver.ui.ui_colors import UITheme
 
 
 def fade_out(app, alpha=1.0):

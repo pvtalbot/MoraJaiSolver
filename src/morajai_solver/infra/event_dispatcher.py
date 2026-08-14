@@ -1,7 +1,9 @@
 import logging
 import threading
+from collections.abc import Callable
+from typing import TypeVar
+
 import customtkinter as ctk
-from typing import Callable, TypeVar
 
 from morajai_solver.infra.events import MoraEvent
 
@@ -12,11 +14,11 @@ E = TypeVar("E", bound=MoraEvent)
 
 class EventDispatcher:
     def __init__(self):
-        self._listeners = {}
+        self._listeners = dict()
+        self._async_queue: list[MoraEvent] = list()
 
     def configure_ctk_root(self, root: ctk.CTk):
         root.bind("<<AsyncMoraEvent>>", self._flush_async_queue)
-        self._async_queue = []
 
         def event_generate():
             root.event_generate("<<AsyncMoraEvent>>", when="tail")

@@ -1,14 +1,13 @@
 import cProfile
-from dataclasses import dataclass
-from io import StringIO
 import pstats
 import time
 import tracemalloc
-from typing import List
+from dataclasses import dataclass
+from io import StringIO
 
 from benchmarks.boards import PRESET_BOARDS
 from morajai_solver.domain.solver import MoraSolver
-from morajai_solver.models.mora_board import DictMoraBoard
+from morajai_solver.models.mora_board import MoraBoard
 
 
 @dataclass
@@ -20,7 +19,7 @@ class BenchmarkResult:
     profile_stats: str
 
 
-def run_single_bench(name: str, board: DictMoraBoard) -> BenchmarkResult:
+def run_single_bench(name: str, board: MoraBoard) -> BenchmarkResult:
     solver = MoraSolver(board)
 
     tracemalloc.start()
@@ -52,7 +51,7 @@ def run_single_bench(name: str, board: DictMoraBoard) -> BenchmarkResult:
     )
 
 
-def generate_report(results: List[BenchmarkResult]):
+def generate_report(results: list[BenchmarkResult]):
     """Génère un affichage propre et lisible dans le terminal."""
     print("\n" + "=" * 72)
     print(" 🚀 BENCHMARK & PROFILAGE CPU — SOLVER MORAJAI")
@@ -83,7 +82,7 @@ def generate_report(results: List[BenchmarkResult]):
 
 def main():
     print("Exécution des benchmarks sur les grilles pré-enregistrées...")
-    results = []
+    results = list()
     for name, board in PRESET_BOARDS:
         print(name)
         results.append(run_single_bench(name, board))

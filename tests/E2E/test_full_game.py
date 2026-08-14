@@ -4,10 +4,10 @@ from morajai_solver.domain.colors import MoraColor
 from morajai_solver.domain.game_engine import GameEngine
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import (
-    SubmitBoardCommand,
     ResetGameCommand,
     SolutionFoundEvent,
     StartSolverCommand,
+    SubmitBoardCommand,
     VictoryAchievedEvent,
 )
 from morajai_solver.ui.gui import launch_gui
@@ -40,7 +40,7 @@ def app_env(monkeypatch):
 @pytest.fixture
 def event_spy(app_env):
     _, bus, _ = app_env
-    emitted_events = []
+    emitted_events = list()
     original_emit = bus.emit
 
     def spy_emit(event):

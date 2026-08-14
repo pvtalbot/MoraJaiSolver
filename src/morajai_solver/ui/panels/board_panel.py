@@ -3,20 +3,20 @@ import customtkinter as ctk
 from morajai_solver.domain.colors import MoraColor
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import (
-    SubmitBoardCommand,
     BoardUpdatedEvent,
     ModeChangedEvent,
+    PlayTileCommand,
     SolutionFoundEvent,
     SolutionInvalidatedEvent,
-    PlayTileCommand,
+    SubmitBoardCommand,
     SubmitRequiredEvent,
 )
 from morajai_solver.models.types import Coord
 from morajai_solver.ui.components.color_palette import ColorPalette
 from morajai_solver.ui.components.mora_button import (
     AbstractMoraButton,
-    MoraTileButton,
     MoraTargetButton,
+    MoraTileButton,
 )
 from morajai_solver.ui.game_modes import MoraMode
 from morajai_solver.ui.ui_colors import UITheme

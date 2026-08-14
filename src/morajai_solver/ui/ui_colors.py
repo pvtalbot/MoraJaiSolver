@@ -1,5 +1,6 @@
-from morajai_solver.domain.colors import MoraColor
 from enum import Enum
+
+from morajai_solver.domain.colors import MoraColor
 
 COLOR_HEX_MAP = {
     MoraColor.GREY: "#2B2B2B",

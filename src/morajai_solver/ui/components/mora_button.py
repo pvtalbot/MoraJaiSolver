@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Callable
+from collections.abc import Callable
+
 import customtkinter as ctk
 
-from morajai_solver.ui.ui_colors import COLOR_HEX_MAP, UITheme
 from morajai_solver.domain.colors import MoraColor
+from morajai_solver.ui.ui_colors import COLOR_HEX_MAP, UITheme
 
 
 class AbstractMoraButton(ctk.CTkButton, ABC):

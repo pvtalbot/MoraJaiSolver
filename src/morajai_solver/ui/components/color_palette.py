@@ -1,10 +1,10 @@
-from typing import Callable
+from collections.abc import Callable
 
 import customtkinter as ctk
 
-from morajai_solver.ui.ui_colors import COLOR_HEX_MAP, UITheme
 from morajai_solver.domain.colors import MoraColor
 from morajai_solver.ui.game_modes import MoraMode
+from morajai_solver.ui.ui_colors import COLOR_HEX_MAP, UITheme
 
 
 class ColorPalette(ctk.CTkFrame):
@@ -18,7 +18,7 @@ class ColorPalette(ctk.CTkFrame):
         super().__init__(master, fg_color="transparent", height=75, **kwargs)
 
         self._on_color_selected = on_color_selected
-        self.buttons: dict[MoraColor, ctk.CTkButton] = {}
+        self.buttons: dict[MoraColor, ctk.CTkButton] = dict()
 
         # Empêche la frame de se déformer selon son contenu
         self.pack_propagate(False)

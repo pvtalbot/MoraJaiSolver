@@ -1,8 +1,8 @@
+from morajai_solver.domain.colors import MoraColor
 from morajai_solver.domain.movement_strategies import PurpleStrategy
 from morajai_solver.models.mora_board import (
     MoraBoard,
 )
-from morajai_solver.domain.colors import MoraColor
 
 
 def test_moves_down():

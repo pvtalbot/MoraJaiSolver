@@ -5,6 +5,8 @@ Configuration du système de log du script.
 import logging
 import sys
 
+from morajai_solver.infra.env import IS_DEV_MODE
+
 
 class ColorFormatter(logging.Formatter):
     """
@@ -61,6 +63,10 @@ def configure_logging(logger_level=logging.INFO):
         Désactive automatiquement les couleurs si la sortie standard
         n'est pas un terminal.
     """
+    if not IS_DEV_MODE:
+        configure_logging_when_compiled()
+        return
+
     logger = logging.getLogger()
 
     # basic config does nothing if the logger already has handlers
@@ -82,3 +88,10 @@ def configure_logging(logger_level=logging.INFO):
     )
 
     return logger
+
+
+def configure_logging_when_compiled():
+    logger = logging.getLogger()
+
+    logger.addHandler(logging.NullHandler())
+    logger.setLevel(logging.CRITICAL)

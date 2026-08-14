@@ -1,6 +1,5 @@
-from pathlib import Path
 import sys
-
+from pathlib import Path
 
 IS_DEV_MODE = not getattr(sys, "frozen", False)
 

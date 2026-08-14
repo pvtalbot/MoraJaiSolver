@@ -49,5 +49,5 @@ class JsonBoardRepository:
 
     def list_available_boards(self) -> list[str]:
         if not self._levels_dir.exists():
-            return []
+            return list()
         return [f.stem for f in self._levels_dir.glob("*.json")]

@@ -1,9 +1,9 @@
 # tests/test_green.py
+from morajai_solver.domain.colors import MoraColor
 from morajai_solver.domain.movement_strategies import GreenStrategy
 from morajai_solver.models.mora_board import (
     MoraBoard,
 )
-from morajai_solver.domain.colors import MoraColor
 
 
 def test_swaps_opposite():

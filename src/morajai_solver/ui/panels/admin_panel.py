@@ -1,5 +1,6 @@
-import customtkinter as ctk
 import logging
+
+import customtkinter as ctk
 
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import (

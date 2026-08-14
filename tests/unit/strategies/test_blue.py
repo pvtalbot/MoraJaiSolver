@@ -1,8 +1,8 @@
+from morajai_solver.domain.colors import MoraColor
 from morajai_solver.domain.movement_strategies import BlueStrategy
 from morajai_solver.models.mora_board import (
     MoraBoard,
 )
-from morajai_solver.domain.colors import MoraColor
 
 
 def test_yellow_center():

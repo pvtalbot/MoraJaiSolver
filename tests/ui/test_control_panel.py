@@ -1,5 +1,5 @@
-import pytest
 import customtkinter as ctk
+import pytest
 
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import SolutionFoundEvent, StartSolverCommand
@@ -20,7 +20,7 @@ def control_panel_env():
 @pytest.fixture
 def event_spy(control_panel_env):
     _, bus, _ = control_panel_env
-    emitted_events = []
+    emitted_events = list()
     original_emit = bus.emit
 
     def spy_emit(event):

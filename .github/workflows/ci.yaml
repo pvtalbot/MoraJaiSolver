@@ -11,25 +11,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout du code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Installer uv
+      - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
 
-      - name: Configurer Python
+      - name: Set up Python
         run: uv python install
 
-      - name: Installer les dépendances système IHM
+      - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb
 
-      - name: Installer les dépendances Python
-        run: uv sync
+      - name: Install dependencies
+        run: uv sync --frozen
 
-      - name: Exécuter la suite de tests
-        run: |
-          xvfb-run -a uv run pytest
+      - name: Run quality checks
+        run: make lint
+
+      - name: Run tests
+        run: make test

@@ -1,5 +1,5 @@
 from morajai_solver.domain.colors import MoraColor
-from morajai_solver.models.mora_board import DictMoraBoard
+from morajai_solver.models.mora_board import MoraBoard
 from morajai_solver.models.types import Coord
 
 STORED_BOARDS = {
@@ -102,11 +102,11 @@ STORED_BOARDS = {
 
 
 def get_board(params: dict[str, dict[Coord, MoraColor]]):
-    board = DictMoraBoard()
+    board = MoraBoard()
     for k, v in params["colors"].items():
         board[k] = v
     for k, v in params["targets"].items():
-        board.set_target(*k, v)
+        board.set_target(k, v)
 
     return board
 

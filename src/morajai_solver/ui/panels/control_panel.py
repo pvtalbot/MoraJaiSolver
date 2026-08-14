@@ -1,11 +1,9 @@
+import logging
 import queue
 
 import customtkinter as ctk
-import logging
 
 from morajai_solver.infra.event_dispatcher import EventDispatcher
-from morajai_solver.ui.factory import create_button
-from morajai_solver.ui.ui_colors import UITheme
 from morajai_solver.infra.events import (
     ModeChangedEvent,
     ResetGameCommand,
@@ -14,7 +12,9 @@ from morajai_solver.infra.events import (
     SubmitRequiredEvent,
     VictoryAchievedEvent,
 )
+from morajai_solver.ui.factory import create_button
 from morajai_solver.ui.game_modes import MoraMode
+from morajai_solver.ui.ui_colors import UITheme
 
 
 class ControlPanel(ctk.CTkFrame):
@@ -23,7 +23,7 @@ class ControlPanel(ctk.CTkFrame):
         self.dispatcher = ui_bus
         self.logger = logging.getLogger(__name__)
 
-        self.queue = queue.Queue()
+        self.queue: queue.Queue = queue.Queue()
 
         self._setup_ui()
 
