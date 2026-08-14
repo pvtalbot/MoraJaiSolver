@@ -84,6 +84,8 @@ class GameEngine:
         except Exception as e:
             logger.error(f"Erreur lors de la sauvegarde : {e}")
 
+        self._on_list_levels_requested(ListLevelsQuery())
+
     def _on_list_levels_requested(self, _):
         levels = self._repository.list_available_boards()
         self.ui_bus.emit(ListLevelsEvent(levels=levels))
