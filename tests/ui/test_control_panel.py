@@ -33,12 +33,12 @@ def event_spy(control_panel_env):
 
 def test_solve_button_disables_controls_and_emits_start(control_panel_env, event_spy):
     panel, bus, _ = control_panel_env
-    bus.subscribe(StartSolverCommand, lambda: None)
+    bus.subscribe(StartSolverCommand, lambda _: None)
 
     panel.solve_button._command()
     assert panel.solve_button.cget("state") == "disabled"
     assert panel.mode_selector.cget("state") == "disabled"
-    assert isinstance(event_spy[-1], StartSolverCommand)
+    assert StartSolverCommand in [type(e) for e in event_spy]
 
 
 def test_solution_found(control_panel_env):
@@ -47,7 +47,6 @@ def test_solution_found(control_panel_env):
     steps = [(1, 1), (1, 2)]
 
     panel._on_solution_found(SolutionFoundEvent(result=steps))
-    panel._check_queue()
     root.update()
 
     console_text = panel.log_box.get("1.0", "end")

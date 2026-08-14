@@ -22,7 +22,6 @@ def test_solution_found(solution_panel_env):
     steps = [(1, 1), (2, 2), (3, 3)]
 
     panel._on_solution_found(SolutionFoundEvent(result=steps))
-    panel._check_queue()
     root.update()
 
     assert len(panel._step_frames) == 3

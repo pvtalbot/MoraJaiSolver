@@ -44,6 +44,8 @@ def main():
 
     GameEngine(ui_bus=ui_bus)
     app = launch_gui(ui_bus=ui_bus)
+    ui_bus.configure_ctk_root(app)
+
     app.mainloop()
 
 

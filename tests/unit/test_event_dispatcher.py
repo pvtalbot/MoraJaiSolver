@@ -9,7 +9,7 @@ def test_event_dispatcher_singleton_and_emission():
     # Variable locale pour capturer l'exécution du callback
     callback_called = False
 
-    def mock_callback():
+    def mock_callback(_):
         nonlocal callback_called
         callback_called = True
 

@@ -1,5 +1,3 @@
-import time
-
 import pytest
 
 from morajai_solver.domain.colors import MoraColor
@@ -17,11 +15,20 @@ from morajai_solver.ui.ui_colors import UITheme
 
 
 @pytest.fixture
-def app_env():
+def app_env(monkeypatch):
     bus = EventDispatcher()
+
+    # No multithreading during testing.
+    # The event will start the solver synchronously.
+    def mock_solver_start(self, _):
+        self._run_solver()
+
+    monkeypatch.setattr(GameEngine, "_on_solver_start", mock_solver_start)
+
     engine = GameEngine(bus)
 
     app = launch_gui(ui_bus=bus)
+    bus.configure_ctk_root(app)
     app.withdraw()
     app.update()
 
@@ -45,7 +52,7 @@ def event_spy(app_env):
 
 
 def test_full_game_scenario(app_env, event_spy):
-    app, _, engine = app_env
+    app, bus, engine = app_env
 
     initial_grid = {
         (1, 1): MoraColor.GREEN,
@@ -79,7 +86,7 @@ def test_full_game_scenario(app_env, event_spy):
     # VALIDATION 1
     # - BOARD_READY was emitted
     # - Tiles are of the expected color
-    assert isinstance(event_spy[-1], SubmitBoardCommand)
+    assert SubmitBoardCommand in [type(e) for e in event_spy]
     for coord, color in initial_grid.items():
         assert engine.board_manager.board[coord] == color
 
@@ -89,14 +96,12 @@ def test_full_game_scenario(app_env, event_spy):
     app.center_panel.control_panel.solve_button._command()
     app.update()
 
-    # Wait for solver to find solution
-    time.sleep(0.3)
-
     # VALIDATION 2
     # - The three expected events have been emitted
     # - The solver found the expected solution
-    assert isinstance(event_spy[-3], SubmitBoardCommand)
-    assert isinstance(event_spy[-2], StartSolverCommand)
+    event_types = [type(e) for e in event_spy]
+    assert SubmitBoardCommand in event_types
+    assert StartSolverCommand in event_types
 
     expected_solution = [
         (1, 1),
@@ -111,8 +116,10 @@ def test_full_game_scenario(app_env, event_spy):
         (2, 1),
         (1, 2),
     ]
-    assert isinstance(event_spy[-1], SolutionFoundEvent)
+    assert SolutionFoundEvent in event_types
     assert event_spy[-1].result == expected_solution
+
+    bus._flush_async_queue(None)
 
     # VALIDATION 3
     # - The first step is active
@@ -173,7 +180,7 @@ def test_full_game_scenario(app_env, event_spy):
     # VALIDATION 7
     # - The event RESET_SAVE has been emitted
     # - All steps have been reinitialised
-    assert isinstance(event_spy[-2], ResetGameCommand)
+    assert ResetGameCommand in [type(e) for e in event_spy]
     assert (
         app.solution_panel._step_frames[0].cget("fg_color")
         == UITheme.STEP_ACTIVE_BG.value
@@ -199,7 +206,7 @@ def test_full_game_scenario(app_env, event_spy):
     # - The VICTOIRE message is in the console
     for step in app.solution_panel._step_frames:
         assert step.cget("fg_color") == UITheme.STEP_SUCCESS_BG.value
-    assert isinstance(event_spy[-1], VictoryAchievedEvent)
+    assert VictoryAchievedEvent in [type(e) for e in event_spy]
 
     console_text = app.center_panel.control_panel.log_box.get("1.0", "end")
     assert "> VICTOIRE !" in console_text

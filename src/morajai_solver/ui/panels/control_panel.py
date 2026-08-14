@@ -83,29 +83,18 @@ class ControlPanel(ctk.CTkFrame):
         self._append_log("Calcul de la solution en cours...")
         self.mode_selector.set("Play")
         self._on_mode_change("Play")
-        self._check_queue()
 
         self.dispatcher.emit(StartSolverCommand())
 
-    def _check_queue(self):
-        solution_found = not self.queue.empty()
-
-        if not solution_found:
-            self.after(50, self._check_queue)
-            return
-
-        steps = self.queue.get_nowait()
-        self._update_ui_on_solution_found(steps)
-
-    def _update_ui_on_solution_found(self, steps):
+    def _on_solution_found(self, event: SolutionFoundEvent):
         self._set_controls_state("normal")
 
-        if steps is None:
+        if event.result is None:
             self._append_log("Aucune solution possible")
-        elif len(steps) == 0:
+        elif len(event.result) == 0:
             self._append_log("La grille est déjà résolue !")
         else:
-            self._append_log(f"Solution trouvée en {len(steps)} coups")
+            self._append_log(f"Solution trouvée en {len(event.result)} coups")
 
     def _on_mode_change(self, value: str):
         new_mode = MoraMode(value.lower())
@@ -130,11 +119,8 @@ class ControlPanel(ctk.CTkFrame):
         self.log_box.configure(state="disabled")
 
     # --- Event handlers ---
-    def _on_solution_found(self, event: SolutionFoundEvent):
-        self.queue.put(event.result)
-
     def _on_reset_click(self):
         self.dispatcher.emit(ResetGameCommand())
 
-    def _on_victory_achieved(self):
+    def _on_victory_achieved(self, _):
         self._append_log("VICTOIRE !")

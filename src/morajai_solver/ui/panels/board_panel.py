@@ -120,7 +120,7 @@ class BoardPanel(ctk.CTkFrame):
         self.mode = event.mode
         self.palette.set_mode(event.mode)
 
-    def _on_submit_required(self) -> None:
+    def _on_submit_required(self, _) -> None:
         board_state = {k: btn._current_color for k, btn in self.buttons.items()}
         targets_state = {k: btn._current_color for k, btn in self.targets.items()}
         self.dispatcher.emit(
@@ -137,5 +137,5 @@ class BoardPanel(ctk.CTkFrame):
         for target in self.targets:
             self.targets[target].set_color(event.targets[target])
 
-    def _on_solution_found(self):
+    def _on_solution_found(self, _):
         self._solution_found = True

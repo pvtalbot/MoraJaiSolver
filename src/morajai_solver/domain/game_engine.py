@@ -47,7 +47,7 @@ class GameEngine:
         targets = self.board_manager.get_targets_as_dict()
         self.ui_bus.emit(BoardUpdatedEvent(board=board, targets=targets))
 
-    def _on_reset_game(self):
+    def _on_reset_game(self, _):
         self.board_manager.reset()
         self.emit_board_updated()
 
@@ -61,14 +61,14 @@ class GameEngine:
         if victory:
             self.ui_bus.emit(VictoryAchievedEvent())
 
-    def _on_randomize_board(self):
+    def _on_randomize_board(self, _):
         self.board_manager.randomize()
         self.emit_board_updated()
 
-    def _on_solver_start(self):
-        threading.Thread(target=self._run_solver_async, daemon=True).start()
+    def _on_solver_start(self, _):
+        threading.Thread(target=self._run_solver, daemon=True).start()
 
-    def _run_solver_async(self):
+    def _run_solver(self):
         solver = MoraSolver(self.board_manager.board)
         result = solver.solve()
 
@@ -83,7 +83,7 @@ class GameEngine:
         except Exception as e:
             logger.error(f"Erreur lors de la sauvegarde : {e}")
 
-    def _on_list_levels_requested(self):
+    def _on_list_levels_requested(self, _):
         levels = self._repository.list_available_boards()
         self.ui_bus.emit(ListLevelsEvent(levels=levels))
 

@@ -9,7 +9,6 @@ from morajai_solver.infra.events import (
     ResetGameCommand,
     SolutionFoundEvent,
     SolutionInvalidatedEvent,
-    StartSolverCommand,
     PlayTileCommand,
 )
 
@@ -46,7 +45,6 @@ class SolutionPanel(ctk.CTkFrame):
         self.dispatcher.subscribe(ResetGameCommand, self._reset_progress)
         self.dispatcher.subscribe(PlayTileCommand, self._on_tile_clicked)
         self.dispatcher.subscribe(SolutionInvalidatedEvent, self._clear_solution)
-        self.dispatcher.subscribe(StartSolverCommand, self._check_queue)
 
     # --- Helpers ---
     def _create_placeholder(self):
@@ -58,7 +56,7 @@ class SolutionPanel(ctk.CTkFrame):
         )
         self.placeholder.pack(expand=True, pady=40)
 
-    def _clear_solution(self):
+    def _clear_solution(self, _):
         if not self._solution_displayed:
             return
 
@@ -72,25 +70,11 @@ class SolutionPanel(ctk.CTkFrame):
             widget.destroy()
         self._create_placeholder()
 
-    def _reset_progress(self):
-        self._current_step_index = 0
-        self._has_error = False
-        self._update_steps_highlighting()
-
-    def _check_queue(self):
-        solution_found = not self.queue.empty()
-        if not solution_found:
-            self.after(50, self._check_queue)
-            return
-
-        steps = self.queue.get_nowait()
-        self.display_solution(steps)
-
-    def display_solution(self, steps):
+    def _on_solution_found(self, event: SolutionFoundEvent):
         for widget in self.scroll_frame.winfo_children():
             widget.destroy()
 
-        self._steps = steps
+        self._steps = event.result
         self._current_step_index = 0
         self._step_frames = []
         self._has_error = False
@@ -144,7 +128,7 @@ class SolutionPanel(ctk.CTkFrame):
         self._update_steps_highlighting()
 
     def _on_tile_clicked(self, event: PlayTileCommand):
-        if not self._solution_displayed or self._has_error:
+        if not self._steps or self._has_error:
             return
         if self._current_step_index >= len(self._steps):
             return
@@ -181,5 +165,7 @@ class SolutionPanel(ctk.CTkFrame):
                 )
 
     # --- Event handlers ---
-    def _on_solution_found(self, event: SolutionFoundEvent):
-        self.queue.put(event.result)
+    def _reset_progress(self, _):
+        self._current_step_index = 0
+        self._has_error = False
+        self._update_steps_highlighting()
