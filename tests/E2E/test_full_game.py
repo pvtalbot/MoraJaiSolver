@@ -117,7 +117,13 @@ def test_full_game_scenario(app_env, event_spy):
         (1, 2),
     ]
     assert SolutionFoundEvent in event_types
-    assert event_spy[-1].result == expected_solution
+    steps = None
+    for e in event_spy:
+        if isinstance(e, SolutionFoundEvent):
+            steps = e.result
+            break
+
+    assert steps == expected_solution
 
     bus._flush_async_queue(None)
 

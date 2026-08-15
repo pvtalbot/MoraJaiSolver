@@ -4,8 +4,9 @@ import customtkinter as ctk
 
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import (
+    BoardLoadedEvent,
+    HighlightTileCommand,
     PlayTileCommand,
-    RandomizeBoardCommand,
     ResetGameCommand,
     SolutionFoundEvent,
     SolutionInvalidatedEvent,
@@ -42,10 +43,10 @@ class SolutionPanel(ctk.CTkFrame):
         self._create_placeholder()
 
         self.dispatcher.subscribe(SolutionFoundEvent, self._on_solution_found)
-        self.dispatcher.subscribe(RandomizeBoardCommand, self._clear_solution)
         self.dispatcher.subscribe(ResetGameCommand, self._reset_progress)
         self.dispatcher.subscribe(PlayTileCommand, self._on_tile_clicked)
         self.dispatcher.subscribe(SolutionInvalidatedEvent, self._clear_solution)
+        self.dispatcher.subscribe(BoardLoadedEvent, self._clear_solution)
 
     # --- Helpers ---
     def _create_placeholder(self):
@@ -139,6 +140,7 @@ class SolutionPanel(ctk.CTkFrame):
         else:
             self._has_error = True
             self._update_steps_highlighting()
+            self.dispatcher.emit(HighlightTileCommand(coord=None))
 
     def _update_steps_highlighting(self):
         for i, frame in enumerate(self._step_frames):
@@ -160,6 +162,8 @@ class SolutionPanel(ctk.CTkFrame):
                     self.scroll_frame._parent_canvas.yview_moveto(
                         max(0, i - 2) / len(self._step_frames) * 0.8
                     )
+                    assert self._steps is not None
+                    self.dispatcher.emit(HighlightTileCommand(coord=self._steps[i]))
             else:
                 frame.configure(
                     fg_color=UITheme.BG_TILE_CONTAINER.value, border_width=0

@@ -4,7 +4,7 @@ from collections.abc import Callable
 import customtkinter as ctk
 
 from morajai_solver.domain.colors import MoraColor
-from morajai_solver.ui.ui_colors import COLOR_HEX_MAP, UITheme
+from morajai_solver.ui.ui_colors import COLOR_HEX_MAP, UITheme, get_highlight_color
 
 
 class AbstractMoraButton(ctk.CTkButton, ABC):
@@ -36,6 +36,17 @@ class AbstractMoraButton(ctk.CTkButton, ABC):
 
 
 class MoraTileButton(AbstractMoraButton):
+    def hightlight(self):
+        self.configure(
+            border_width=4,
+            border_color=get_highlight_color(self._current_color),
+        )
+
+    def unhighlight(self):
+        self.configure(
+            border_width=0,
+        )
+
     def _get_init_parameters(self) -> dict:
         return {
             "text": "",

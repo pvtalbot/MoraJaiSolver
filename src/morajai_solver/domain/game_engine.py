@@ -5,6 +5,7 @@ from morajai_solver.domain.board_manager import BoardManager
 from morajai_solver.domain.solver import MoraSolver
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import (
+    BoardLoadedEvent,
     BoardUpdatedEvent,
     ListLevelsEvent,
     ListLevelsQuery,
@@ -43,10 +44,14 @@ class GameEngine:
 
         logger.debug("Moteur de jeu initialisé.")
 
-    def emit_board_updated(self):
+    def emit_board_updated(self, new_board=False):
         board = self.board_manager.get_state_as_dict()
-        targets = self.board_manager.get_targets_as_dict()
-        self.ui_bus.emit(BoardUpdatedEvent(board=board, targets=targets))
+        if new_board:
+            targets = self.board_manager.get_targets_as_dict()
+            self.ui_bus.emit(BoardLoadedEvent(board=board, targets=targets))
+            return
+
+        self.ui_bus.emit(BoardUpdatedEvent(board=board))
 
     def _on_reset_game(self, _):
         self.board_manager.reset()
@@ -64,7 +69,7 @@ class GameEngine:
 
     def _on_randomize_board(self, _):
         self.board_manager.randomize()
-        self.emit_board_updated()
+        self.emit_board_updated(new_board=True)
 
     def _on_solver_start(self, _):
         threading.Thread(target=self._run_solver, daemon=True).start()
@@ -98,4 +103,4 @@ class GameEngine:
 
         self.board_manager.board.data = board.data
         self.board_manager.board.target_state = board.target_state
-        self.emit_board_updated()
+        self.emit_board_updated(new_board=True)

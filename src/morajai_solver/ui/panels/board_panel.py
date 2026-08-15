@@ -3,13 +3,16 @@ import customtkinter as ctk
 from morajai_solver.domain.colors import MoraColor
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import (
+    BoardLoadedEvent,
     BoardUpdatedEvent,
+    HighlightTileCommand,
     ModeChangedEvent,
     PlayTileCommand,
     SolutionFoundEvent,
     SolutionInvalidatedEvent,
     SubmitBoardCommand,
     SubmitRequiredEvent,
+    VictoryAchievedEvent,
 )
 from morajai_solver.models.types import Coord
 from morajai_solver.ui.components.color_palette import ColorPalette
@@ -28,6 +31,7 @@ class BoardPanel(ctk.CTkFrame):
     palette: ColorPalette
     mode: MoraMode
     color_selected: MoraColor
+    _highlighted: Coord | None
 
     def __init__(self, master, ui_bus: EventDispatcher, **kwargs):
         super().__init__(master, fg_color="transparent", **kwargs)
@@ -37,13 +41,17 @@ class BoardPanel(ctk.CTkFrame):
         self.color_selected = MoraColor.GREY
         self.buttons = dict()
         self.targets = dict()
+        self._highlighted = None
 
         self._setup_ui()
 
         self.dispatcher.subscribe(ModeChangedEvent, self._on_mode_changed)
         self.dispatcher.subscribe(BoardUpdatedEvent, self._on_board_updated)
+        self.dispatcher.subscribe(BoardLoadedEvent, self._on_board_loaded)
         self.dispatcher.subscribe(SolutionFoundEvent, self._on_solution_found)
         self.dispatcher.subscribe(SubmitRequiredEvent, self._on_submit_required)
+        self.dispatcher.subscribe(HighlightTileCommand, self._on_highlight_tile)
+        self.dispatcher.subscribe(VictoryAchievedEvent, self._on_victory_achieved)
 
         # --- Mount ---
         self._on_mode_changed(ModeChangedEvent(mode=MoraMode.CONFIG))
@@ -94,7 +102,7 @@ class BoardPanel(ctk.CTkFrame):
             target.grid(row=r, column=c)
             self.targets[lr, lc] = target
 
-    # --- Click handlers ---
+    # --- Click handlers & helpers ---
     def _on_tile_clicked(self, r: int, c: int) -> None:
         self._on_element_clicked(self.buttons[r, c])
         if self.mode == MoraMode.PLAY:
@@ -115,6 +123,11 @@ class BoardPanel(ctk.CTkFrame):
     def _on_brush_color_changed(self, color: MoraColor) -> None:
         self.color_selected = color
 
+    def _clean_highlighted(self):
+        if self._highlighted:
+            self.buttons[self._highlighted].unhighlight()
+            self._highlighted = None
+
     # --- Event handlers ---
     def _on_mode_changed(self, event: ModeChangedEvent) -> None:
         self.mode = event.mode
@@ -131,11 +144,25 @@ class BoardPanel(ctk.CTkFrame):
         for btn in self.buttons:
             self.buttons[btn].set_color(event.board[btn])
 
-        if not event.targets:
-            return
-
+    def _on_board_loaded(self, event: BoardLoadedEvent) -> None:
+        for btn in self.buttons:
+            self.buttons[btn].set_color(event.board[btn])
         for target in self.targets:
             self.targets[target].set_color(event.targets[target])
+        self._clean_highlighted()
 
     def _on_solution_found(self, _):
         self._solution_found = True
+
+    def _on_highlight_tile(self, event: HighlightTileCommand):
+        if self._highlighted:
+            self.buttons[self._highlighted].unhighlight()
+            self._higlighted = None
+
+        if not event.coord:
+            return
+        self.buttons[event.coord].hightlight()
+        self._highlighted = event.coord
+
+    def _on_victory_achieved(self, _):
+        self._clean_highlighted()

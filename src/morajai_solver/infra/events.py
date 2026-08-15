@@ -42,6 +42,12 @@ class SolutionInvalidatedEvent(MoraEvent):
 
 
 @dataclass(frozen=True)
+class BoardLoadedEvent(MoraEvent):
+    board: dict[Coord, MoraColor]
+    targets: dict[Coord, MoraColor]
+
+
+@dataclass(frozen=True)
 class PlayTileCommand(MoraEvent):
     position: Coord
 
@@ -49,7 +55,6 @@ class PlayTileCommand(MoraEvent):
 @dataclass(frozen=True)
 class BoardUpdatedEvent(MoraEvent):
     board: dict[Coord, MoraColor]
-    targets: dict[Coord, MoraColor] | None
 
 
 @dataclass(frozen=True)
@@ -60,6 +65,11 @@ class StartSolverCommand(MoraEvent):
 @dataclass(frozen=True)
 class SolutionFoundEvent(MoraEvent):
     result: list[Coord] | None
+
+
+@dataclass(frozen=True)
+class HighlightTileCommand(MoraEvent):
+    coord: Coord | None
 
 
 @dataclass(frozen=True)

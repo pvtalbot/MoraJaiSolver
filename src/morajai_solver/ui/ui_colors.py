@@ -15,6 +15,14 @@ COLOR_HEX_MAP = {
     MoraColor.BLUE: "#1E88E5",
 }
 
+HIGHLIGHT_MAP = {
+    MoraColor.ORANGE: "#00FFFF",
+    MoraColor.RED: "#00FFFF",
+    MoraColor.GREEN: "#00FFFF",
+    MoraColor.WHITE: "#FF007F",
+    MoraColor.PINK: "#39FF14",
+}
+
 
 class UITheme(Enum):
     # Structures et Arrières-plans principaux
@@ -51,3 +59,10 @@ class UITheme(Enum):
     TEXT_CONSOLE = "#00FF00"  # Vert console rétro
     TEXT_MUTED = "#666666"  # Gris discret pour le placeholder
     TEXT_WHITE = "#FFFFFF"
+
+    # Tile highlight
+    DEFAULT_HIGHLIGHT = "#FF9800"
+
+
+def get_highlight_color(color: MoraColor):
+    return HIGHLIGHT_MAP.get(color, UITheme.DEFAULT_HIGHLIGHT.value)
