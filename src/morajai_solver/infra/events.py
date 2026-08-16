@@ -1,5 +1,7 @@
+from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
+from enum import Enum, auto
 
 from morajai_solver.domain.colors import MoraColor
 from morajai_solver.models.types import Coord
@@ -26,14 +28,14 @@ class SubmitRequiredEvent(MoraEvent):
 
 
 @dataclass(frozen=True)
-class SubmitBoardCommand(MoraEvent):
+class RegisterBoardCommand(MoraEvent):
     board: dict[Coord, MoraColor]
     targets: dict[Coord, MoraColor]
 
 
 @dataclass(frozen=True)
-class ResetGameCommand(MoraEvent):
-    pass
+class JumpToStepCommand(MoraEvent):
+    action: NavAction
 
 
 @dataclass(frozen=True)
@@ -60,6 +62,16 @@ class PlayTileCommand(MoraEvent):
 @dataclass(frozen=True)
 class BoardUpdatedEvent(MoraEvent):
     board: dict[Coord, MoraColor]
+
+
+@dataclass(frozen=True)
+class MoveEvaluatedEvent(BoardUpdatedEvent):
+    last_move: Coord
+
+
+@dataclass(frozen=True)
+class StepUpdatedEvent(BoardUpdatedEvent):
+    current_index: int
 
 
 @dataclass(frozen=True)
@@ -100,3 +112,10 @@ class SaveLevelCommand(MoraEvent):
 @dataclass(frozen=True)
 class LoadLevelCommand(MoraEvent):
     id: str
+
+
+class NavAction(Enum):
+    FIRST = auto()
+    PREVIOUS = auto()
+    NEXT = auto()
+    LAST = auto()

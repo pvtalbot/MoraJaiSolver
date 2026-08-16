@@ -5,10 +5,12 @@ import customtkinter as ctk
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import (
     BoardLoadedEvent,
-    PlayTileCommand,
-    ResetGameCommand,
+    MoveEvaluatedEvent,
+    NavAction,
+    JumpToStepCommand,
     SolutionFoundEvent,
     SolutionInvalidatedEvent,
+    StepUpdatedEvent,
     VictoryAchievedEvent,
 )
 from morajai_solver.ui.components.solution_display import SolutionDisplay
@@ -18,7 +20,9 @@ from morajai_solver.ui.ui_colors import UITheme
 
 class ControlPanel(ctk.CTkFrame):
     def __init__(self, master, ui_bus: EventDispatcher, **kwargs):
-        super().__init__(master, **kwargs)
+        super().__init__(
+            master, fg_color=UITheme.BG_PANEL.value, corner_radius=10, **kwargs
+        )
         self.dispatcher = ui_bus
         self.logger = logging.getLogger(__name__)
 
@@ -28,14 +32,15 @@ class ControlPanel(ctk.CTkFrame):
         self._append_log("Prêt à résoudre...")
         self.log_box.configure(state="disabled")
 
+        self.dispatcher.subscribe(StepUpdatedEvent, self._on_step_updated)
+        self.dispatcher.subscribe(MoveEvaluatedEvent, self._on_move_evaluated)
         self.dispatcher.subscribe(VictoryAchievedEvent, self._on_victory_achieved)
         self.dispatcher.subscribe(SolutionFoundEvent, self._on_solution_found)
         self.dispatcher.subscribe(
             SolutionInvalidatedEvent, self._on_solution_invalidated
         )
         self.dispatcher.subscribe(BoardLoadedEvent, self._on_solution_invalidated)
-        self.dispatcher.subscribe(ResetGameCommand, self._on_reset_game)
-        self.dispatcher.subscribe(PlayTileCommand, self._on_tile_clicked)
+        self.dispatcher.subscribe(JumpToStepCommand, self._on_reset_game)
 
     # --- UI Setup ---
     def _setup_ui(self):
@@ -79,20 +84,22 @@ class ControlPanel(ctk.CTkFrame):
         self.log_box.configure(state="disabled")
 
     # --- Event handlers ---
-    def _on_reset_click(self):
-        self.dispatcher.emit(ResetGameCommand())
-
     def _on_victory_achieved(self, _):
         self._append_log("VICTOIRE !")
 
     def _on_solution_invalidated(self, _):
         self.solution_display.clear_solution()
 
-    def _on_reset_game(self, _):
-        self.solution_display.reset_progress()
+    def _on_reset_game(self, command: JumpToStepCommand):
+        if command.action == NavAction.FIRST:
+            self.solution_display.reset_progress()
 
-    def _on_tile_clicked(self, event: PlayTileCommand):
+    def _on_move_evaluated(self, event: MoveEvaluatedEvent):
         if not self.solution_display.solution_displayed:
             return
 
-        self.solution_display.next_solution_step(event.position)
+        self.solution_display.next_solution_step(event.last_move)
+
+    def _on_step_updated(self, event: StepUpdatedEvent):
+        self.logger.debug(event.current_index)
+        self.solution_display.jump_to_step(event.current_index)

@@ -10,7 +10,7 @@ from morajai_solver.infra.events import (
     PlayTileCommand,
     SolutionFoundEvent,
     SolutionInvalidatedEvent,
-    SubmitBoardCommand,
+    RegisterBoardCommand,
     SubmitRequiredEvent,
     VictoryAchievedEvent,
 )
@@ -139,7 +139,7 @@ class BoardPanel(ctk.CTkFrame):
         board_state = {k: btn._current_color for k, btn in self.buttons.items()}
         targets_state = {k: btn._current_color for k, btn in self.targets.items()}
         self.dispatcher.emit(
-            SubmitBoardCommand(board=board_state, targets=targets_state)
+            RegisterBoardCommand(board=board_state, targets=targets_state)
         )
 
     def _on_board_updated(self, event: BoardUpdatedEvent) -> None:

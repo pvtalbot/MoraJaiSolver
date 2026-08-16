@@ -157,6 +157,12 @@ class SolutionDisplay(ctk.CTkFrame):
             self._update_steps_highlighting()
             self.dispatcher.emit(HighlightTileCommand(coord=None))
 
+    def jump_to_step(self, index):
+        if not self._steps:
+            return
+        self._current_step_index = index
+        self._update_steps_highlighting()
+
     def _update_steps_highlighting(self):
         for i, frame in enumerate(self._step_frames):
             if i < self._current_step_index:
@@ -183,6 +189,8 @@ class SolutionDisplay(ctk.CTkFrame):
                 frame.configure(
                     fg_color=UITheme.BG_TILE_CONTAINER.value, border_width=0
                 )
+        if self._current_step_index >= len(self._step_frames):
+            self.dispatcher.emit(HighlightTileCommand(coord=None))
 
     # --- Event handlers ---
     def reset_progress(self):

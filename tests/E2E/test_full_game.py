@@ -4,10 +4,10 @@ from morajai_solver.domain.colors import MoraColor
 from morajai_solver.domain.game_engine import GameEngine
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import (
-    ResetGameCommand,
+    JumpToStepCommand,
     SolutionFoundEvent,
     StartSolverCommand,
-    SubmitBoardCommand,
+    RegisterBoardCommand,
     VictoryAchievedEvent,
 )
 from morajai_solver.ui.gui import launch_gui
@@ -86,7 +86,7 @@ def test_full_game_scenario(app_env, event_spy):
     # VALIDATION 1
     # - BOARD_READY was emitted
     # - Tiles are of the expected color
-    assert SubmitBoardCommand in [type(e) for e in event_spy]
+    assert RegisterBoardCommand in [type(e) for e in event_spy]
     for coord, color in initial_grid.items():
         assert engine.board_manager.board[coord] == color
 
@@ -100,7 +100,7 @@ def test_full_game_scenario(app_env, event_spy):
     # - The three expected events have been emitted
     # - The solver found the expected solution
     event_types = [type(e) for e in event_spy]
-    assert SubmitBoardCommand in event_types
+    assert RegisterBoardCommand in event_types
     assert StartSolverCommand in event_types
 
     expected_solution = [
@@ -186,7 +186,7 @@ def test_full_game_scenario(app_env, event_spy):
     # VALIDATION 7
     # - The event RESET_SAVE has been emitted
     # - All steps have been reinitialised
-    assert ResetGameCommand in [type(e) for e in event_spy]
+    assert JumpToStepCommand in [type(e) for e in event_spy]
     assert (
         app.solution_panel._step_frames[0].cget("fg_color")
         == UITheme.STEP_ACTIVE_BG.value

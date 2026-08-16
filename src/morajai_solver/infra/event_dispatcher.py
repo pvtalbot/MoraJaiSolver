@@ -39,13 +39,12 @@ class EventDispatcher:
             self._dispatch(event)
 
     def _dispatch(self, event: MoraEvent):
-        event_type = type(event)
-        logger.debug(f"Event {event_type}")
-        if event_type not in self._listeners:
-            return
+        logger.debug(f"Event {type(event)}")
 
-        for callback in self._listeners[event_type]:
-            callback(event)
+        for event_type, callbacks in self._listeners.items():
+            if isinstance(event, event_type):
+                for callback in callbacks:
+                    callback(event)
 
     def _flush_async_queue(self, _):
         while self._async_queue:

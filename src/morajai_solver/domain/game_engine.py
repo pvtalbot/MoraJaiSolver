@@ -6,17 +6,19 @@ from morajai_solver.domain.solver import MoraSolver
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import (
     BoardLoadedEvent,
-    BoardUpdatedEvent,
     ListLevelsEvent,
     ListLevelsQuery,
     LoadLevelCommand,
+    MoveEvaluatedEvent,
+    NavAction,
     PlayTileCommand,
     RandomizeBoardCommand,
-    ResetGameCommand,
+    JumpToStepCommand,
     SaveLevelCommand,
     SolutionFoundEvent,
     StartSolverCommand,
-    SubmitBoardCommand,
+    RegisterBoardCommand,
+    StepUpdatedEvent,
     VictoryAchievedEvent,
 )
 from morajai_solver.infra.repositories.json_board_repository import JsonBoardRepository
@@ -33,10 +35,10 @@ class GameEngine:
         self._subscribe_events()
 
     def _subscribe_events(self):
-        self.ui_bus.subscribe(SubmitBoardCommand, self._on_submit_board)
+        self.ui_bus.subscribe(RegisterBoardCommand, self._on_register_board)
         self.ui_bus.subscribe(PlayTileCommand, self._on_play_tile)
         self.ui_bus.subscribe(RandomizeBoardCommand, self._on_randomize_board)
-        self.ui_bus.subscribe(ResetGameCommand, self._on_reset_game)
+        self.ui_bus.subscribe(JumpToStepCommand, self._on_jump_to_step)
         self.ui_bus.subscribe(StartSolverCommand, self._on_solver_start)
         self.ui_bus.subscribe(SaveLevelCommand, self._on_save_level)
         self.ui_bus.subscribe(ListLevelsQuery, self._on_list_levels_requested)
@@ -44,32 +46,50 @@ class GameEngine:
 
         logger.debug("Moteur de jeu initialisé.")
 
-    def emit_board_updated(self, new_board=False):
+    def emit_new_board_loaded(self):
         board = self.board_manager.get_state_as_dict()
-        if new_board:
-            targets = self.board_manager.get_targets_as_dict()
-            self.ui_bus.emit(BoardLoadedEvent(board=board, targets=targets))
-            return
+        targets = self.board_manager.get_targets_as_dict()
+        self.ui_bus.emit(BoardLoadedEvent(board=board, targets=targets))
 
-        self.ui_bus.emit(BoardUpdatedEvent(board=board))
+    def _on_jump_to_step(self, command: JumpToStepCommand):
+        match command.action:
+            case NavAction.FIRST:
+                victory = self.board_manager.initial_board()
+            case NavAction.PREVIOUS:
+                victory = self.board_manager.previous_move()
+            case NavAction.NEXT:
+                victory = self.board_manager.next_move()
+            case NavAction.LAST:
+                victory = self.board_manager.last_move()
 
-    def _on_reset_game(self, _):
-        self.board_manager.reset()
-        self.emit_board_updated()
+        self.ui_bus.emit(
+            StepUpdatedEvent(
+                board=self.board_manager.get_state_as_dict(),
+                current_index=self.board_manager.index,
+            )
+        )
 
-    def _on_submit_board(self, event: SubmitBoardCommand):
+        if victory:
+            self.ui_bus.emit(VictoryAchievedEvent())
+
+    def _on_register_board(self, event: RegisterBoardCommand):
         self.board_manager.load_state_from_dict(event.board, event.targets)
 
     def _on_play_tile(self, event: PlayTileCommand):
         victory = self.board_manager.play_move(event.position)
-        self.emit_board_updated()
+        self.ui_bus.emit(
+            MoveEvaluatedEvent(
+                board=self.board_manager.get_state_as_dict(), last_move=event.position
+            )
+        )
 
         if victory:
             self.ui_bus.emit(VictoryAchievedEvent())
 
     def _on_randomize_board(self, _):
         self.board_manager.randomize()
-        self.emit_board_updated(new_board=True)
+        self.board_manager.reset()
+        self.emit_new_board_loaded()
 
     def _on_solver_start(self, _):
         threading.Thread(target=self._run_solver, daemon=True).start()
@@ -103,4 +123,4 @@ class GameEngine:
 
         self.board_manager.board.data = board.data
         self.board_manager.board.target_state = board.target_state
-        self.emit_board_updated(new_board=True)
+        self.emit_new_board_loaded()
