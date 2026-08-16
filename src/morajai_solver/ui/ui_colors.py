@@ -20,6 +20,7 @@ HIGHLIGHT_MAP = {
     MoraColor.RED: "#00FFFF",
     MoraColor.GREEN: "#00FFFF",
     MoraColor.WHITE: "#FF007F",
+    MoraColor.YELLOW: "#FF007F",
     MoraColor.PINK: "#39FF14",
 }
 

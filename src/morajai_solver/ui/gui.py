@@ -4,6 +4,7 @@ from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.ui.panels.board_panel import BoardPanel
 from morajai_solver.ui.panels.center_panel import CenterPanel
 from morajai_solver.ui.panels.solution_panel import SolutionPanel
+from morajai_solver.ui.panels.top_bar import TopBar
 from morajai_solver.ui.ui_colors import UITheme
 
 
@@ -19,6 +20,7 @@ def fade_out(app, alpha=1.0):
 class MoraApp(ctk.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.top_bar: TopBar
         self.board_panel: BoardPanel
         self.center_panel: CenterPanel
         self.solution_panel: SolutionPanel
@@ -30,10 +32,13 @@ def launch_gui(ui_bus: EventDispatcher) -> MoraApp:
 
     app = MoraApp()
     app.title("Mora Jai Box Solver")
-    app.geometry("1180x680")
+    app.geometry("1180x720")
 
     title = ctk.CTkLabel(app, text="Mora Jai Box Solver", font=("Arial", 20, "bold"))
     title.pack(pady=15)
+
+    app.top_bar = TopBar(app, ui_bus=ui_bus)
+    app.top_bar.pack(fill="x", padx=25, pady=(10, 5))
 
     quit_button = ctk.CTkButton(
         app,

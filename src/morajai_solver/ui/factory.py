@@ -5,7 +5,9 @@ import customtkinter as ctk
 from morajai_solver.ui.ui_colors import UITheme
 
 
-def create_button(frame: ctk.CTkFrame, text: str, callback: Callable[[], None]):
+def create_button(
+    frame: ctk.CTkFrame, text: str, callback: Callable[[], None], **kwargs
+):
     return ctk.CTkButton(
         frame,
         text=text,
@@ -14,4 +16,5 @@ def create_button(frame: ctk.CTkFrame, text: str, callback: Callable[[], None]):
         hover_color=UITheme.BTN_CONFIG_HOVER.value,
         command=callback,
         width=0,
+        **kwargs,
     )

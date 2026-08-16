@@ -1,19 +1,18 @@
 import logging
-import queue
 
 import customtkinter as ctk
 
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import (
-    ModeChangedEvent,
+    BoardLoadedEvent,
+    PlayTileCommand,
     ResetGameCommand,
     SolutionFoundEvent,
-    StartSolverCommand,
-    SubmitRequiredEvent,
+    SolutionInvalidatedEvent,
     VictoryAchievedEvent,
 )
-from morajai_solver.ui.factory import create_button
-from morajai_solver.ui.game_modes import MoraMode
+from morajai_solver.ui.components.solution_display import SolutionDisplay
+from morajai_solver.ui.components.step_navigation_bar import StepNavigationBar
 from morajai_solver.ui.ui_colors import UITheme
 
 
@@ -23,8 +22,6 @@ class ControlPanel(ctk.CTkFrame):
         self.dispatcher = ui_bus
         self.logger = logging.getLogger(__name__)
 
-        self.queue: queue.Queue = queue.Queue()
-
         self._setup_ui()
 
         self._append_log("Application démarrée.")
@@ -33,62 +30,39 @@ class ControlPanel(ctk.CTkFrame):
 
         self.dispatcher.subscribe(VictoryAchievedEvent, self._on_victory_achieved)
         self.dispatcher.subscribe(SolutionFoundEvent, self._on_solution_found)
+        self.dispatcher.subscribe(
+            SolutionInvalidatedEvent, self._on_solution_invalidated
+        )
+        self.dispatcher.subscribe(BoardLoadedEvent, self._on_solution_invalidated)
+        self.dispatcher.subscribe(ResetGameCommand, self._on_reset_game)
+        self.dispatcher.subscribe(PlayTileCommand, self._on_tile_clicked)
 
     # --- UI Setup ---
     def _setup_ui(self):
-        mode_label = ctk.CTkLabel(self, text="Application Mode :", font=("Arial", 11))
-        mode_label.pack(anchor="w", padx=20, pady=(5, 2))
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=0)
+        self.grid_rowconfigure(2, weight=0)
+        self.grid_columnconfigure(0, weight=1)
 
-        self.mode_selector = ctk.CTkSegmentedButton(
-            self,
-            values=["Config", "Play"],
-            font=("Arial", 12, "bold"),
-            fg_color=UITheme.BTN_CONFIG_BG.value,
-            unselected_color=UITheme.BTN_CONFIG_BG.value,
-            selected_color=UITheme.BTN_SELECT_SELECTED.value,
-            selected_hover_color=UITheme.BTN_SELECT_HOVER.value,
-            unselected_hover_color=UITheme.BTN_CONFIG_HOVER.value,
-            command=self._on_mode_change,
+        self.solution_display = SolutionDisplay(self, ui_bus=self.dispatcher)
+        self.solution_display.grid(
+            row=0, column=0, sticky="nsew", pady=(10, 5), padx=10
         )
-        self.mode_selector.pack(padx=20, pady=(0, 15), fill="x")
-        self.mode_selector.set("Config")
 
-        self.reset_button = create_button(
-            self, text="Reset", callback=self._on_reset_click
-        )
-        self.reset_button.configure(state="disabled")
-        self.reset_button.pack(pady=5, padx=20, fill="x")
-
-        self.solve_button = ctk.CTkButton(
-            self,
-            text="Solve Box",
-            fg_color=UITheme.BTN_SOLVE_BG.value,
-            hover_color=UITheme.BTN_SOLVE_HOVER.value,
-            command=self._on_solve,
-        )
-        self.solve_button.pack(pady=10, padx=20, fill="x")
+        self.nav_bar = StepNavigationBar(self, ui_bus=self.dispatcher)
+        self.nav_bar.grid(row=1, column=0, sticky="ew", padx=10, pady=5)
 
         self.log_box = ctk.CTkTextbox(
             self,
-            height=220,
+            height=130,
             fg_color=UITheme.BG_CONSOLE.value,
             text_color=UITheme.TEXT_CONSOLE.value,
             font=("Courier New", 12),
         )
-        self.log_box.pack(pady=10, padx=20, fill="both", expand=True)
+        self.log_box.grid(row=2, column=0, pady=(5, 10), padx=10, sticky="nsew")
 
     # --- Click handlers & helpers ---
-    def _on_solve(self):
-        self._set_controls_state("disabled")
-        self._append_log("Calcul de la solution en cours...")
-        self.mode_selector.set("Play")
-        self._on_mode_change("Play")
-
-        self.dispatcher.emit(StartSolverCommand())
-
     def _on_solution_found(self, event: SolutionFoundEvent):
-        self._set_controls_state("normal")
-
         if event.result is None:
             self._append_log("Aucune solution possible")
         elif len(event.result) == 0:
@@ -96,21 +70,7 @@ class ControlPanel(ctk.CTkFrame):
         else:
             self._append_log(f"Solution trouvée en {len(event.result)} coups")
 
-    def _on_mode_change(self, value: str):
-        new_mode = MoraMode(value.lower())
-        self.dispatcher.emit(ModeChangedEvent(mode=new_mode))
-        self.logger.info(f"Nouveau mode : {value}")
-
-        if new_mode == MoraMode.PLAY:
-            self.reset_button.configure(state="normal")
-            self.dispatcher.emit(SubmitRequiredEvent())
-        else:
-            self.reset_button.configure(state="disabled")
-
-    def _set_controls_state(self, state: str):
-        self.mode_selector.configure(state=state)
-        self.reset_button.configure(state=state)
-        self.solve_button.configure(state=state)
+        self.solution_display.display_solution(event.result)
 
     def _append_log(self, message: str):
         self.log_box.configure(state="normal")
@@ -124,3 +84,15 @@ class ControlPanel(ctk.CTkFrame):
 
     def _on_victory_achieved(self, _):
         self._append_log("VICTOIRE !")
+
+    def _on_solution_invalidated(self, _):
+        self.solution_display.clear_solution()
+
+    def _on_reset_game(self, _):
+        self.solution_display.reset_progress()
+
+    def _on_tile_clicked(self, event: PlayTileCommand):
+        if not self.solution_display.solution_displayed:
+            return
+
+        self.solution_display.next_solution_step(event.position)

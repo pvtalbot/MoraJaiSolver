@@ -16,6 +16,11 @@ class ModeChangedEvent(MoraEvent):
 
 
 @dataclass(frozen=True)
+class ChangeModeCommand(MoraEvent):
+    mode: MoraMode
+
+
+@dataclass(frozen=True)
 class SubmitRequiredEvent(MoraEvent):
     pass
 

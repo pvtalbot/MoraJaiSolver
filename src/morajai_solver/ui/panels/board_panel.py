@@ -107,6 +107,8 @@ class BoardPanel(ctk.CTkFrame):
         self._on_element_clicked(self.buttons[r, c])
         if self.mode == MoraMode.PLAY:
             self.dispatcher.emit(PlayTileCommand((r, c)))
+        elif self._highlighted is not None:
+            self._clean_highlighted()
 
     def _on_target_clicked(self, r: int, c: int) -> None:
         self._on_element_clicked(self.targets[r, c])
