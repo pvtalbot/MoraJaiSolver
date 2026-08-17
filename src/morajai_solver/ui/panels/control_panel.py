@@ -1,5 +1,3 @@
-import logging
-
 import customtkinter as ctk
 
 from morajai_solver.infra.event_dispatcher import EventDispatcher
@@ -24,7 +22,6 @@ class ControlPanel(ctk.CTkFrame):
             master, fg_color=UITheme.BG_PANEL.value, corner_radius=10, **kwargs
         )
         self.dispatcher = ui_bus
-        self.logger = logging.getLogger(__name__)
 
         self._setup_ui()
 
@@ -101,5 +98,4 @@ class ControlPanel(ctk.CTkFrame):
         self.solution_display.next_solution_step(event.last_move)
 
     def _on_step_updated(self, event: StepUpdatedEvent):
-        self.logger.debug(event.current_index)
         self.solution_display.jump_to_step(event.current_index)
