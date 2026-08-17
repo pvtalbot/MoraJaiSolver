@@ -7,6 +7,7 @@ from morajai_solver.infra.events import (
     StartSolverCommand,
 )
 from morajai_solver.models.types import Coord
+from morajai_solver.ui.components.solution_frame import SolutionFrame
 from morajai_solver.ui.game_modes import MoraMode
 from morajai_solver.ui.ui_colors import UITheme
 
@@ -24,7 +25,7 @@ class SolutionDisplay(ctk.CTkFrame):
         self.dispatcher = ui_bus
         self._steps: list[Coord] | None = list()
         self._current_step_index = 0
-        self._step_frames: list[ctk.CTkFrame] = list()
+        self._step_frames: list[SolutionFrame] = list()
         self._has_error = False
         self._solution_displayed = False
 
@@ -114,31 +115,10 @@ class SolutionDisplay(ctk.CTkFrame):
             self.show_steps()
             return
 
-        for i, (r, c) in enumerate(self._steps, 1):
-            step_frame = ctk.CTkFrame(
-                self.scroll_frame,
-                fg_color=UITheme.BG_TILE_CONTAINER.value,
-                corner_radius=6,
-                height=35,
-            )
+        for i, pos in enumerate(self._steps, 1):
+            step_frame = SolutionFrame(self.scroll_frame, i, pos)
             step_frame.pack(fill="x", padx=5, pady=4)
             step_frame.pack_propagate(False)
-
-            num_lbl = ctk.CTkLabel(
-                step_frame,
-                text=f" {i} ",
-                font=("Arial", 12, "bold"),
-                fg_color=UITheme.STEP_NUMBER_BG.value,
-                text_color=UITheme.TEXT_WHITE.value,
-                corner_radius=4,
-            )
-            num_lbl.pack(side="left", padx=8, pady=5)
-
-            text_lbl = ctk.CTkLabel(
-                step_frame, text=f"Cliquer sur la case {r}, {c}", font=("Arial", 12)
-            )
-            text_lbl.pack(side="left", padx=5)
-
             self._step_frames.append(step_frame)
 
         self.show_steps()
@@ -166,29 +146,19 @@ class SolutionDisplay(ctk.CTkFrame):
     def _update_steps_highlighting(self):
         for i, frame in enumerate(self._step_frames):
             if i < self._current_step_index:
-                frame.configure(fg_color=UITheme.STEP_SUCCESS_BG.value, border_width=0)
+                frame.mark_validated()
             elif i == self._current_step_index:
                 if self._has_error:
-                    frame.configure(
-                        fg_color=UITheme.STEP_ERROR_BG.value,
-                        border_width=2,
-                        border_color=UITheme.STEP_ERROR_BORDER.value,
-                    )
+                    frame.mark_as_error()
                 else:
-                    frame.configure(
-                        fg_color=UITheme.STEP_ACTIVE_BG.value,
-                        border_width=2,
-                        border_color=UITheme.STEP_ACTIVE_BORDER.value,
-                    )
+                    frame.mark_as_active()
                     self.scroll_frame._parent_canvas.yview_moveto(
                         max(0, i - 2) / len(self._step_frames) * 0.8
                     )
                     assert self._steps is not None
                     self.dispatcher.emit(HighlightTileCommand(coord=self._steps[i]))
             else:
-                frame.configure(
-                    fg_color=UITheme.BG_TILE_CONTAINER.value, border_width=0
-                )
+                frame.mark_as_upcoming()
         if self._current_step_index >= len(self._step_frames):
             self.dispatcher.emit(HighlightTileCommand(coord=None))
 
