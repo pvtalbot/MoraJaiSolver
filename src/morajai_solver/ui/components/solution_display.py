@@ -1,3 +1,5 @@
+import math
+
 import customtkinter as ctk
 
 from morajai_solver.infra.event_dispatcher import EventDispatcher
@@ -13,6 +15,12 @@ from morajai_solver.ui.ui_colors import UITheme
 
 
 class SolutionDisplay(ctk.CTkFrame):
+    _current_step_index: int
+    _divergence_index: int | float
+    _steps: list[Coord] | None
+    _step_frames: list[SolutionFrame]
+    _solution_displayed: bool
+
     def __init__(self, master, ui_bus: EventDispatcher, **kwargs):
         super().__init__(
             master,
@@ -23,11 +31,7 @@ class SolutionDisplay(ctk.CTkFrame):
         )
 
         self.dispatcher = ui_bus
-        self._steps: list[Coord] | None = list()
-        self._current_step_index = 0
-        self._step_frames: list[SolutionFrame] = list()
-        self._has_error = False
-        self._solution_displayed = False
+        self._init_values()
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
@@ -40,11 +44,22 @@ class SolutionDisplay(ctk.CTkFrame):
         self.result_frame.grid(row=0, column=0, sticky="nsew")
         self._build_result_state()
 
-        self.show_empty()
+        self.show_empty_state()
+
+    def _init_values(self, steps=None):
+        self._steps = steps
+        self._current_step_index = 0
+        self._step_frames = list()
+        self._divergence_index = math.inf
+        self._solution_displayed = False
 
     @property
     def solution_displayed(self):
         return self._solution_displayed
+
+    @property
+    def has_error(self):
+        return self._divergence_index is not math.inf
 
     # --- Helpers ---
     def _build_empty_state(self):
@@ -72,43 +87,29 @@ class SolutionDisplay(ctk.CTkFrame):
         self.scroll_frame.pack(fill="both", expand=True, pady=5)
 
     def clear_solution(self):
-        if not self._solution_displayed:
+        if not self.solution_displayed:
             return
 
-        self._steps = list()
-        self._current_step_index = 1
-        self._step_frames = list()
-        self._has_error = False
-        self._solution_displayed = False
+        self._init_values()
 
         for widget in self.scroll_frame.winfo_children():
             widget.destroy()
-        self.show_empty()
+
+        self.show_empty_state()
 
     def display_solution(self, steps: list[Coord] | None):
         for widget in self.scroll_frame.winfo_children():
             widget.destroy()
 
-        self._steps = steps
-        self._current_step_index = 0
-        self._step_frames = []
-        self._has_error = False
+        self._init_values(steps)
         self._solution_displayed = True
 
-        if self._steps is None:
-            label = ctk.CTkLabel(
-                self.scroll_frame,
-                text="Pas de solution possible",
-                font=("Arial", 13, "bold"),
-            )
-            label.pack(pady=20)
-            self.show_steps()
-            return
-
+        no_solution = "Pas de solution possible"
+        already_solved = "La grille est déjà résolue !"
         if not self._steps:
             label = ctk.CTkLabel(
                 self.scroll_frame,
-                text="La grille est déjà résolue !",
+                text=no_solution if self._steps is None else already_solved,
                 font=("Arial", 13, "bold"),
             )
             label.pack(pady=20)
@@ -124,55 +125,65 @@ class SolutionDisplay(ctk.CTkFrame):
         self.show_steps()
         self._update_steps_highlighting()
 
-    def next_solution_step(self, pos: Coord):
-        if not self._steps or self._has_error:
-            return
-        if self._current_step_index >= len(self._steps):
-            return
-        if pos == self._steps[self._current_step_index]:
-            self._current_step_index += 1
-            self._update_steps_highlighting()
+    def go_to_next_step(self, pos: Coord):
+        if not self._steps or self._current_step_index >= len(self._steps):
+            pass
+        elif self.has_error and self._current_step_index > self._divergence_index:
+            pass
+        elif pos == self._steps[self._current_step_index]:
+            if self.has_error and self._current_step_index == self._divergence_index:
+                self._divergence_index = math.inf
         else:
-            self._has_error = True
-            self._update_steps_highlighting()
-            self.dispatcher.emit(HighlightTileCommand(coord=None))
+            self._divergence_index = self._current_step_index
+        self._current_step_index += 1
+        self._update_steps_highlighting()
 
-    def jump_to_step(self, index):
+    def jump_to_step(self, step):
         if not self._steps:
             return
-        self._current_step_index = index
+        self._current_step_index = step
         self._update_steps_highlighting()
 
     def _update_steps_highlighting(self):
+        break_point = min(self._divergence_index, self._current_step_index)
         for i, frame in enumerate(self._step_frames):
-            if i < self._current_step_index:
+            if i < break_point:
                 frame.mark_validated()
-            elif i == self._current_step_index:
-                if self._has_error:
+            elif i == break_point:
+                if self.has_error and i == self._divergence_index:
                     frame.mark_as_error()
                 else:
                     frame.mark_as_active()
                     self.scroll_frame._parent_canvas.yview_moveto(
                         max(0, i - 2) / len(self._step_frames) * 0.8
                     )
-                    assert self._steps is not None
-                    self.dispatcher.emit(HighlightTileCommand(coord=self._steps[i]))
             else:
                 frame.mark_as_upcoming()
-        if self._current_step_index >= len(self._step_frames):
+
+        self._emit_highlight_command()
+
+    def _emit_highlight_command(self):
+        if not self._steps:
+            return
+
+        assert self._steps is not None
+        if self.has_error and self._current_step_index <= self._divergence_index:
+            self.dispatcher.emit(
+                HighlightTileCommand(coord=self._steps[self._current_step_index])
+            )
+        elif not self.has_error and self._current_step_index < len(self._steps):
+            self.dispatcher.emit(
+                HighlightTileCommand(coord=self._steps[self._current_step_index])
+            )
+        else:
             self.dispatcher.emit(HighlightTileCommand(coord=None))
 
     # --- Event handlers ---
-    def reset_progress(self):
-        self._current_step_index = 0
-        self._has_error = False
-        self._update_steps_highlighting()
-
     def _on_solve(self):
         self.dispatcher.emit(ChangeModeCommand(MoraMode.PLAY))
         self.dispatcher.emit(StartSolverCommand())
 
-    def show_empty(self):
+    def show_empty_state(self):
         self.result_frame.grid_remove()
         self.empty_frame.grid(row=0, column=0, sticky="nsew")
 

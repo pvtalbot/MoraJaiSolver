@@ -4,8 +4,6 @@ from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import (
     BoardLoadedEvent,
     MoveEvaluatedEvent,
-    NavAction,
-    JumpToStepCommand,
     SolutionFoundEvent,
     SolutionInvalidatedEvent,
     StepUpdatedEvent,
@@ -37,7 +35,6 @@ class ControlPanel(ctk.CTkFrame):
             SolutionInvalidatedEvent, self._on_solution_invalidated
         )
         self.dispatcher.subscribe(BoardLoadedEvent, self._on_solution_invalidated)
-        self.dispatcher.subscribe(JumpToStepCommand, self._on_reset_game)
 
     # --- UI Setup ---
     def _setup_ui(self):
@@ -57,7 +54,22 @@ class ControlPanel(ctk.CTkFrame):
         self.log_box = LogBox(self)
         self.log_box.grid(row=2, column=0, pady=(5, 10), padx=10, sticky="nsew")
 
-    # --- Click handlers & helpers ---
+    # --- Event handlers ---
+    def _on_victory_achieved(self, _):
+        self.log_box.append_log("VICTOIRE !")
+
+    def _on_solution_invalidated(self, _):
+        self.solution_display.clear_solution()
+
+    def _on_move_evaluated(self, event: MoveEvaluatedEvent):
+        if not self.solution_display.solution_displayed:
+            return
+
+        self.solution_display.go_to_next_step(event.last_move)
+
+    def _on_step_updated(self, event: StepUpdatedEvent):
+        self.solution_display.jump_to_step(event.current_index)
+
     def _on_solution_found(self, event: SolutionFoundEvent):
         if event.result is None:
             self.log_box.append_log("Aucune solution possible")
@@ -67,23 +79,3 @@ class ControlPanel(ctk.CTkFrame):
             self.log_box.append_log(f"Solution trouvée en {len(event.result)} coups")
 
         self.solution_display.display_solution(event.result)
-
-    # --- Event handlers ---
-    def _on_victory_achieved(self, _):
-        self.log_box.append_log("VICTOIRE !")
-
-    def _on_solution_invalidated(self, _):
-        self.solution_display.clear_solution()
-
-    def _on_reset_game(self, command: JumpToStepCommand):
-        if command.action == NavAction.FIRST:
-            self.solution_display.reset_progress()
-
-    def _on_move_evaluated(self, event: MoveEvaluatedEvent):
-        if not self.solution_display.solution_displayed:
-            return
-
-        self.solution_display.next_solution_step(event.last_move)
-
-    def _on_step_updated(self, event: StepUpdatedEvent):
-        self.solution_display.jump_to_step(event.current_index)

@@ -71,7 +71,7 @@ class BoardManager:
         for k, v in targets.items():
             self.board.set_target(k, v)
 
-        self._push_move()
+        self.reset()
 
     def play_move(self, pos: Coord) -> bool:
         color = self.board[pos]
