@@ -18,7 +18,7 @@ class BoardManager:
 
     @property
     def index(self):
-        return self._play_index - 1
+        return self._play_index
 
     def get_state_as_dict(self) -> dict[Coord, MoraColor]:
         result = dict()
@@ -35,18 +35,18 @@ class BoardManager:
         return result
 
     def reset(self):
-        self._play_index = 1
+        self._play_index = 0
         self.moves = [self.board.data]
 
     def force_move(self, move) -> bool:
-        if move == -1:
-            self._play_index = len(self.moves)
+        if 0 > move > -len(self.moves):
+            self._play_index = len(self.moves) + move
         elif 0 <= move < len(self.moves):
-            self._play_index = move + 1
+            self._play_index = move
         return self._update_board()
 
     def _update_board(self) -> bool:
-        self.board.data = self.moves[self._play_index - 1]
+        self.board.data = self.moves[self._play_index]
         return self.board.check_victory()
 
     def load_state_from_dict(
@@ -81,11 +81,11 @@ class BoardManager:
                 random_color = random.choice(available_colors)
                 self.board[(r, c)] = random_color
 
-        self._push_move()
+        self.reset()
 
     def _push_move(self):
-        if self._play_index < len(self.moves):
-            self.moves = self.moves[: self._play_index]
+        if self._play_index < len(self.moves) - 1:
+            self.moves = self.moves[: self._play_index + 1]
 
         self.moves.append(self.board.data)
         self._play_index += 1
