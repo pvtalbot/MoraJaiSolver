@@ -35,7 +35,7 @@ class RegisterBoardCommand(MoraEvent):
 
 @dataclass(frozen=True)
 class JumpToStepCommand(MoraEvent):
-    action: NavAction
+    step: int
 
 
 @dataclass(frozen=True)

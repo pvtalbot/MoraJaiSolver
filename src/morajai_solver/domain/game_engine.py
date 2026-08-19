@@ -10,7 +10,6 @@ from morajai_solver.infra.events import (
     ListLevelsQuery,
     LoadLevelCommand,
     MoveEvaluatedEvent,
-    NavAction,
     PlayTileCommand,
     RandomizeBoardCommand,
     JumpToStepCommand,
@@ -52,15 +51,7 @@ class GameEngine:
         self.ui_bus.emit(BoardLoadedEvent(board=board, targets=targets))
 
     def _on_jump_to_step(self, command: JumpToStepCommand):
-        match command.action:
-            case NavAction.FIRST:
-                victory = self.board_manager.initial_board()
-            case NavAction.PREVIOUS:
-                victory = self.board_manager.previous_move()
-            case NavAction.NEXT:
-                victory = self.board_manager.next_move()
-            case NavAction.LAST:
-                victory = self.board_manager.last_move()
+        victory = self.board_manager.force_move(command.step)
 
         self.ui_bus.emit(
             StepUpdatedEvent(

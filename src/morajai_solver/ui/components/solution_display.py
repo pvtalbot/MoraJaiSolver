@@ -1,4 +1,5 @@
 import math
+from typing import Callable
 
 import customtkinter as ctk
 
@@ -20,6 +21,7 @@ class SolutionDisplay(ctk.CTkFrame):
     _steps: list[Coord] | None
     _step_frames: list[SolutionFrame]
     _solution_displayed: bool
+    _on_state_updated: Callable[[tuple[int, int | float]], None] | None
 
     def __init__(self, master, ui_bus: EventDispatcher, **kwargs):
         super().__init__(
@@ -31,6 +33,7 @@ class SolutionDisplay(ctk.CTkFrame):
         )
 
         self.dispatcher = ui_bus
+        self._on_state_updated = None
         self._init_values()
 
         self.grid_rowconfigure(0, weight=1)
@@ -48,9 +51,9 @@ class SolutionDisplay(ctk.CTkFrame):
 
     def _init_values(self, steps=None):
         self._steps = steps
-        self._current_step_index = 0
+        self.current_step = 0
         self._step_frames = list()
-        self._divergence_index = math.inf
+        self.divergence_index = math.inf
         self._solution_displayed = False
 
     @property
@@ -59,7 +62,32 @@ class SolutionDisplay(ctk.CTkFrame):
 
     @property
     def has_error(self):
-        return self._divergence_index is not math.inf
+        return self.divergence_index is not math.inf
+
+    @property
+    def current_step(self):
+        return self._current_step_index
+
+    @current_step.setter
+    def current_step(self, value):
+        self._current_step_index = value
+        if self._on_state_updated:
+            self._on_state_updated((self.current_step, self.divergence_index))
+
+    @property
+    def divergence_index(self):
+        return self._divergence_index
+
+    @divergence_index.setter
+    def divergence_index(self, value):
+        self._divergence_index = value
+        if self._on_state_updated:
+            self._on_state_updated((self.current_step, self.divergence_index))
+
+    def set_on_state_callback(
+        self, callback: Callable[[tuple[int, int | float]], None] | None
+    ):
+        self._on_state_updated = callback
 
     # --- Helpers ---
     def _build_empty_state(self):
@@ -126,31 +154,31 @@ class SolutionDisplay(ctk.CTkFrame):
         self._update_steps_highlighting()
 
     def go_to_next_step(self, pos: Coord):
-        if not self._steps or self._current_step_index >= len(self._steps):
+        if not self._steps or self.current_step >= len(self._steps):
             pass
-        elif self.has_error and self._current_step_index > self._divergence_index:
+        elif self.has_error and self.current_step > self.divergence_index:
             pass
-        elif pos == self._steps[self._current_step_index]:
-            if self.has_error and self._current_step_index == self._divergence_index:
-                self._divergence_index = math.inf
+        elif pos == self._steps[self.current_step]:
+            if self.has_error and self.current_step == self.divergence_index:
+                self.divergence_index = math.inf
         else:
-            self._divergence_index = self._current_step_index
-        self._current_step_index += 1
+            self.divergence_index = self.current_step
+        self.current_step += 1
         self._update_steps_highlighting()
 
     def jump_to_step(self, step):
         if not self._steps:
             return
-        self._current_step_index = step
+        self.current_step = step
         self._update_steps_highlighting()
 
     def _update_steps_highlighting(self):
-        break_point = min(self._divergence_index, self._current_step_index)
+        break_point = min(self.divergence_index, self.current_step)
         for i, frame in enumerate(self._step_frames):
             if i < break_point:
                 frame.mark_validated()
             elif i == break_point:
-                if self.has_error and i == self._divergence_index:
+                if self.has_error and i == self.divergence_index:
                     frame.mark_as_error()
                 else:
                     frame.mark_as_active()
@@ -167,13 +195,13 @@ class SolutionDisplay(ctk.CTkFrame):
             return
 
         assert self._steps is not None
-        if self.has_error and self._current_step_index <= self._divergence_index:
+        if self.has_error and self.current_step <= self.divergence_index:
             self.dispatcher.emit(
-                HighlightTileCommand(coord=self._steps[self._current_step_index])
+                HighlightTileCommand(coord=self._steps[self.current_step])
             )
-        elif not self.has_error and self._current_step_index < len(self._steps):
+        elif not self.has_error and self.current_step < len(self._steps):
             self.dispatcher.emit(
-                HighlightTileCommand(coord=self._steps[self._current_step_index])
+                HighlightTileCommand(coord=self._steps[self.current_step])
             )
         else:
             self.dispatcher.emit(HighlightTileCommand(coord=None))

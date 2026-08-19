@@ -38,20 +38,11 @@ class BoardManager:
         self._play_index = 1
         self.moves = [self.board.data]
 
-    def initial_board(self) -> bool:
-        self._play_index = 1
-        return self._update_board()
-
-    def next_move(self) -> bool:
-        self._play_index = min(len(self.moves), self._play_index + 1)
-        return self._update_board()
-
-    def previous_move(self) -> bool:
-        self._play_index = max(1, self._play_index - 1)
-        return self._update_board()
-
-    def last_move(self) -> bool:
-        self._play_index = len(self.moves)
+    def force_move(self, move) -> bool:
+        if move == -1:
+            self._play_index = len(self.moves)
+        elif 0 <= move < len(self.moves):
+            self._play_index = move + 1
         return self._update_board()
 
     def _update_board(self) -> bool:

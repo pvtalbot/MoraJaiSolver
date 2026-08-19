@@ -1,9 +1,13 @@
+import math
+
 import customtkinter as ctk
 
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import (
     BoardLoadedEvent,
+    JumpToStepCommand,
     MoveEvaluatedEvent,
+    NavAction,
     SolutionFoundEvent,
     SolutionInvalidatedEvent,
     StepUpdatedEvent,
@@ -11,7 +15,10 @@ from morajai_solver.infra.events import (
 )
 from morajai_solver.ui.components.log_box import LogBox
 from morajai_solver.ui.components.solution_display import SolutionDisplay
-from morajai_solver.ui.components.step_navigation_bar import StepNavigationBar
+from morajai_solver.ui.components.step_navigation_bar import (
+    NavBarState,
+    StepNavigationBar,
+)
 from morajai_solver.ui.ui_colors import UITheme
 
 
@@ -21,6 +28,9 @@ class ControlPanel(ctk.CTkFrame):
             master, fg_color=UITheme.BG_PANEL.value, corner_radius=10, **kwargs
         )
         self.dispatcher = ui_bus
+        self.current_step = 0
+        self.divergence_index = math.inf
+        self.nav_bar_state = NavBarState.NO_HIGHLIGHT
 
         self._setup_ui()
 
@@ -36,6 +46,10 @@ class ControlPanel(ctk.CTkFrame):
         )
         self.dispatcher.subscribe(BoardLoadedEvent, self._on_solution_invalidated)
 
+    @property
+    def has_error(self):
+        return self.divergence_index is not math.inf
+
     # --- UI Setup ---
     def _setup_ui(self):
         self.grid_rowconfigure(0, weight=1)
@@ -47,8 +61,11 @@ class ControlPanel(ctk.CTkFrame):
         self.solution_display.grid(
             row=0, column=0, sticky="nsew", pady=(10, 5), padx=10
         )
+        self.solution_display.set_on_state_callback(self._on_solution_state_updated)
 
-        self.nav_bar = StepNavigationBar(self, ui_bus=self.dispatcher)
+        self.nav_bar = StepNavigationBar(
+            self, ui_bus=self.dispatcher, on_click=self._on_navbar_clicked
+        )
         self.nav_bar.grid(row=1, column=0, sticky="ew", padx=10, pady=5)
 
         self.log_box = LogBox(self)
@@ -79,3 +96,47 @@ class ControlPanel(ctk.CTkFrame):
             self.log_box.append_log(f"Solution trouvée en {len(event.result)} coups")
 
         self.solution_display.display_solution(event.result)
+
+    def _on_navbar_clicked(self, action: NavAction):
+        match action:
+            case NavAction.FIRST:
+                if (
+                    self.divergence_index < self.current_step
+                    and action == NavAction.FIRST
+                ):
+                    assert isinstance(self.divergence_index, int)
+                    self.dispatcher.emit(JumpToStepCommand(self.divergence_index))
+                else:
+                    self.dispatcher.emit(JumpToStepCommand(0))
+            case NavAction.PREVIOUS:
+                self.dispatcher.emit(JumpToStepCommand(self.current_step - 1))
+            case NavAction.NEXT:
+                self.dispatcher.emit(JumpToStepCommand(self.current_step + 1))
+            case NavAction.LAST:
+                if (
+                    self.has_error
+                    and self.divergence_index > self.current_step
+                    and action == NavAction.LAST
+                ):
+                    assert isinstance(self.divergence_index, int)
+                    self.dispatcher.emit(JumpToStepCommand(self.divergence_index))
+                else:
+                    self.dispatcher.emit(JumpToStepCommand(-1))
+
+    def _on_solution_state_updated(self, state: tuple[int, int | float]):
+        idx, divergence = state
+        self.current_step = idx
+        self.divergence_index = divergence
+
+        if self.divergence_index is math.inf:
+            new_navbar_state = NavBarState.NO_HIGHLIGHT
+        elif self.divergence_index < self.current_step:
+            new_navbar_state = NavBarState.HIGHLIGHT_FIRST
+        elif self.divergence_index > self.current_step:
+            new_navbar_state = NavBarState.HIGHLIGHT_LAST
+        else:
+            new_navbar_state = NavBarState.NO_HIGHLIGHT
+
+        if new_navbar_state != self.nav_bar_state:
+            self.nav_bar_state = new_navbar_state
+            self.nav_bar.update_state(self.nav_bar_state)
