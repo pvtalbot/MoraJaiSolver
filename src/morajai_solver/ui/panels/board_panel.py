@@ -8,9 +8,9 @@ from morajai_solver.infra.events import (
     HighlightTileCommand,
     ModeChangedEvent,
     PlayTileCommand,
+    RegisterBoardCommand,
     SolutionFoundEvent,
     SolutionInvalidatedEvent,
-    RegisterBoardCommand,
     SubmitRequiredEvent,
     VictoryAchievedEvent,
 )

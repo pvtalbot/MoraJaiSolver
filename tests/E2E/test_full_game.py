@@ -5,9 +5,9 @@ from morajai_solver.domain.game_engine import GameEngine
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import (
     JumpToStepCommand,
+    RegisterBoardCommand,
     SolutionFoundEvent,
     StartSolverCommand,
-    RegisterBoardCommand,
     VictoryAchievedEvent,
 )
 from morajai_solver.ui.gui import launch_gui
@@ -80,7 +80,8 @@ def test_full_game_scenario(app_env, event_spy):
         app.update()
 
     # --- 3. switch to Play mode ---
-    app.center_panel.control_panel.mode_selector._command("Play")
+    app.top_bar.edit_switch.deselect()
+    app.top_bar.edit_switch._command()
     app.update()
 
     # VALIDATION 1
@@ -92,8 +93,8 @@ def test_full_game_scenario(app_env, event_spy):
 
     # --- 4. switch back to Config mode, and solver execution ---
     event_spy.clear()
-    app.center_panel.control_panel.mode_selector._command("Config")
-    app.center_panel.control_panel.solve_button._command()
+    app.top_bar.edit_switch.deselect()
+    app.control_panel.solution_display.solve_button._command()
     app.update()
 
     # VALIDATION 2
@@ -131,7 +132,7 @@ def test_full_game_scenario(app_env, event_spy):
     # - The first step is active
     app.update()
     assert (
-        app.solution_panel._step_frames[0].cget("fg_color")
+        app.control_panel.solution_display._step_frames[0].cget("fg_color")
         == UITheme.STEP_ACTIVE_BG.value
     )
 
@@ -143,11 +144,11 @@ def test_full_game_scenario(app_env, event_spy):
     # - First step has been validated
     # - Second step is now active
     assert (
-        app.solution_panel._step_frames[0].cget("fg_color")
+        app.control_panel.solution_display._step_frames[0].cget("fg_color")
         == UITheme.STEP_SUCCESS_BG.value
     )
     assert (
-        app.solution_panel._step_frames[1].cget("fg_color")
+        app.control_panel.solution_display._step_frames[1].cget("fg_color")
         == UITheme.STEP_ACTIVE_BG.value
     )
 
@@ -159,11 +160,11 @@ def test_full_game_scenario(app_env, event_spy):
     # - Second step has been validated
     # - Third step is now active
     assert (
-        app.solution_panel._step_frames[1].cget("fg_color")
+        app.control_panel.solution_display._step_frames[1].cget("fg_color")
         == UITheme.STEP_SUCCESS_BG.value
     )
     assert (
-        app.solution_panel._step_frames[2].cget("fg_color")
+        app.control_panel.solution_display._step_frames[2].cget("fg_color")
         == UITheme.STEP_ACTIVE_BG.value
     )
 
@@ -174,13 +175,22 @@ def test_full_game_scenario(app_env, event_spy):
     # VALIDATION 6
     # - Third step is now in error
     assert (
-        app.solution_panel._step_frames[2].cget("fg_color")
+        app.control_panel.solution_display._step_frames[2].cget("fg_color")
         == UITheme.STEP_ERROR_BG.value
     )
 
     # --- 8. Reset board ---
     event_spy.clear()
-    app.center_panel.control_panel.reset_button._command()
+    assert (
+        app.control_panel.nav_bar.btn_first.cget("fg_color")
+        == UITheme.BTN_WARN_BG.value
+    )
+    app.control_panel.nav_bar.btn_first._command()
+    assert (
+        app.control_panel.nav_bar.btn_first.cget("fg_color")
+        == UITheme.BTN_CONFIG_BG.value
+    )
+    app.control_panel.nav_bar.btn_first._command()
     app.update()
 
     # VALIDATION 7
@@ -188,15 +198,15 @@ def test_full_game_scenario(app_env, event_spy):
     # - All steps have been reinitialised
     assert JumpToStepCommand in [type(e) for e in event_spy]
     assert (
-        app.solution_panel._step_frames[0].cget("fg_color")
+        app.control_panel.solution_display._step_frames[0].cget("fg_color")
         == UITheme.STEP_ACTIVE_BG.value
     )
     assert (
-        app.solution_panel._step_frames[1].cget("fg_color")
+        app.control_panel.solution_display._step_frames[1].cget("fg_color")
         == UITheme.BG_TILE_CONTAINER.value
     )
     assert (
-        app.solution_panel._step_frames[2].cget("fg_color")
+        app.control_panel.solution_display._step_frames[2].cget("fg_color")
         == UITheme.BG_TILE_CONTAINER.value
     )
 
@@ -210,9 +220,9 @@ def test_full_game_scenario(app_env, event_spy):
     # - All steps are in success
     # - The event VICTORY_ACHIEVED was emitted
     # - The VICTOIRE message is in the console
-    for step in app.solution_panel._step_frames:
+    for step in app.control_panel.solution_display._step_frames:
         assert step.cget("fg_color") == UITheme.STEP_SUCCESS_BG.value
     assert VictoryAchievedEvent in [type(e) for e in event_spy]
 
-    console_text = app.center_panel.control_panel.log_box.get("1.0", "end")
+    console_text = app.control_panel.log_box.get("1.0", "end")
     assert "> VICTOIRE !" in console_text

@@ -1,5 +1,5 @@
 import math
-from typing import Callable
+from collections.abc import Callable
 
 import customtkinter as ctk
 
@@ -154,9 +154,12 @@ class SolutionDisplay(ctk.CTkFrame):
         self._update_steps_highlighting()
 
     def go_to_next_step(self, pos: Coord):
-        if not self._steps or self.current_step >= len(self._steps):
-            pass
-        elif self.has_error and self.current_step > self.divergence_index:
+        if (
+            not self._steps
+            or self.current_step >= len(self._steps)
+            or self.has_error
+            and self.current_step > self.divergence_index
+        ):
             pass
         elif pos == self._steps[self.current_step]:
             if self.has_error and self.current_step == self.divergence_index:
@@ -195,11 +198,12 @@ class SolutionDisplay(ctk.CTkFrame):
             return
 
         assert self._steps is not None
-        if self.has_error and self.current_step <= self.divergence_index:
-            self.dispatcher.emit(
-                HighlightTileCommand(coord=self._steps[self.current_step])
-            )
-        elif not self.has_error and self.current_step < len(self._steps):
+        if (
+            self.has_error
+            and self.current_step <= self.divergence_index
+            or not self.has_error
+            and self.current_step < len(self._steps)
+        ):
             self.dispatcher.emit(
                 HighlightTileCommand(coord=self._steps[self.current_step])
             )

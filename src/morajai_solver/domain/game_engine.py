@@ -6,17 +6,17 @@ from morajai_solver.domain.solver import MoraSolver
 from morajai_solver.infra.event_dispatcher import EventDispatcher
 from morajai_solver.infra.events import (
     BoardLoadedEvent,
+    JumpToStepCommand,
     ListLevelsEvent,
     ListLevelsQuery,
     LoadLevelCommand,
     MoveEvaluatedEvent,
     PlayTileCommand,
     RandomizeBoardCommand,
-    JumpToStepCommand,
+    RegisterBoardCommand,
     SaveLevelCommand,
     SolutionFoundEvent,
     StartSolverCommand,
-    RegisterBoardCommand,
     StepUpdatedEvent,
     VictoryAchievedEvent,
 )
