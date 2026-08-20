@@ -75,6 +75,14 @@ class StepNavigationBar(ctk.CTkFrame):
             hover_color=UITheme.BTN_CONFIG_HOVER.value,
         )
 
+    def change_state(self, value):
+        if value not in ("normal", "disabled"):
+            return
+        self.btn_first.configure(state=value)
+        self.btn_prev.configure(state=value)
+        self.btn_next.configure(state=value)
+        self.btn_last.configure(state=value)
+
     def update_state(self, state: NavBarState):
         match state:
             case NavBarState.HIGHLIGHT_FIRST:

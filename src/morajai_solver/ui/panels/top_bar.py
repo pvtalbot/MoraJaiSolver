@@ -9,6 +9,8 @@ from morajai_solver.infra.events import (
     ListLevelsQuery,
     LoadLevelCommand,
     ModeChangedEvent,
+    SolutionFoundEvent,
+    StartSolverCommand,
     SubmitRequiredEvent,
 )
 from morajai_solver.ui.game_modes import MoraMode
@@ -28,6 +30,8 @@ class TopBar(ctk.CTkFrame):
 
         self.dispatcher.subscribe(ListLevelsEvent, self._on_list_levels_event)
         self.dispatcher.subscribe(ChangeModeCommand, self._on_change_mode_command)
+        self.dispatcher.subscribe(StartSolverCommand, self._on_solver_start)
+        self.dispatcher.subscribe(SolutionFoundEvent, self._on_solution_found)
 
         # --- Mounted ---
         self.dispatcher.emit(ListLevelsQuery())
@@ -84,6 +88,14 @@ class TopBar(ctk.CTkFrame):
             self.edit_switch.select()
 
         self._on_edit_toggled()
+
+    def _on_solver_start(self, _):
+        self.preset_dropdown.configure(state="disabled")
+        self.edit_switch.configure(state="disabled")
+
+    def _on_solution_found(self, _):
+        self.preset_dropdown.configure(state="normal")
+        self.edit_switch.configure(state="normal")
 
     def _on_admin_clicked(self):
         pass

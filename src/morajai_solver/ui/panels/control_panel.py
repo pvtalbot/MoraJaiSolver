@@ -10,6 +10,7 @@ from morajai_solver.infra.events import (
     NavAction,
     SolutionFoundEvent,
     SolutionInvalidatedEvent,
+    StartSolverCommand,
     StepUpdatedEvent,
     VictoryAchievedEvent,
 )
@@ -45,6 +46,7 @@ class ControlPanel(ctk.CTkFrame):
             SolutionInvalidatedEvent, self._on_solution_invalidated
         )
         self.dispatcher.subscribe(BoardLoadedEvent, self._on_solution_invalidated)
+        self.dispatcher.subscribe(StartSolverCommand, self._on_start_solver)
 
     @property
     def has_error(self):
@@ -87,6 +89,10 @@ class ControlPanel(ctk.CTkFrame):
     def _on_step_updated(self, event: StepUpdatedEvent):
         self.solution_display.jump_to_step(event.current_index)
 
+    def _on_start_solver(self, _):
+        self.nav_bar.change_state("disabled")
+        self.solution_display.solve_button.configure(state="disabled")
+
     def _on_solution_found(self, event: SolutionFoundEvent):
         if event.result is None:
             self.log_box.append_log("Aucune solution possible")
@@ -95,6 +101,8 @@ class ControlPanel(ctk.CTkFrame):
         else:
             self.log_box.append_log(f"Solution trouvée en {len(event.result)} coups")
 
+        self.solution_display.solve_button.configure(state="normal")
+        self.nav_bar.change_state("normal")
         self.solution_display.display_solution(event.result)
 
     def _on_navbar_clicked(self, action: NavAction):
