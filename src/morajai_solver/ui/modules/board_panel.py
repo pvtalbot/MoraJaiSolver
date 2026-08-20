@@ -8,9 +8,9 @@ from morajai_solver.infra.events import (
     HighlightTileCommand,
     ModeChangedEvent,
     PlayTileCommand,
+    RegisterBoardCommand,
     SolutionFoundEvent,
     SolutionInvalidatedEvent,
-    SubmitBoardCommand,
     SubmitRequiredEvent,
     VictoryAchievedEvent,
 )
@@ -107,6 +107,8 @@ class BoardPanel(ctk.CTkFrame):
         self._on_element_clicked(self.buttons[r, c])
         if self.mode == MoraMode.PLAY:
             self.dispatcher.emit(PlayTileCommand((r, c)))
+        elif self._highlighted is not None:
+            self._clean_highlighted()
 
     def _on_target_clicked(self, r: int, c: int) -> None:
         self._on_element_clicked(self.targets[r, c])
@@ -137,7 +139,7 @@ class BoardPanel(ctk.CTkFrame):
         board_state = {k: btn._current_color for k, btn in self.buttons.items()}
         targets_state = {k: btn._current_color for k, btn in self.targets.items()}
         self.dispatcher.emit(
-            SubmitBoardCommand(board=board_state, targets=targets_state)
+            RegisterBoardCommand(board=board_state, targets=targets_state)
         )
 
     def _on_board_updated(self, event: BoardUpdatedEvent) -> None:

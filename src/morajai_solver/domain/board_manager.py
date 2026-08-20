@@ -8,10 +8,17 @@ from morajai_solver.models.types import Coord
 
 class BoardManager:
     board: MoraBoard
-    saved_board: int | None
+    _play_index: int
+    moves: list[int]
 
     def __init__(self):
         self.board = MoraBoard()
+        self._play_index = 0
+        self.moves = list()
+
+    @property
+    def index(self):
+        return self._play_index
 
     def get_state_as_dict(self) -> dict[Coord, MoraColor]:
         result = dict()
@@ -28,9 +35,19 @@ class BoardManager:
         return result
 
     def reset(self):
-        if not self.saved_board:
-            return
-        self.board.data = self.saved_board
+        self._play_index = 0
+        self.moves = [self.board.data]
+
+    def force_move(self, move) -> bool:
+        if 0 > move >= -len(self.moves):
+            self._play_index = len(self.moves) + move
+        elif 0 <= move < len(self.moves):
+            self._play_index = move
+        return self._update_board()
+
+    def _update_board(self) -> bool:
+        self.board.data = self.moves[self._play_index]
+        return self.board.check_victory()
 
     def load_state_from_dict(
         self,
@@ -39,7 +56,7 @@ class BoardManager:
     ):
         for k, v in state.items():
             self.board[k] = v
-        self.saved_board = self.board.data
+        self.reset()
 
         if not targets:
             return
@@ -51,6 +68,7 @@ class BoardManager:
         strategy = COLOR_STRATEGIES[color]
 
         self.board.accept(strategy, pos)
+        self._push_move()
 
         return self.board.check_victory()
 
@@ -61,3 +79,12 @@ class BoardManager:
             for c in range(1, 4):
                 random_color = random.choice(available_colors)
                 self.board[(r, c)] = random_color
+
+        self.reset()
+
+    def _push_move(self):
+        if self._play_index < len(self.moves) - 1:
+            self.moves = self.moves[: self._play_index + 1]
+
+        self.moves.append(self.board.data)
+        self._play_index += 1

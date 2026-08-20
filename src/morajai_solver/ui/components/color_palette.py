@@ -30,7 +30,7 @@ class ColorPalette(ctk.CTkFrame):
         # Label
         self.label = ctk.CTkLabel(
             self.content_container,
-            text="Palette :",
+            text="Palette",
             font=("Arial", 11, "bold"),
         )
         self.label.pack(anchor="w", padx=5, pady=(2, 2))

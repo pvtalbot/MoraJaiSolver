@@ -1,9 +1,9 @@
 import customtkinter as ctk
 
 from morajai_solver.infra.event_dispatcher import EventDispatcher
-from morajai_solver.ui.panels.board_panel import BoardPanel
-from morajai_solver.ui.panels.center_panel import CenterPanel
-from morajai_solver.ui.panels.solution_panel import SolutionPanel
+from morajai_solver.ui.modules.board_panel import BoardPanel
+from morajai_solver.ui.modules.control_panel import ControlPanel
+from morajai_solver.ui.modules.top_bar import TopBar
 from morajai_solver.ui.ui_colors import UITheme
 
 
@@ -19,9 +19,9 @@ def fade_out(app, alpha=1.0):
 class MoraApp(ctk.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.top_bar: TopBar
         self.board_panel: BoardPanel
-        self.center_panel: CenterPanel
-        self.solution_panel: SolutionPanel
+        self.control_panel: ControlPanel
 
 
 def launch_gui(ui_bus: EventDispatcher) -> MoraApp:
@@ -30,10 +30,13 @@ def launch_gui(ui_bus: EventDispatcher) -> MoraApp:
 
     app = MoraApp()
     app.title("Mora Jai Box Solver")
-    app.geometry("1180x680")
+    app.geometry("760x720")
 
     title = ctk.CTkLabel(app, text="Mora Jai Box Solver", font=("Arial", 20, "bold"))
     title.pack(pady=15)
+
+    app.top_bar = TopBar(app, ui_bus=ui_bus)
+    app.top_bar.pack(fill="x", padx=25, pady=(10, 5))
 
     quit_button = ctk.CTkButton(
         app,
@@ -49,15 +52,11 @@ def launch_gui(ui_bus: EventDispatcher) -> MoraApp:
     main_container.pack(fill="both", expand=True, padx=15, pady=5)
     main_container.grid_columnconfigure(0, weight=2)
     main_container.grid_columnconfigure(1, weight=1, minsize=300)
-    main_container.grid_columnconfigure(2, weight=1)
 
     app.board_panel = BoardPanel(main_container, ui_bus)
     app.board_panel.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-    app.center_panel = CenterPanel(main_container, ui_bus)
-    app.center_panel.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
-
-    app.solution_panel = SolutionPanel(main_container, ui_bus)
-    app.solution_panel.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
+    app.control_panel = ControlPanel(main_container, ui_bus)
+    app.control_panel.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
     return app

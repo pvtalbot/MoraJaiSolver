@@ -20,6 +20,7 @@ HIGHLIGHT_MAP = {
     MoraColor.RED: "#00FFFF",
     MoraColor.GREEN: "#00FFFF",
     MoraColor.WHITE: "#FF007F",
+    MoraColor.YELLOW: "#FF007F",
     MoraColor.PINK: "#39FF14",
 }
 
@@ -38,6 +39,8 @@ class UITheme(Enum):
     # Boutons génériques et Configuration
     BTN_CONFIG_BG = "#3A3A3A"
     BTN_CONFIG_HOVER = "#4A4A4A"
+    BTN_WARN_BG = "#E67E22"
+    BTN_WARN_HOVER = "#D35400"
     BTN_SELECT_SELECTED = "#1E88E5"
     BTN_SELECT_HOVER = "#1565C0"
     BTN_SOLVE_BG = "#2E7D32"
